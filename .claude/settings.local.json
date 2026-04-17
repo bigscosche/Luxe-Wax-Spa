@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/scosche/Desktop/luxe-wax-spa status)",
+      "Bash(git --version)"
+    ]
+  }
+}
