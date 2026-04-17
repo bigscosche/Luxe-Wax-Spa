@@ -90,10 +90,56 @@
       letter-spacing: .1em !important; transition: background .2s !important;
     }
     .nav-cta:hover { background: var(--blue-muted) !important; }
-    .nav-hamburger { display: none; cursor: pointer; }
+    .nav-hamburger { display: none; cursor: pointer; background: none; border: none; padding: 0; }
     .nav-hamburger span { display: block; width: 22px; height: 1.5px; background: var(--text); margin: 5px 0; }
     .nav.dark-hero .nav-hamburger span { background: var(--white); }
     .nav.dark-hero.scrolled .nav-hamburger span { background: var(--text); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none; position: fixed; top: 72px; left: 0; right: 0;
+      background: rgba(240,235,227,.98); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--warm-dark);
+      padding: 1.5rem 6vw 2rem; z-index: 190;
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
+    .mobile-menu ul li { border-bottom: 1px solid var(--warm-dark); }
+    .mobile-menu ul a {
+      display: block; padding: .95rem 0;
+      color: var(--text-mid); text-decoration: none;
+      font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 400;
+    }
+    .mobile-book {
+      display: block; margin-top: 1.2rem;
+      background: var(--blue-deep); color: var(--white);
+      padding: .9rem 1.6rem; text-align: center; text-decoration: none;
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+    }
+
+    /* ─── PREP STRIP ─── */
+    .prep-strip { background: var(--warm-light); border-bottom: 1px solid var(--warm-dark); }
+    .prep-strip-inner {
+      max-width: 1400px; margin: 0 auto; padding: 4rem 6vw;
+    }
+    .prep-strip .tag { margin-bottom: 1.2rem; }
+    .prep-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 2rem; margin-top: 2rem;
+    }
+    .prep-item { }
+    .prep-num {
+      font-family: 'Playfair Display', serif;
+      font-size: .7rem; color: var(--gold); font-style: italic; font-weight: 400;
+      margin-bottom: .5rem; display: block;
+    }
+    .prep-title {
+      font-size: .8rem; color: var(--text); font-weight: 400;
+      margin-bottom: .3rem; letter-spacing: .02em;
+    }
+    .prep-body { font-size: .78rem; color: var(--text-soft); line-height: 1.7; font-weight: 300; }
+    @media (max-width: 900px) { .prep-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .prep-grid { grid-template-columns: 1fr; } }
 
     /* ─── PAGE HERO ─── */
     .page-hero {
@@ -183,12 +229,6 @@
     }
     .contact-item-body a:hover { color: var(--blue-muted); }
     .contact-item-body strong { font-weight: 400; color: var(--text); }
-
-    .hours-placeholder {
-      font-size: .72rem; color: var(--text-faint); font-style: italic;
-      border: 1px dashed var(--warm-dark); padding: .6rem .9rem;
-      margin-top: .4rem; display: inline-block; line-height: 1.6;
-    }
 
     .contact-divider {
       border: none; border-top: 1px solid var(--warm-dark);
@@ -304,11 +344,6 @@
       color: var(--blue-deep); text-decoration: none; font-weight: 400;
     }
     .faq-answer-inner a:hover { color: var(--blue-muted); }
-    .faq-answer-inner .placeholder-note {
-      display: inline-block; margin-top: .5rem;
-      font-size: .72rem; color: var(--text-faint); font-style: italic;
-      border: 1px dashed var(--warm-dark); padding: .4rem .8rem;
-    }
 
     /* ─── LOCATIONS ─── */
     .locations { background: var(--warm-card); padding: 5rem 6vw; border-top: 1px solid var(--warm-dark); }
@@ -389,17 +424,26 @@
   <div class="nav-inner">
     <a href="/" class="nav-logo">Luxe <i>Wax Spa</i></a>
     <ul class="nav-links">
-      <li><a href="services.html">Services</a></li>
-      <li><a href="services.html">Pricing</a></li>
+      <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html" class="active">Contact</a></li>
       <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-cta">Book a Treatment</a></li>
     </ul>
-    <div class="nav-hamburger" id="hamburger">
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile menu">
+  <ul>
+    <li><a href="services.html">Services &amp; Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book">Book a Treatment →</a>
+</div>
 
 <!-- PAGE HERO -->
 <header class="page-hero">
@@ -444,8 +488,9 @@
           <div>
             <span class="contact-item-label">Hours</span>
             <div class="contact-item-body">
-              <!-- PLACEHOLDER — update before launch -->
-              <span class="hours-placeholder">⚠ PLACEHOLDER — update hours before launch</span>
+              <strong>Tuesday – Saturday</strong><br>
+              By appointment · Book online for real-time availability<br>
+              <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener">Check availability on Vagaro →</a>
             </div>
           </div>
         </div>
@@ -563,8 +608,7 @@
         </button>
         <div class="faq-answer" role="region">
           <div class="faq-answer-inner">
-            <!-- PLACEHOLDER — update before launch -->
-            <span class="placeholder-note">⚠ PLACEHOLDER — add parking details before launch (e.g. street parking, nearby lot, building lot)</span>
+            Free street parking is available along South Main Street directly in front of the building. Additional parking can be found in the municipal lot nearby. The suite is easy to locate — look for the building signage at 125b S Main St. If you have any trouble finding us, send a quick message on Instagram at <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a> and Cida will help you out.
           </div>
         </div>
       </div>
@@ -583,9 +627,82 @@
         </div>
       </div>
 
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          What is your cancellation policy?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Please provide at least 24 hours' notice if you need to cancel or reschedule. Life happens — Cida understands — but late cancellations and no-shows affect the ability to offer that time to other clients. Consistent no-shows may require a deposit for future bookings. You can manage your appointment at any time through Vagaro.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          I'm nervous about my first Brazilian. What should I know?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Completely normal — and you are far from alone. Cida has guided hundreds of first-timers through their first Brazilian, and the most common thing people say afterward is: "That was so much better than I expected." She uses a low-temperature hard wax technique that grips hair, not skin, and takes extra time to explain each step. The suite is private, warm, and judgment-free. Come with clean, dry skin and at least ¼ inch of hair growth. The rest is taken care of.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Can I combine multiple services in one appointment?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Absolutely. Many clients book a Brazilian alongside eyebrow design, or a lash lift with brow shaping, making the most of a single visit. Cida will schedule the appointment to accommodate everything comfortably. Browse the <a href="services.html#packages">Packages &amp; Combos</a> section for popular pairings, or simply book each service on Vagaro and they'll be combined into one appointment.
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
+
+<!-- BEFORE YOUR VISIT STRIP -->
+<div class="prep-strip">
+  <div class="prep-strip-inner reveal">
+    <span class="tag">Before You Arrive</span>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:400;color:var(--text);letter-spacing:-.01em;margin-bottom:.5rem;">A quick prep guide</h2>
+    <p style="font-size:.85rem;color:var(--text-soft);max-width:520px;line-height:1.8;margin-bottom:0;">Everything you need to know so your appointment goes smoothly from the moment you walk in.</p>
+    <div class="prep-grid" style="margin-top:2.5rem;">
+      <div class="prep-item">
+        <span class="prep-num">01</span>
+        <div class="prep-title">Hair length</div>
+        <p class="prep-body">At least ¼ inch of growth — roughly 10–14 days after shaving. Not sure? A little extra is always better than too short.</p>
+      </div>
+      <div class="prep-item">
+        <span class="prep-num">02</span>
+        <div class="prep-title">Exfoliate &amp; hydrate</div>
+        <p class="prep-body">Gently exfoliate 24 hours before. Arrive with clean, dry skin. Drink water — hydrated skin responds better to wax.</p>
+      </div>
+      <div class="prep-item">
+        <span class="prep-num">03</span>
+        <div class="prep-title">Avoid sun &amp; heat</div>
+        <p class="prep-body">Skip tanning beds, sunbathing, and hot tubs for 24 hours before and after your service. Freshly waxed skin is more sensitive.</p>
+      </div>
+      <div class="prep-item">
+        <span class="prep-num">04</span>
+        <div class="prep-title">Skip the gym after</div>
+        <p class="prep-body">Avoid intense workouts and saunas for 24 hours post-wax. Sweat and friction can irritate freshly treated skin.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- LOCATIONS -->
 <section class="locations">
@@ -655,6 +772,19 @@
   }
   updateNav();
   window.addEventListener('scroll', updateNav, { passive: true });
+
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', e => {
+    if (mobileMenu.classList.contains('open') && !nav.contains(e.target)) {
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   // Reveal on scroll
   const reveals = document.querySelectorAll('.reveal');

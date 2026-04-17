@@ -90,10 +90,82 @@
       letter-spacing: .1em !important; transition: background .2s !important;
     }
     .nav-cta:hover { background: var(--blue-muted) !important; }
-    .nav-hamburger { display: none; cursor: pointer; }
+    .nav-hamburger { display: none; cursor: pointer; background: none; border: none; padding: 0; }
     .nav-hamburger span { display: block; width: 22px; height: 1.5px; background: var(--text); margin: 5px 0; }
     .nav.dark-hero .nav-hamburger span { background: var(--white); }
     .nav.dark-hero.scrolled .nav-hamburger span { background: var(--text); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none; position: fixed; top: 72px; left: 0; right: 0;
+      background: rgba(240,235,227,.98); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--warm-dark);
+      padding: 1.5rem 6vw 2rem; z-index: 190;
+    }
+    .mobile-menu.open { display: block; }
+    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
+    .mobile-menu ul li { border-bottom: 1px solid var(--warm-dark); }
+    .mobile-menu ul a {
+      display: block; padding: .95rem 0;
+      color: var(--text-mid); text-decoration: none;
+      font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 400;
+    }
+    .mobile-book {
+      display: block; margin-top: 1.2rem;
+      background: var(--blue-deep); color: var(--white);
+      padding: .9rem 1.6rem; text-align: center; text-decoration: none;
+      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+    }
+
+    /* ─── PULL QUOTE ─── */
+    .pull-quote { background: var(--blue-deep); }
+    .pull-quote-inner {
+      max-width: 900px; margin: 0 auto; padding: 5rem 6vw;
+      text-align: center;
+    }
+    .pull-quote-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.3rem, 2.5vw, 2rem);
+      font-weight: 400; font-style: italic;
+      color: var(--white); line-height: 1.6; margin-bottom: 1.5rem;
+    }
+    .pull-quote-attr {
+      font-size: .62rem; letter-spacing: .28em; text-transform: uppercase;
+      color: var(--gold-light); font-weight: 500;
+    }
+
+    /* ─── FIRST VISIT ─── */
+    .first-visit { background: var(--blue-deep); }
+    .first-visit-inner {
+      max-width: 1400px; margin: 0 auto; padding: 6rem 6vw;
+      display: grid; grid-template-columns: 1fr 1.8fr;
+      gap: 5rem; align-items: start;
+    }
+    .first-visit-header .heading-lg { color: var(--white); margin-top: .5rem; }
+    .first-visit-header .tag { color: var(--gold-light); }
+    .first-visit-header p {
+      font-size: .85rem; color: rgba(255,255,255,.45);
+      line-height: 1.85; margin-top: 1.2rem; max-width: 280px;
+    }
+    .first-visit-steps { display: flex; flex-direction: column; gap: 0; }
+    .fv-step {
+      display: grid; grid-template-columns: 2.4rem 1fr;
+      gap: 1.2rem; align-items: start;
+      padding: 1.8rem 0; border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .fv-step:first-child { border-top: 1px solid rgba(255,255,255,.08); }
+    .fv-num {
+      font-family: 'Playfair Display', serif;
+      font-size: .72rem; color: var(--gold-light); font-weight: 400; font-style: italic;
+      padding-top: .2rem;
+    }
+    .fv-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 400; color: var(--white); margin-bottom: .3rem;
+    }
+    .fv-body {
+      font-size: .82rem; color: rgba(255,255,255,.45); line-height: 1.8; font-weight: 300;
+    }
 
     /* ─── PAGE HERO ─── */
     .page-hero {
@@ -360,6 +432,8 @@
       .why-grid { grid-template-columns: 1fr 1fr; }
       .reviews-grid { grid-template-columns: 1fr; }
       .cta-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .first-visit-inner { grid-template-columns: 1fr; gap: 3rem; }
+      .first-visit-header p { max-width: 100%; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 600px) {
@@ -368,6 +442,7 @@
       .nav-hamburger { display: block; }
       .page-hero { min-height: 65vh; padding: 72px 1.5rem 0; }
       .page-hero-inner { padding-bottom: 3.5rem; }
+      .pull-quote-inner { padding: 4rem 1.5rem; }
       .story-inner { padding: 4rem 1.5rem; }
       .story-img-float { display: none; }
       .why-inner { padding: 4rem 1.5rem; }
@@ -376,6 +451,7 @@
       .reviews-grid { grid-template-columns: 1fr; }
       .stats-bar-inner { grid-template-columns: repeat(2, 1fr); padding: 3rem 1.5rem; }
       .cta-inner { padding: 4rem 1.5rem; }
+      .first-visit-inner { padding: 4rem 1.5rem; }
       .locations { padding: 3.5rem 1.5rem; }
       .footer-inner { padding: 3rem 1.5rem 1.5rem; }
       .footer-grid { grid-template-columns: 1fr; }
@@ -389,18 +465,26 @@
   <div class="nav-inner">
     <a href="/" class="nav-logo">Luxe <i>Wax Spa</i></a>
     <ul class="nav-links">
-      <li><a href="services.html">Services</a></li>
-      <li><a href="services.html">Pricing</a></li>
-
+      <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html" class="active">About</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-cta">Book a Treatment</a></li>
     </ul>
-    <div class="nav-hamburger" id="hamburger">
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Mobile menu">
+  <ul>
+    <li><a href="services.html">Services &amp; Pricing</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book">Book a Treatment →</a>
+</div>
 
 <!-- PAGE HERO -->
 <header class="page-hero">
@@ -412,10 +496,17 @@
 </header>
 
 <!-- FULL-WIDTH PHOTO -->
-<!-- SWAP: replace with a wide editorial photo of Cida working in the suite — ideally a cropped action shot mid-service -->
 <div class="full-photo">
   <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=1600&q=80" alt="Cida performing a waxing treatment at Luxe Wax Spa Newtown CT" loading="lazy" />
   <span class="full-photo-caption">Luxe Wax Spa · Newtown, CT</span>
+</div>
+
+<!-- PULL QUOTE -->
+<div class="pull-quote">
+  <div class="pull-quote-inner reveal">
+    <p class="pull-quote-text">"Every client deserves to feel seen, heard, and genuinely cared for — not just serviced. That's the standard I hold myself to, every single appointment."</p>
+    <span class="pull-quote-attr">— Cida, Founder &amp; Licensed Esthetician</span>
+  </div>
 </div>
 
 <!-- STORY -->
@@ -441,6 +532,47 @@
       </div>
       <div class="story-cta">
         <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="link-subtle">Book with Cida →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FIRST VISIT -->
+<section class="first-visit">
+  <div class="first-visit-inner">
+    <div class="first-visit-header reveal">
+      <span class="tag">Your First Visit</span>
+      <h2 class="heading-lg">What to <em>expect</em></h2>
+      <p>First time here — or first time ever? Either way, you're in good hands. Here's exactly what happens when you arrive.</p>
+    </div>
+    <div class="first-visit-steps reveal">
+      <div class="fv-step">
+        <span class="fv-num">01</span>
+        <div>
+          <h3 class="fv-title">You arrive, you relax</h3>
+          <p class="fv-body">The suite is private — there's no waiting room, no other clients, no front desk. You'll come directly to a calm, clean space that feels more like a personal studio than a salon.</p>
+        </div>
+      </div>
+      <div class="fv-step">
+        <span class="fv-num">02</span>
+        <div>
+          <h3 class="fv-title">Cida checks in with you</h3>
+          <p class="fv-body">Before anything begins, Cida takes a moment to understand your skin, your history with waxing, and any sensitivities. No question is off-limits. First Brazilian? She's guided hundreds of first-timers — you'll feel at ease immediately.</p>
+        </div>
+      </div>
+      <div class="fv-step">
+        <span class="fv-num">03</span>
+        <div>
+          <h3 class="fv-title">The treatment is unhurried</h3>
+          <p class="fv-body">Your appointment is yours alone. Cida works carefully, methodically, and never rushes. The heated table, premium products, and low-temp hard wax technique are all designed to keep you comfortable throughout.</p>
+        </div>
+      </div>
+      <div class="fv-step">
+        <span class="fv-num">04</span>
+        <div>
+          <h3 class="fv-title">You leave feeling polished</h3>
+          <p class="fv-body">Results are thorough. Aftercare instructions are shared before you go. Most clients book their next appointment before leaving — not because they have to, but because they want to.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -623,6 +755,19 @@
   }
   updateNav();
   window.addEventListener('scroll', updateNav, { passive: true });
+
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open);
+  });
+  document.addEventListener('click', e => {
+    if (mobileMenu.classList.contains('open') && !nav.contains(e.target)) {
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
