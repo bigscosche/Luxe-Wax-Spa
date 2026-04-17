@@ -84,6 +84,8 @@
     }
     .nav-links a:hover { color: var(--text); }
     .nav-links a.active { color: var(--text); border-bottom: 1px solid var(--gold); padding-bottom: 1px; }
+    .nav.dark-hero .nav-links a.active { color: var(--white); border-bottom-color: var(--gold-light); }
+    .nav.dark-hero.scrolled .nav-links a.active { color: var(--text); border-bottom-color: var(--gold); }
     .nav-cta {
       background: var(--blue-deep) !important; color: var(--white) !important;
       padding: .6rem 1.6rem !important; font-weight: 500 !important;
@@ -176,7 +178,7 @@
     .btn-gold svg { width: 14px; height: 14px; }
 
     /* ─── SECTION UTILITIES ─── */
-    .tag { font-size: .62rem; letter-spacing: .35em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: .7rem; }
+    .tag { font-size: .62rem; letter-spacing: .35em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: .7rem; display: block; }
     .heading-lg {
       font-family: 'Playfair Display', serif;
       font-size: clamp(2rem, 4vw, 3.5rem);

@@ -56,30 +56,27 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --warm-bg: #F0EBE3;
-      --warm-light: #F7F4EF;
-      --warm-card: #E8E2D8;
-      --warm-dark: #D5CEBC;
-      --blue-deep: #2C3E5D;
-      --blue-muted: #546A8D;
-      --gold: #B89B5E;
-      --gold-light: #D4BA82;
-      --text: #2A2520;
-      --text-mid: #5C554C;
-      --text-soft: #8E8578;
-      --text-faint: #B5AEA3;
+      --cream: #FFFBF0;
+      --sand: #EBE5D5;
+      --sand-dark: #D4CEBB;
+      --slate: #374558;
+      --slate-mid: #59637E;
+      --slate-light: #7C859E;
+      --navy: #263242;
+      --brown: #5F553A;
+      --brown-light: #8A8070;
       --white: #FFFFFF;
     }
     html { scroll-behavior: smooth; }
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--warm-bg);
-      color: var(--text);
-      font-weight: 300;
+      font-family: 'Syne', sans-serif;
+      background: var(--cream);
+      color: var(--navy);
+      font-weight: 400;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
     }
@@ -87,474 +84,402 @@
     /* ─── NAV ─── */
     .nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      padding: 0 4vw;
+      padding: 0 5vw;
       background: transparent;
-      transition: background .4s, border-color .4s;
+      transition: background .35s, border-color .35s;
       border-bottom: 1px solid transparent;
     }
     .nav.scrolled {
-      background: rgba(240,235,227,.97);
-      border-bottom-color: var(--warm-dark);
-      backdrop-filter: blur(12px);
+      background: rgba(255,251,240,.97);
+      border-bottom-color: var(--sand-dark);
+      backdrop-filter: blur(14px);
     }
     .nav-inner {
       display: flex; align-items: center; justify-content: space-between;
-      height: 72px; max-width: 1400px; margin: 0 auto;
+      height: 68px; max-width: 1440px; margin: 0 auto;
     }
     .nav-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem; font-weight: 500;
-      color: var(--text); text-decoration: none;
-      letter-spacing: .07em; text-transform: uppercase;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 400; font-style: italic;
+      color: var(--navy); text-decoration: none;
+      letter-spacing: .03em;
     }
-    .nav-logo i { font-style: italic; color: var(--blue-deep); }
-    .nav-links { display: flex; gap: 2.4rem; list-style: none; align-items: center; }
+    .nav-links { display: flex; gap: 2.8rem; list-style: none; align-items: center; }
     .nav-links a {
-      color: var(--text-soft); text-decoration: none;
-      font-size: .68rem; letter-spacing: .16em; text-transform: uppercase;
-      font-weight: 400; transition: color .2s;
+      color: var(--brown-light); text-decoration: none;
+      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
+      font-weight: 500; transition: color .2s;
     }
-    .nav-links a:hover { color: var(--text); }
-    .nav-cta {
-      background: var(--blue-deep) !important; color: var(--white) !important;
-      padding: .55rem 1.5rem !important; font-weight: 500 !important;
-      letter-spacing: .12em !important; transition: background .2s !important;
+    .nav-links a:hover { color: var(--navy); }
+    .nav-book {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-style: italic !important; font-size: 1rem !important;
+      color: var(--navy) !important; text-transform: none !important;
+      letter-spacing: 0 !important; font-weight: 400 !important;
+      border-bottom: 1px solid var(--navy);
+      padding-bottom: 1px !important;
     }
-    .nav-cta:hover { background: var(--blue-muted) !important; }
     .nav-hamburger {
       display: none; cursor: pointer; background: none; border: none; padding: 0;
     }
     .nav-hamburger span {
-      display: block; width: 22px; height: 1.5px;
-      background: var(--text); margin: 5px 0;
+      display: block; width: 22px; height: 1px;
+      background: var(--navy); margin: 6px 0;
     }
 
     /* Mobile menu */
     .mobile-menu {
-      display: none; position: fixed; top: 72px; left: 0; right: 0;
-      background: rgba(240,235,227,.98); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--warm-dark);
-      padding: 1.5rem 6vw 2rem; z-index: 190;
+      display: none; position: fixed; top: 68px; left: 0; right: 0;
+      background: rgba(255,251,240,.98); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--sand-dark);
+      padding: 1.5rem 5vw 2.5rem; z-index: 190;
     }
     .mobile-menu.open { display: block; }
     .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
-    .mobile-menu ul li { border-bottom: 1px solid var(--warm-dark); }
+    .mobile-menu ul li { border-bottom: 1px solid var(--sand); }
     .mobile-menu ul a {
-      display: block; padding: .95rem 0;
-      color: var(--text-mid); text-decoration: none;
-      font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 400;
+      display: block; padding: 1rem 0;
+      color: var(--brown); text-decoration: none;
+      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
     }
-    .mobile-book {
-      display: block; margin-top: 1.2rem;
-      background: var(--blue-deep); color: var(--white);
-      padding: .9rem 1.6rem; text-align: center; text-decoration: none;
-      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
-    }
-
-    /* ─── HERO ─── */
-    .hero {
-      min-height: 100vh; padding-top: 72px;
-      display: grid; grid-template-columns: 1fr 1.1fr;
-      background: var(--warm-bg);
-    }
-    .hero-left {
-      display: flex; flex-direction: column; justify-content: center;
-      padding: 5rem 4rem 5rem 6vw;
-    }
-    .hero-eyebrow {
-      display: flex; align-items: center; gap: 1rem;
-      font-size: .6rem; letter-spacing: .4em; text-transform: uppercase;
-      color: var(--text-soft); font-weight: 400; margin-bottom: 1.8rem;
-    }
-    .hero-eyebrow::before {
-      content: ''; display: block;
-      width: 28px; height: 1px; background: var(--gold); flex-shrink: 0;
-    }
-    .hero h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(3rem, 5.2vw, 5.5rem);
-      font-weight: 400; line-height: 1.01;
-      color: var(--text); margin-bottom: 1.6rem;
-      letter-spacing: -.025em;
-    }
-    .hero h1 em { font-style: italic; color: var(--blue-deep); }
-    .hero-sub {
-      font-size: .88rem; color: var(--text-soft); line-height: 1.9;
-      max-width: 360px; margin-bottom: 2.5rem; font-weight: 300;
-    }
-    .hero-actions {
-      display: flex; gap: 1.2rem; align-items: center;
-      flex-wrap: wrap; margin-bottom: 2.8rem;
-    }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: var(--blue-deep); color: var(--white);
-      padding: .95rem 2.2rem; text-decoration: none;
-      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
-      font-weight: 500; font-family: 'DM Sans', sans-serif;
-      transition: background .25s;
-    }
-    .btn-primary:hover { background: var(--blue-muted); }
-    .btn-primary svg { width: 13px; height: 13px; }
-    .btn-ghost {
-      display: inline-flex; align-items: center;
-      color: var(--text-mid); text-decoration: none;
-      font-size: .7rem; letter-spacing: .16em; text-transform: uppercase;
-      font-weight: 400; border-bottom: 1px solid var(--warm-dark);
-      padding-bottom: 2px; transition: color .2s, border-color .2s;
-    }
-    .btn-ghost:hover { color: var(--text); border-color: var(--text-mid); }
-    .hero-credentials {
-      display: flex; gap: 0; flex-wrap: wrap;
-      border-top: 1px solid var(--warm-dark); padding-top: 1.8rem;
-    }
-    .hero-cred {
-      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase;
-      color: var(--text-faint); font-weight: 400;
-      padding-right: 1.4rem; margin-right: 1.4rem;
-      border-right: 1px solid var(--warm-dark);
-      line-height: 1.6;
-    }
-    .hero-cred:last-child { border-right: none; padding-right: 0; margin-right: 0; }
-    .hero-right { position: relative; overflow: hidden; }
-    .hero-right::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(to right, rgba(240,235,227,.15), transparent 35%);
-      pointer-events: none;
-    }
-    .hero-img {
-      width: 100%; height: 100%; min-height: 600px;
-      object-fit: cover; object-position: center top; display: block;
+    .mobile-book-btn {
+      display: inline-block; margin-top: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.1rem;
+      color: var(--navy); text-decoration: none;
+      border-bottom: 1px solid var(--navy); padding-bottom: 2px;
     }
 
-    /* ─── TRUST STRIP ─── */
-    .trust-strip { background: var(--blue-deep); }
-    .trust-strip-inner {
-      max-width: 1400px; margin: 0 auto; padding: 0 6vw;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .trust-item {
-      padding: 1.3rem 2.8rem;
-      font-size: .6rem; letter-spacing: .24em; text-transform: uppercase;
-      color: rgba(255,255,255,.45); font-weight: 400;
-      border-right: 1px solid rgba(255,255,255,.08);
-      white-space: nowrap; text-align: center;
-    }
-    .trust-item:first-child { padding-left: 0; }
-    .trust-item:last-child { border-right: none; padding-right: 0; }
-    .trust-item strong { color: rgba(255,255,255,.8); font-weight: 400; display: block; }
-
-    /* ─── SECTION UTILITIES ─── */
-    .tag {
-      font-size: .58rem; letter-spacing: .38em; text-transform: uppercase;
-      color: var(--gold); font-weight: 500; margin-bottom: .7rem; display: block;
-    }
-    .heading-lg {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 3.5vw, 3rem);
-      font-weight: 400; line-height: 1.08; color: var(--text);
-      letter-spacing: -.015em;
-    }
-    .body-text { font-size: .88rem; color: var(--text-mid); line-height: 1.9; font-weight: 300; }
-
-    /* ─── TREATMENTS (Editorial 3-col) ─── */
-    .treatments { background: var(--warm-light); }
-    .treatments-inner { max-width: 1400px; margin: 0 auto; padding: 5.5rem 6vw; }
-    .treatments-grid {
+    /* ─── OPENING / INTRO ─── */
+    .intro {
+      padding-top: 68px;
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: 280px 1fr 320px;
-      border: 1px solid var(--warm-dark);
-      min-height: 460px;
+      grid-template-columns: 1fr 1fr;
+      background: var(--cream);
     }
-    .treatments-label {
-      padding: 3rem 2.5rem;
-      display: flex; flex-direction: column; justify-content: space-between;
-      border-right: 1px solid var(--warm-dark);
+    .intro-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 6rem 4.5rem 6rem 6vw;
+      border-right: 1px solid var(--sand-dark);
     }
-    .treatments-label-top { }
-    .treatments-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.5rem, 2vw, 2rem);
-      font-weight: 400; line-height: 1.1; color: var(--text);
-      letter-spacing: -.01em; margin: .5rem 0 1.2rem;
+    .intro-label {
+      font-size: .58rem; letter-spacing: .4em; text-transform: uppercase;
+      color: var(--brown-light); font-weight: 500; margin-bottom: 2.5rem; display: block;
     }
-    .treatments-heading em { font-style: italic; color: var(--blue-deep); }
-    .treatments-desc {
-      font-size: .82rem; color: var(--text-soft); line-height: 1.85; font-weight: 300;
+    .display-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4.5rem, 8.5vw, 9rem);
+      font-weight: 300; line-height: 0.88;
+      color: var(--navy); letter-spacing: -.02em;
+      margin-bottom: 3rem;
     }
-    .treatments-list { border-right: 1px solid var(--warm-dark); display: flex; flex-direction: column; }
-    .treatment-row {
-      flex: 1;
-      display: grid; grid-template-columns: 2.2rem 1fr auto;
-      padding: 0 2.5rem;
-      border-bottom: 1px solid var(--warm-dark);
-      align-items: center; gap: 1.4rem;
-      text-decoration: none;
-      transition: background .2s;
-      min-height: 100px;
+    .intro-sub {
+      font-size: .78rem; color: var(--brown-light); line-height: 2;
+      max-width: 300px; margin-bottom: 3.5rem;
+      letter-spacing: .01em;
     }
-    .treatment-row:last-child { border-bottom: none; }
-    .treatment-row:hover { background: var(--warm-card); }
-    .treatment-num {
-      font-family: 'Playfair Display', serif;
-      font-size: .7rem; color: var(--text-faint); font-weight: 400; font-style: italic;
+    .book-link {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.05rem;
+      color: var(--navy); text-decoration: none;
+      border-bottom: 1px solid var(--navy);
+      padding-bottom: 2px; display: inline;
+      transition: opacity .2s;
     }
-    .treatment-name {
-      font-size: .9rem; color: var(--text); font-weight: 300; display: block; margin-bottom: .2rem;
+    .book-link:hover { opacity: .55; }
+    .intro-right {
+      display: flex; align-items: center; justify-content: center;
+      background: var(--sand); padding: 5rem 4rem;
     }
-    .treatment-sub { font-size: .72rem; color: var(--text-soft); font-weight: 300; }
-    .treatment-price {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem; color: var(--gold); font-weight: 400; white-space: nowrap;
+    .intro-oval {
+      width: 100%; max-width: 400px; aspect-ratio: 2/3;
+      object-fit: cover; object-position: center top;
+      border-radius: 999px; display: block;
     }
-    .treatments-image { overflow: hidden; }
-    .treatments-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    /* ─── WHY LUXE ─── */
-    .why { background: var(--warm-bg); }
-    .why-inner {
-      max-width: 1400px; margin: 0 auto; padding: 6rem 6vw;
-      display: grid; grid-template-columns: 1fr 1.45fr;
-      gap: 5.5rem; align-items: start;
+    /* ─── SERVICE SECTIONS ─── */
+    .service-section { border-top: 1px solid var(--sand-dark); }
+    .service-section.s-light { background: var(--cream); }
+    .service-section.s-dark  { background: var(--slate); border-top-color: transparent; }
+
+    .svc-inner {
+      max-width: 1440px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1.2fr 0.7fr;
+      border-left: 1px solid var(--sand-dark);
+      border-right: 1px solid var(--sand-dark);
     }
-    .why-image { position: relative; }
-    .why-img {
-      width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
+    .s-dark .svc-inner {
+      border-left-color: rgba(255,255,255,.1);
+      border-right-color: rgba(255,255,255,.1);
     }
-    .why-badge {
-      position: absolute; bottom: 2rem; right: -1.5rem;
-      background: var(--blue-deep); color: var(--white);
-      padding: 1.2rem 1.5rem; width: 148px;
+
+    .svc-col { padding: 5rem 4rem; }
+    .svc-col + .svc-col { border-left: 1px solid var(--sand-dark); }
+    .s-dark .svc-col + .svc-col { border-left-color: rgba(255,255,255,.1); }
+
+    .svc-num {
+      font-size: .58rem; letter-spacing: .32em; text-transform: uppercase;
+      color: var(--brown-light); font-weight: 500; margin-bottom: 1.2rem; display: block;
     }
-    .why-badge-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem; font-weight: 400; color: var(--gold-light);
-      display: block; line-height: 1; margin-bottom: .25rem;
+    .s-dark .svc-num { color: rgba(255,255,255,.28); }
+
+    .svc-cat {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 300; color: var(--navy);
+      line-height: 1.05; margin-bottom: 2.5rem; display: block;
     }
-    .why-badge-label {
-      font-size: .56rem; letter-spacing: .2em; text-transform: uppercase;
-      color: rgba(255,255,255,.55); font-weight: 500; line-height: 1.55;
+    .s-dark .svc-cat { color: var(--cream); }
+
+    .svc-book-link {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1rem;
+      color: var(--brown); text-decoration: none;
+      border-bottom: 1px solid var(--brown);
+      padding-bottom: 1px; display: inline;
+      transition: opacity .2s;
     }
-    .why-content { padding-top: .5rem; }
-    .why-header { margin-bottom: 2.5rem; }
-    .why-header .heading-lg { margin-top: .4rem; }
-    .why-reasons { }
-    .why-reason {
-      padding: 1.5rem 0;
-      border-bottom: 1px solid var(--warm-dark);
-      display: grid; grid-template-columns: 2.4rem 1fr;
-      gap: .8rem; align-items: start;
+    .svc-book-link:hover { opacity: .55; }
+    .s-dark .svc-book-link { color: rgba(255,255,255,.5); border-bottom-color: rgba(255,255,255,.22); }
+
+    .svc-desc {
+      font-size: .76rem; color: var(--brown-light); line-height: 2.05;
+      margin-top: 2.5rem; letter-spacing: .01em;
     }
-    .why-reason:first-child { border-top: 1px solid var(--warm-dark); }
-    .why-num {
-      font-family: 'Playfair Display', serif;
-      font-size: .7rem; color: var(--text-faint); font-weight: 400;
-      font-style: italic; padding-top: .2rem;
+    .s-dark .svc-desc { color: rgba(255,255,255,.35); }
+
+    /* Numbered list column */
+    .num-list { padding-top: .5rem; }
+    .num-row {
+      display: grid; grid-template-columns: 2.2rem 1fr auto;
+      align-items: baseline; gap: 1rem;
+      padding: 1.15rem 0; border-bottom: 1px solid var(--sand-dark);
     }
-    .why-title {
-      font-family: 'Playfair Display', serif;
-      font-size: .98rem; font-weight: 400; color: var(--text); margin-bottom: .3rem;
+    .num-row:first-child { border-top: 1px solid var(--sand-dark); }
+    .s-dark .num-row { border-bottom-color: rgba(255,255,255,.07); }
+    .s-dark .num-row:first-child { border-top-color: rgba(255,255,255,.07); }
+
+    .row-n {
+      font-size: .56rem; letter-spacing: .08em; color: var(--sand-dark);
+      font-weight: 500; padding-top: 1px;
     }
-    .why-body { font-size: .82rem; color: var(--text-soft); line-height: 1.8; font-weight: 300; }
-    .why-footer { padding-top: 2rem; }
+    .s-dark .row-n { color: rgba(255,255,255,.18); }
+
+    .row-svc-wrap { }
+    .row-svc { font-size: .8rem; color: var(--navy); font-weight: 400; display: block; }
+    .row-sub { font-size: .66rem; color: var(--brown-light); font-weight: 400; margin-top: .12rem; display: block; }
+    .s-dark .row-svc { color: rgba(255,255,255,.82); }
+    .s-dark .row-sub { color: rgba(255,255,255,.3); }
+
+    .row-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: .9rem; color: var(--brown-light); white-space: nowrap;
+    }
+    .s-dark .row-price { color: rgba(255,255,255,.35); }
+
+    /* Oval image column */
+    .svc-oval-col {
+      display: flex; align-items: center; justify-content: center;
+      padding: 3.5rem 2.5rem;
+    }
+    .svc-oval {
+      width: 100%; max-width: 200px; aspect-ratio: 2/3;
+      object-fit: cover; border-radius: 999px; display: block;
+    }
+
+    /* ─── FOUNDER ─── */
+    .founder { background: var(--cream); border-top: 1px solid var(--sand-dark); }
+    .founder-inner {
+      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 7rem; align-items: center;
+    }
+    .founder-oval-wrap { display: flex; justify-content: center; }
+    .founder-oval {
+      width: 100%; max-width: 380px; aspect-ratio: 3/4;
+      object-fit: cover; object-position: center top;
+      border-radius: 999px; display: block;
+    }
+    .founder-label {
+      font-size: .56rem; letter-spacing: .38em; text-transform: uppercase;
+      color: var(--brown-light); margin-bottom: 1.5rem; display: block;
+    }
+    .founder-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-weight: 300; line-height: 0.92; color: var(--navy);
+      letter-spacing: -.02em; margin-bottom: 2.5rem;
+    }
+    .founder-body {
+      font-size: .79rem; color: var(--brown-light); line-height: 2.1;
+      margin-bottom: 1.4rem; max-width: 480px;
+    }
+    .founder-link {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1rem;
+      color: var(--navy); text-decoration: none;
+      border-bottom: 1px solid var(--navy); padding-bottom: 1px;
+      display: inline; transition: opacity .2s;
+    }
+    .founder-link:hover { opacity: .55; }
 
     /* ─── REVIEWS ─── */
-    .reviews { background: var(--warm-light); }
-    .reviews-inner { max-width: 1400px; margin: 0 auto; padding: 6rem 6vw; }
-    .reviews-header {
-      display: flex; align-items: flex-end; justify-content: space-between;
-      margin-bottom: 2.5rem; gap: 2rem; flex-wrap: wrap;
+    .reviews { background: var(--slate); }
+    .reviews-inner {
+      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
     }
-    .reviews-header-text .heading-lg { margin-top: .4rem; }
-    .reviews-rating { text-align: right; }
-    .reviews-rating-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 2.2rem; font-weight: 400; color: var(--gold); display: block; line-height: 1;
+    .reviews-label {
+      font-size: .56rem; letter-spacing: .38em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); margin-bottom: 1.5rem; display: block;
     }
-    .reviews-rating-label {
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-soft);
+    .reviews-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-weight: 300; line-height: 0.92; color: var(--cream);
+      letter-spacing: -.02em; margin-bottom: 5.5rem;
     }
-    .review-featured {
-      background: var(--white); border: 1px solid var(--warm-dark);
-      padding: 3rem;
-      display: grid; grid-template-columns: 1fr auto;
-      gap: 3rem; align-items: end; margin-bottom: 2px;
+    .reviews-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border: 1px solid rgba(255,255,255,.08);
     }
-    .review-featured-quote {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(1.05rem, 1.8vw, 1.35rem);
-      font-weight: 400; font-style: italic;
-      color: var(--text); line-height: 1.65;
+    .review-card {
+      padding: 3.5rem; border-right: 1px solid rgba(255,255,255,.08);
     }
-    .review-featured-meta { text-align: right; flex-shrink: 0; }
-    .review-featured-stars { color: var(--gold); font-size: .65rem; letter-spacing: .2em; margin-bottom: .5rem; }
-    .review-featured-name {
-      font-size: .62rem; letter-spacing: .18em; text-transform: uppercase; color: var(--text-soft); font-weight: 500;
+    .review-card:last-child { border-right: none; }
+    .review-stars {
+      font-size: .6rem; letter-spacing: .22em; color: var(--sand);
+      margin-bottom: 1.8rem; display: block;
     }
-    .review-featured-via { font-size: .58rem; color: var(--gold); margin-top: .15rem; }
-    .reviews-grid-sm {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    .review-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.05rem; font-weight: 300;
+      color: rgba(255,251,240,.78); line-height: 1.75; margin-bottom: 2rem;
     }
-    .review-card-sm {
-      background: var(--white); border: 1px solid var(--warm-dark);
-      border-top: none; padding: 2rem;
+    .review-name {
+      font-size: .56rem; letter-spacing: .22em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); font-weight: 500; display: block;
     }
-    .review-stars-sm { color: var(--gold); font-size: .6rem; letter-spacing: .2em; margin-bottom: .8rem; }
-    .review-quote-sm {
-      font-family: 'Playfair Display', serif;
-      font-size: .9rem; font-weight: 400; font-style: italic;
-      color: var(--text); line-height: 1.65; margin-bottom: 1rem;
+    .review-via {
+      font-size: .56rem; color: rgba(255,255,255,.18); margin-top: .25rem; display: block;
     }
-    .review-name-sm {
-      font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-soft); font-weight: 500;
-    }
-    .review-via-sm { font-size: .58rem; color: var(--gold); margin-top: .15rem; }
 
     /* ─── FINAL CTA ─── */
-    .final-cta { background: var(--blue-deep); }
-    .final-cta-inner {
-      max-width: 1400px; margin: 0 auto; padding: 6rem 6vw;
-      display: grid; grid-template-columns: 1.1fr 1fr;
-      gap: 5rem; align-items: center;
+    .cta-section { background: var(--cream); border-top: 1px solid var(--sand-dark); }
+    .cta-inner {
+      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8rem; align-items: start;
     }
-    .cta-eyebrow {
-      font-size: .58rem; letter-spacing: .38em; text-transform: uppercase;
-      color: var(--gold-light); margin-bottom: 1.2rem; display: block;
+    .cta-label {
+      font-size: .56rem; letter-spacing: .38em; text-transform: uppercase;
+      color: var(--brown-light); margin-bottom: 1.5rem; display: block;
     }
     .cta-heading {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(2rem, 3.8vw, 3.2rem);
-      font-weight: 400; line-height: 1.06; color: var(--white);
-      margin-bottom: 1.2rem; letter-spacing: -.015em;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 5vw, 5rem);
+      font-weight: 300; line-height: 0.92; color: var(--navy);
+      letter-spacing: -.02em; margin-bottom: 3rem;
     }
-    .cta-heading em { font-style: italic; color: var(--gold-light); }
-    .cta-sub {
-      font-size: .85rem; color: rgba(255,255,255,.45);
-      line-height: 1.85; margin-bottom: 2.5rem; max-width: 380px; font-weight: 300;
+    .cta-link {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.1rem;
+      color: var(--navy); text-decoration: none;
+      border-bottom: 1px solid var(--navy); padding-bottom: 2px;
+      display: inline; transition: opacity .2s;
     }
-    .btn-cta {
-      display: inline-flex; align-items: center; gap: .5rem;
-      background: var(--white); color: var(--blue-deep);
-      padding: 1rem 2.2rem; text-decoration: none;
-      font-size: .7rem; letter-spacing: .2em; text-transform: uppercase;
-      font-weight: 500; font-family: 'DM Sans', sans-serif;
-      transition: background .2s;
+    .cta-link:hover { opacity: .55; }
+    .cta-right { padding-top: .5rem; }
+    .cta-addr-label {
+      font-size: .56rem; letter-spacing: .32em; text-transform: uppercase;
+      color: var(--brown-light); margin-bottom: .9rem; display: block;
     }
-    .btn-cta:hover { background: var(--warm-bg); }
-    .btn-cta svg { width: 13px; height: 13px; }
-    .cta-address-block {
-      margin-top: 2.2rem; padding-top: 2rem;
-      border-top: 1px solid rgba(255,255,255,.1);
+    .cta-addr {
+      font-size: .8rem; color: var(--brown-light); line-height: 2.1;
+      margin-bottom: 3rem;
     }
-    .cta-address-label {
-      font-size: .56rem; letter-spacing: .3em; text-transform: uppercase;
-      color: rgba(255,255,255,.25); margin-bottom: .5rem; display: block;
+    .cta-addr a {
+      color: var(--navy); text-decoration: none; border-bottom: 1px solid var(--sand-dark);
     }
-    .cta-address-text {
-      font-size: .82rem; color: rgba(255,255,255,.5); line-height: 1.7; font-weight: 300;
+    .towns { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .town {
+      padding: .38rem .9rem;
+      border: 1px solid var(--sand-dark);
+      font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--brown-light); font-weight: 500;
     }
-    .cta-location { }
-    .cta-location-label {
-      font-size: .58rem; letter-spacing: .32em; text-transform: uppercase;
-      color: var(--gold-light); margin-bottom: 1rem; display: block;
-    }
-    .cta-location-copy {
-      font-size: .82rem; color: rgba(255,255,255,.4); line-height: 1.8;
-      margin-bottom: 1.8rem; font-weight: 300;
-    }
-    .towns-wrap { display: flex; flex-wrap: wrap; gap: .5rem; }
-    .town-tag {
-      padding: .45rem 1rem;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      font-size: .6rem; letter-spacing: .16em; text-transform: uppercase;
-      color: rgba(255,255,255,.38); font-weight: 400;
-    }
-    .town-tag.home {
-      background: rgba(184,155,94,.12);
-      border-color: rgba(184,155,94,.3);
-      color: var(--gold-light);
+    .town.home {
+      background: var(--slate); color: var(--cream);
+      border-color: var(--slate);
     }
 
     /* ─── FOOTER ─── */
-    footer { background: var(--warm-card); border-top: 1px solid var(--warm-dark); }
-    .footer-inner { max-width: 1400px; margin: 0 auto; padding: 4rem 6vw 2rem; }
+    footer { background: var(--slate); }
+    .footer-inner { max-width: 1440px; margin: 0 auto; padding: 4.5rem 6vw 2rem; }
     .footer-grid {
       display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
       gap: 3rem; margin-bottom: 3rem;
+      padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08);
     }
     .footer-brand {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.15rem; font-weight: 500; color: var(--text);
-      letter-spacing: .07em; text-transform: uppercase; margin-bottom: .8rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.2rem; font-weight: 400;
+      color: var(--cream); margin-bottom: 1rem; display: block;
     }
-    .footer-brand i { font-style: italic; color: var(--blue-deep); }
-    .footer-tagline { font-size: .8rem; color: var(--text-soft); line-height: 1.85; }
+    .footer-tagline { font-size: .73rem; color: rgba(255,255,255,.32); line-height: 1.95; }
     .footer-col-title {
-      font-size: .58rem; letter-spacing: .32em; text-transform: uppercase;
-      color: var(--gold); margin-bottom: 1rem; font-weight: 500;
+      font-size: .54rem; letter-spacing: .32em; text-transform: uppercase;
+      color: rgba(255,255,255,.28); margin-bottom: 1.3rem; font-weight: 500; display: block;
     }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
     .footer-links a {
-      color: var(--text-mid); text-decoration: none; font-size: .8rem;
-      font-weight: 300; transition: color .2s;
+      color: rgba(255,255,255,.48); text-decoration: none; font-size: .76rem;
+      font-weight: 400; transition: color .2s;
     }
-    .footer-links a:hover { color: var(--text); }
-    .footer-info { font-size: .8rem; color: var(--text-soft); line-height: 2.1; }
-    .footer-info a { color: var(--blue-deep); text-decoration: none; font-weight: 400; }
+    .footer-links a:hover { color: var(--cream); }
+    .footer-info { font-size: .76rem; color: rgba(255,255,255,.38); line-height: 2.1; }
+    .footer-info a { color: rgba(255,255,255,.56); text-decoration: none; }
     .footer-bottom {
-      border-top: 1px solid var(--warm-dark); padding: 1.5rem 6vw;
-      text-align: center; font-size: .62rem; color: var(--text-faint);
-      letter-spacing: .06em; background: var(--warm-card);
+      text-align: center; padding-bottom: 2rem;
+      font-size: .54rem; color: rgba(255,255,255,.18); letter-spacing: .06em;
     }
 
     /* ─── REVEAL ─── */
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
     .reveal.visible { opacity: 1; transform: none; }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1100px) {
-      .treatments-grid { grid-template-columns: 260px 1fr; }
-      .treatments-image { display: none; }
-      .treatments-list { border-right: none; }
-      .why-inner { grid-template-columns: 1fr; gap: 3rem; }
-      .why-image { display: none; }
+      .svc-inner { grid-template-columns: 1fr 1fr; }
+      .svc-oval-col { display: none; }
+      .founder-inner { grid-template-columns: 1fr; gap: 4rem; }
+      .founder-oval-wrap { display: none; }
     }
     @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; min-height: auto; }
-      .hero-left { padding: 7.5rem 6vw 3rem; }
-      .hero-right { height: 55vh; min-height: 300px; }
-      .review-featured { grid-template-columns: 1fr; gap: 1.5rem; }
-      .review-featured-meta { text-align: left; }
-      .final-cta-inner { grid-template-columns: 1fr; gap: 3.5rem; }
+      .intro { grid-template-columns: 1fr; min-height: auto; }
+      .intro-left { border-right: none; border-bottom: 1px solid var(--sand-dark); padding: 8rem 6vw 4rem; }
+      .intro-right { min-height: 55vh; }
+      .intro-sub { max-width: 100%; }
+      .svc-inner { grid-template-columns: 1fr; }
+      .svc-col + .svc-col { border-left: none; border-top: 1px solid var(--sand-dark); }
+      .s-dark .svc-col + .svc-col { border-left: none; border-top-color: rgba(255,255,255,.1); }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .review-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
+      .review-card:last-child { border-bottom: none; }
+      .cta-inner { grid-template-columns: 1fr; gap: 4rem; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 700px) {
-      .treatments-grid { grid-template-columns: 1fr; }
-      .treatments-label { border-right: none; border-bottom: 1px solid var(--warm-dark); }
-      .treatments-list { border-right: none; }
-      .treatment-row { min-height: 88px; padding: 0 1.5rem; }
     }
     @media (max-width: 600px) {
       .nav { padding: 0 1.5rem; }
       .nav-links { display: none; }
       .nav-hamburger { display: block; }
-      .hero-left { padding: 7rem 1.5rem 2.5rem; }
-      .hero-sub { max-width: 100%; }
-      .hero-credentials { gap: 0; }
-      .hero-cred { padding-right: 1rem; margin-right: 1rem; }
-      .trust-strip-inner { flex-wrap: wrap; justify-content: flex-start; padding: 0 1.5rem; }
-      .trust-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); padding: .9rem 0; width: 100%; text-align: left; }
-      .trust-item:first-child { padding-left: 0; }
-      .trust-item:last-child { border-bottom: none; }
-      .treatments-inner { padding: 4rem 1.5rem; }
-      .why-inner { padding: 4rem 1.5rem; }
-      .reviews-inner { padding: 4rem 1.5rem; }
-      .review-featured { padding: 2rem; }
-      .reviews-grid-sm { grid-template-columns: 1fr; }
-      .final-cta-inner { padding: 4rem 1.5rem; }
-      .footer-inner { padding: 3rem 1.5rem 1.5rem; }
+      .intro-left { padding: 7rem 1.5rem 3.5rem; }
+      .intro-right { padding: 3rem 1.5rem; }
+      .svc-col { padding: 3.5rem 1.5rem; }
+      .founder-inner { padding: 6rem 1.5rem; }
+      .reviews-inner { padding: 6rem 1.5rem; }
+      .cta-inner { padding: 6rem 1.5rem; }
+      .footer-inner { padding: 3.5rem 1.5rem 1.5rem; }
       .footer-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -564,12 +489,12 @@
 <!-- NAV -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="/" class="nav-logo">Luxe <i>Wax Spa</i></a>
+    <a href="/" class="nav-logo">Luxe Wax Spa</a>
     <ul class="nav-links">
       <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
-      <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-cta">Book Now</a></li>
+      <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-book">Book Now ↗</a></li>
     </ul>
     <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -584,237 +509,267 @@
     <li><a href="about.html">About</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
-  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book">Book a Treatment →</a>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book-btn">Book Now ↗</a>
 </div>
 
-<!-- ── SECTION 1: HERO ── -->
-<section class="hero">
-  <div class="hero-left">
-    <p class="hero-eyebrow">Licensed Esthetician · Newtown, CT</p>
-    <h1>Waxing &amp; Esthetics<br>in <em>Newtown, CT</em></h1>
-    <p class="hero-sub">A private suite dedicated to precision waxing, brow design, and lash work — by Cida, with 8+ years of expertise and a reputation for near-painless results.</p>
-    <div class="hero-actions">
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="btn-primary">
-        Book Appointment
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="services.html" class="btn-ghost">View Services &amp; Pricing</a>
-    </div>
-    <div class="hero-credentials">
-      <span class="hero-cred">Licensed</span>
-      <span class="hero-cred">5&#x2605; Rated</span>
-      <span class="hero-cred">Private Suite</span>
-      <span class="hero-cred">Book Online 24/7</span>
-    </div>
+<!-- ── SECTION 1: INTRO ── -->
+<section class="intro">
+  <div class="intro-left">
+    <span class="intro-label">Licensed Esthetician · Newtown, CT</span>
+    <h1 class="display-h1">Waxing<br>&amp;<br>Esthetics</h1>
+    <p class="intro-sub">A private suite in Newtown, CT — precision waxing, brow design, and lash work by Cida. One client at a time, always.</p>
+    <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="book-link">Book an Appointment ↗</a>
   </div>
-  <div class="hero-right">
-    <!-- SWAP: portrait or treatment hero photo -->
-    <img class="hero-img" src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=1100&q=85" alt="Licensed esthetician performing waxing treatment at Luxe Wax Spa Newtown CT" fetchpriority="high" />
+  <div class="intro-right">
+    <!-- SWAP: portrait of Cida or suite photo -->
+    <img class="intro-oval" src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=85" alt="Licensed esthetician performing waxing treatment at Luxe Wax Spa Newtown CT" fetchpriority="high" />
   </div>
 </section>
 
-<!-- ── SECTION 2: TRUST STRIP ── -->
-<div class="trust-strip">
-  <div class="trust-strip-inner">
-    <div class="trust-item"><strong>Licensed Esthetician</strong>CT State Certified</div>
-    <div class="trust-item"><strong>Private Studio</strong>One Client at a Time</div>
-    <div class="trust-item"><strong>5&#x2605; on Vagaro</strong>50+ Verified Reviews</div>
-    <div class="trust-item"><strong>Book Online 24/7</strong>No Phone Calls Needed</div>
-  </div>
-</div>
+<!-- ── SECTION 2: BODY WAXING ── -->
+<section class="service-section s-light">
+  <div class="svc-inner reveal">
 
-<!-- ── SECTION 3: TREATMENTS (Editorial Grid) ── -->
-<section class="treatments">
-  <div class="treatments-inner">
-    <div class="treatments-grid reveal">
-
-      <!-- Label column -->
-      <div class="treatments-label">
-        <div class="treatments-label-top">
-          <span class="tag">What We Offer</span>
-          <h2 class="treatments-heading">The<br><em>Treatment</em><br>Menu</h2>
-          <p class="treatments-desc">Every service performed by Cida — one client at a time, always. Clients travel from Danbury, Bethel, Ridgefield, and Monroe for results worth the drive.</p>
-        </div>
-        <a href="services.html" class="btn-ghost" style="margin-top:2rem">Full Menu &amp; Pricing →</a>
-      </div>
-
-      <!-- Numbered service list -->
-      <div class="treatments-list">
-        <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="treatment-row">
-          <span class="treatment-num">01</span>
-          <div>
-            <span class="treatment-name">Brazilian Wax</span>
-            <span class="treatment-sub">Signature · near-painless · includes vajacial</span>
-          </div>
-          <span class="treatment-price">$74</span>
-        </a>
-        <a href="services.html#brows-face" class="treatment-row">
-          <span class="treatment-num">02</span>
-          <div>
-            <span class="treatment-name">Brows &amp; Face</span>
-            <span class="treatment-sub">Design · lamination · tint · full face</span>
-          </div>
-          <span class="treatment-price">$31</span>
-        </a>
-        <a href="services.html#lashes" class="treatment-row">
-          <span class="treatment-num">03</span>
-          <div>
-            <span class="treatment-name">Lash Lift &amp; Tint</span>
-            <span class="treatment-sub">Lifted curl · tinted · lasts 6–8 weeks</span>
-          </div>
-          <span class="treatment-price">$159</span>
-        </a>
-        <a href="services.html#mens" class="treatment-row">
-          <span class="treatment-num">04</span>
-          <div>
-            <span class="treatment-name">Men's Waxing</span>
-            <span class="treatment-sub">Back · chest · shoulders · underarms · brows</span>
-          </div>
-          <span class="treatment-price">$26</span>
-        </a>
-      </div>
-
-      <!-- Editorial image -->
-      <div class="treatments-image">
-        <!-- SWAP: close-up treatment or product detail photo -->
-        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=600&q=80" alt="Eyebrow waxing treatment at Luxe Wax Spa Newtown CT" loading="lazy" />
-      </div>
-
+    <div class="svc-col">
+      <span class="svc-num">01</span>
+      <span class="svc-cat">Body<br>Waxing</span>
+      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
+      <p class="svc-desc">Cida's signature hard wax technique — low-temperature, skin-safe, near-painless. Brazilian, bikini, and full body waxing in a completely private suite. Serving Newtown, Danbury, Bethel, and Ridgefield.</p>
     </div>
-  </div>
-</section>
 
-<!-- ── SECTION 4: WHY LUXE ── -->
-<section class="why">
-  <div class="why-inner">
-
-    <div class="why-image reveal">
-      <!-- SWAP: portrait of Cida or suite interior -->
-      <img class="why-img" src="https://images.unsplash.com/photo-1559599101-f09722fb4948?w=700&q=80" alt="Cida — licensed esthetician and owner of Luxe Wax Spa Newtown CT" loading="lazy" />
-      <div class="why-badge">
-        <span class="why-badge-num">8+</span>
-        <span class="why-badge-label">Years Waxing<br>Expertise</span>
+    <div class="svc-col">
+      <div class="num-list">
+        <div class="num-row">
+          <span class="row-n">01</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Brazilian Wax</span>
+            <span class="row-sub">Signature · includes vajacial</span>
+          </div>
+          <span class="row-price">$74</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">02</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Bikini Wax</span>
+            <span class="row-sub">Classic or extended</span>
+          </div>
+          <span class="row-price">$40</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">03</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Leg Waxing</span>
+            <span class="row-sub">Full leg · half leg</span>
+          </div>
+          <span class="row-price">$60</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">04</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Underarm &amp; Arms</span>
+            <span class="row-sub">Quick and precise</span>
+          </div>
+          <span class="row-price">$22</span>
+        </div>
       </div>
     </div>
 
-    <div class="why-content reveal">
-      <div class="why-header">
-        <span class="tag">The Luxe Difference</span>
-        <h2 class="heading-lg">Why Clients<br>Choose <em>Luxe</em></h2>
-      </div>
-      <div class="why-reasons">
-        <div class="why-reason">
-          <span class="why-num">01</span>
-          <div>
-            <h3 class="why-title">Near-Painless Technique</h3>
-            <p class="why-body">Cida uses a low-temperature hard wax that grips hair, not skin. Clients who dreaded waxing elsewhere leave here converted. Sensitive skin is a specialty, not a challenge.</p>
-          </div>
-        </div>
-        <div class="why-reason">
-          <span class="why-num">02</span>
-          <div>
-            <h3 class="why-title">Premium Products &amp; Heated Table</h3>
-            <p class="why-body">Skin-safe wax formulated to minimize irritation. A heated waxing table keeps you comfortable from start to finish — a detail most spas skip entirely.</p>
-          </div>
-        </div>
-        <div class="why-reason">
-          <span class="why-num">03</span>
-          <div>
-            <h3 class="why-title">Completely Private, Always Cida</h3>
-            <p class="why-body">One client at a time. No waiting room, no shared space. A calm, welcoming suite where every visit is as personal as it should be.</p>
-          </div>
-        </div>
-        <div class="why-reason">
-          <span class="why-num">04</span>
-          <div>
-            <h3 class="why-title">Results That Keep Clients Coming Back</h3>
-            <p class="why-body">Most clients return every 4–6 weeks. Repeat trust is the best review a studio can earn — and Luxe Wax Spa has built it quietly, one appointment at a time.</p>
-          </div>
-        </div>
-      </div>
-      <div class="why-footer">
-        <a href="about.html" class="btn-ghost">Meet Cida →</a>
-      </div>
+    <div class="svc-oval-col">
+      <!-- SWAP: body waxing or studio detail photo -->
+      <img class="svc-oval" src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500&q=80" alt="Waxing treatment at Luxe Wax Spa" loading="lazy" />
     </div>
 
   </div>
 </section>
 
-<!-- ── SECTION 5: REVIEWS ── -->
-<section class="reviews">
-  <div class="reviews-inner">
-    <div class="reviews-header reveal">
-      <div class="reviews-header-text">
-        <span class="tag">Client Reviews</span>
-        <h2 class="heading-lg">In Their Own Words</h2>
-      </div>
-      <div class="reviews-rating">
-        <span class="reviews-rating-num">5.0&#x2605;</span>
-        <span class="reviews-rating-label">Verified on Vagaro</span>
+<!-- ── SECTION 3: BROWS & FACE ── -->
+<section class="service-section s-dark">
+  <div class="svc-inner reveal">
+
+    <div class="svc-col">
+      <span class="svc-num">02</span>
+      <span class="svc-cat">Brows<br>&amp; Face</span>
+      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
+      <p class="svc-desc">Precision eyebrow design tailored to your face. From classic wax shaping to lamination and tinting — each treatment is sculpted to flatter your natural features.</p>
+    </div>
+
+    <div class="svc-col">
+      <div class="num-list">
+        <div class="num-row">
+          <span class="row-n">01</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Eyebrow Design</span>
+            <span class="row-sub">Shaped, cleaned, defined</span>
+          </div>
+          <span class="row-price">$32</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">02</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Brow Lamination</span>
+            <span class="row-sub">Restructure &amp; set</span>
+          </div>
+          <span class="row-price">$85</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">03</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Brow Tint</span>
+            <span class="row-sub">Deepens and defines</span>
+          </div>
+          <span class="row-price">$22</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">04</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Full Face Wax</span>
+            <span class="row-sub">Brows, lip, chin, sides</span>
+          </div>
+          <span class="row-price">$55</span>
+        </div>
       </div>
     </div>
 
-    <!-- Featured quote -->
-    <div class="review-featured reveal">
-      <p class="review-featured-quote">"My first Brazilian wax — and it was absolutely relaxing. Cida was so sweet and kind, almost painless! Beautiful and clean suite. She has gained a new client!"</p>
-      <div class="review-featured-meta">
-        <div class="review-featured-stars">★★★★★</div>
-        <div class="review-featured-name">Confident and Glowing</div>
-        <div class="review-featured-via">Vagaro Verified</div>
-      </div>
+    <div class="svc-oval-col">
+      <!-- SWAP: brow or face treatment photo -->
+      <img class="svc-oval" src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=500&q=80" alt="Eyebrow waxing and design at Luxe Wax Spa Newtown CT" loading="lazy" />
     </div>
 
-    <!-- Supporting reviews -->
-    <div class="reviews-grid-sm">
-      <div class="review-card-sm reveal">
-        <div class="review-stars-sm">★★★★★</div>
-        <p class="review-quote-sm">"Cida is a warm and caring professional. Her space is very welcoming and her services are excellent. Great attention to detail! So peaceful."</p>
-        <div class="review-name-sm">Beyond Professional</div>
-        <div class="review-via-sm">Vagaro Verified</div>
-      </div>
-      <div class="review-card-sm reveal">
-        <div class="review-stars-sm">★★★★★</div>
-        <p class="review-quote-sm">"Gorgeous space, very warm and welcoming. She is amazing — professional, thorough, and I trust her completely for all my waxing needs!"</p>
-        <div class="review-name-sm">Life Changer</div>
-        <div class="review-via-sm">Vagaro Verified</div>
-      </div>
-    </div>
   </div>
 </section>
 
-<!-- ── SECTION 6: FINAL CTA ── -->
-<section class="final-cta">
-  <div class="final-cta-inner">
+<!-- ── SECTION 4: LASH LIFT & MEN'S ── -->
+<section class="service-section s-light">
+  <div class="svc-inner reveal">
+
+    <div class="svc-col">
+      <span class="svc-num">03</span>
+      <span class="svc-cat">Lash Lift<br>&amp; Tint</span>
+      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
+      <p class="svc-desc">A lifted curl that lasts 6–8 weeks, with optional tinting for definition. No extensions, no daily curler — just beautiful natural lashes from the first appointment.</p>
+    </div>
+
+    <div class="svc-col">
+      <div class="num-list">
+        <div class="num-row">
+          <span class="row-n">01</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Lash Lift &amp; Tint</span>
+            <span class="row-sub">Curl + color · lasts 6–8 weeks</span>
+          </div>
+          <span class="row-price">$160</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">02</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Lash Lift Only</span>
+            <span class="row-sub">Lifted &amp; set</span>
+          </div>
+          <span class="row-price">$120</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">03</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Men's Back &amp; Chest</span>
+            <span class="row-sub">Clean results, no judgment</span>
+          </div>
+          <span class="row-price">$65</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">04</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Men's Brows &amp; Face</span>
+            <span class="row-sub">Shaped and groomed</span>
+          </div>
+          <span class="row-price">$26</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="svc-oval-col">
+      <!-- SWAP: lash or close-up detail photo -->
+      <img class="svc-oval" src="https://images.unsplash.com/photo-1559599101-f09722fb4948?w=500&q=80" alt="Lash lift treatment at Luxe Wax Spa" loading="lazy" />
+    </div>
+
+  </div>
+</section>
+
+<!-- ── SECTION 5: FOUNDER ── -->
+<section class="founder">
+  <div class="founder-inner">
+
+    <div class="founder-oval-wrap reveal">
+      <!-- SWAP: portrait of Cida -->
+      <img class="founder-oval" src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=700&q=80" alt="Cida — licensed esthetician and owner of Luxe Wax Spa Newtown CT" loading="lazy" />
+    </div>
 
     <div class="reveal">
-      <span class="cta-eyebrow">Book Online · Available 24/7</span>
-      <h2 class="cta-heading">Ready to feel<br>your <em>best?</em></h2>
-      <p class="cta-sub">Book your appointment in under a minute — no phone calls, no waiting room. Just smooth, confident results at 125b S Main St, Newtown.</p>
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="btn-cta">
-        Book on Vagaro
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <div class="cta-address-block">
-        <span class="cta-address-label">Visit</span>
-        <p class="cta-address-text">
-          125b S Main St f, Newtown, CT 06470<br>
-          <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener" style="color:var(--gold-light);text-decoration:none">@luxewaxspact</a>
-        </p>
-      </div>
+      <span class="founder-label">Meet the Esthetician</span>
+      <h2 class="founder-heading">Meet Cida,<br>Founder</h2>
+      <p class="founder-body">Cida is a Connecticut-licensed esthetician with over 8 years of waxing expertise. What began with a passion for making clients feel genuinely cared for has grown into Luxe Wax Spa — a private, peaceful studio at 125b S Main St in Newtown.</p>
+      <p class="founder-body">Every treatment is done by Cida personally. One client at a time, no front desk, no waiting. Clients travel from Danbury, Bethel, Ridgefield, and Monroe for results that keep them coming back.</p>
+      <a href="about.html" class="founder-link">Read Cida's Story ↗</a>
     </div>
 
-    <div class="cta-location reveal">
-      <span class="cta-location-label">Serving Fairfield County &amp; Beyond</span>
-      <p class="cta-location-copy">Clients travel from across Connecticut for results worth the drive. Luxe Wax Spa is your local studio for Brazilian waxing, precision brows, lash lifts, and full body waxing in Newtown, CT.</p>
-      <div class="towns-wrap">
-        <span class="town-tag home">Newtown</span>
-        <span class="town-tag">Danbury</span>
-        <span class="town-tag">Bethel</span>
-        <span class="town-tag">Ridgefield</span>
-        <span class="town-tag">Monroe</span>
-        <span class="town-tag">Sandy Hook</span>
-        <span class="town-tag">Brookfield</span>
-        <span class="town-tag">Southbury</span>
+  </div>
+</section>
+
+<!-- ── SECTION 6: REVIEWS ── -->
+<section class="reviews">
+  <div class="reviews-inner">
+    <span class="reviews-label reveal">Client Stories</span>
+    <h2 class="reviews-heading reveal">In Their<br>Own Words</h2>
+
+    <div class="reviews-grid">
+      <div class="review-card reveal">
+        <span class="review-stars">★★★★★</span>
+        <p class="review-quote">"My first Brazilian wax — and it was absolutely relaxing. Cida was so sweet and kind, almost painless! Beautiful and clean suite. She has gained a new client!"</p>
+        <span class="review-name">Confident and Glowing</span>
+        <span class="review-via">Vagaro · Verified</span>
+      </div>
+      <div class="review-card reveal">
+        <span class="review-stars">★★★★★</span>
+        <p class="review-quote">"Cida is a warm and caring professional. Her space is very welcoming and her services are excellent. Great attention to detail — so peaceful and unhurried."</p>
+        <span class="review-name">Beyond Professional</span>
+        <span class="review-via">Vagaro · Verified</span>
+      </div>
+      <div class="review-card reveal">
+        <span class="review-stars">★★★★★</span>
+        <p class="review-quote">"Gorgeous space, very warm and welcoming. She is amazing — professional, thorough, and I trust her completely for all my waxing needs!"</p>
+        <span class="review-name">Life Changer</span>
+        <span class="review-via">Vagaro · Verified</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 7: CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner">
+
+    <div class="reveal">
+      <span class="cta-label">Book Online · Available 24/7</span>
+      <h2 class="cta-heading">Ready to<br>feel your<br>best?</h2>
+      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="cta-link">Book on Vagaro ↗</a>
+    </div>
+
+    <div class="cta-right reveal">
+      <span class="cta-addr-label">Visit</span>
+      <p class="cta-addr">
+        125b S Main St f, Newtown, CT 06470<br>
+        Tuesday–Saturday · By appointment<br>
+        <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a>
+      </p>
+      <span class="cta-addr-label">Serving</span>
+      <div class="towns">
+        <span class="town home">Newtown</span>
+        <span class="town">Danbury</span>
+        <span class="town">Bethel</span>
+        <span class="town">Ridgefield</span>
+        <span class="town">Monroe</span>
+        <span class="town">Sandy Hook</span>
+        <span class="town">Brookfield</span>
+        <span class="town">Southbury</span>
       </div>
     </div>
 
@@ -826,11 +781,11 @@
   <div class="footer-inner">
     <div class="footer-grid">
       <div>
-        <div class="footer-brand">Luxe <i>Wax Spa</i></div>
+        <span class="footer-brand">Luxe Wax Spa</span>
         <p class="footer-tagline">Premium waxing &amp; esthetician services in Newtown, CT. Serving Danbury, Bethel, Ridgefield, Monroe and all of Fairfield County.</p>
       </div>
       <div>
-        <div class="footer-col-title">Menu</div>
+        <span class="footer-col-title">Menu</span>
         <ul class="footer-links">
           <li><a href="index.html">Home</a></li>
           <li><a href="services.html">Services &amp; Pricing</a></li>
@@ -839,7 +794,7 @@
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Services</div>
+        <span class="footer-col-title">Services</span>
         <ul class="footer-links">
           <li><a href="services.html#brazilian">Brazilian Wax</a></li>
           <li><a href="services.html#brows-face">Eyebrow Design</a></li>
@@ -849,11 +804,11 @@
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Visit</div>
+        <span class="footer-col-title">Visit</span>
         <p class="footer-info">
           125b S Main St f<br>Newtown, CT 06470<br><br>
           <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a><br>
-          <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener" style="color:var(--text-soft)">Book via Vagaro →</a>
+          <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener">Book via Vagaro ↗</a>
         </p>
       </div>
     </div>
@@ -876,7 +831,7 @@
     hamburger.setAttribute('aria-expanded', open);
   });
   document.addEventListener('click', e => {
-    if (mobileMenu.classList.contains('open') && !nav.contains(e.target)) {
+    if (mobileMenu.classList.contains('open') && !nav.contains(e.target) && !mobileMenu.contains(e.target)) {
       mobileMenu.classList.remove('open');
       hamburger.setAttribute('aria-expanded', 'false');
     }
@@ -887,7 +842,7 @@
     entries.forEach(e => {
       if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
     });
-  }, { threshold: 0.08 });
+  }, { threshold: 0.07 });
   reveals.forEach(el => observer.observe(el));
 </script>
 </body>

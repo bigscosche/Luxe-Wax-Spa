@@ -84,6 +84,8 @@
     }
     .nav-links a:hover { color: var(--text); }
     .nav-links a.active { color: var(--text); border-bottom: 1px solid var(--gold); padding-bottom: 1px; }
+    .nav.dark-hero .nav-links a.active { color: var(--white); border-bottom-color: var(--gold-light); }
+    .nav.dark-hero.scrolled .nav-links a.active { color: var(--text); border-bottom-color: var(--gold); }
     .nav-cta {
       background: var(--blue-deep) !important; color: var(--white) !important;
       padding: .6rem 1.6rem !important; font-weight: 500 !important;
@@ -135,36 +137,36 @@
     }
 
     /* ─── FIRST VISIT ─── */
-    .first-visit { background: var(--blue-deep); }
+    .first-visit { background: var(--warm-bg); }
     .first-visit-inner {
       max-width: 1400px; margin: 0 auto; padding: 6rem 6vw;
       display: grid; grid-template-columns: 1fr 1.8fr;
       gap: 5rem; align-items: start;
     }
-    .first-visit-header .heading-lg { color: var(--white); margin-top: .5rem; }
-    .first-visit-header .tag { color: var(--gold-light); }
+    .first-visit-header .heading-lg { color: var(--text); margin-top: .5rem; }
+    .first-visit-header .tag { color: var(--gold); }
     .first-visit-header p {
-      font-size: .85rem; color: rgba(255,255,255,.45);
+      font-size: .85rem; color: var(--text-soft);
       line-height: 1.85; margin-top: 1.2rem; max-width: 280px;
     }
     .first-visit-steps { display: flex; flex-direction: column; gap: 0; }
     .fv-step {
       display: grid; grid-template-columns: 2.4rem 1fr;
       gap: 1.2rem; align-items: start;
-      padding: 1.8rem 0; border-bottom: 1px solid rgba(255,255,255,.08);
+      padding: 1.8rem 0; border-bottom: 1px solid var(--warm-dark);
     }
-    .fv-step:first-child { border-top: 1px solid rgba(255,255,255,.08); }
+    .fv-step:first-child { border-top: 1px solid var(--warm-dark); }
     .fv-num {
       font-family: 'Playfair Display', serif;
-      font-size: .72rem; color: var(--gold-light); font-weight: 400; font-style: italic;
+      font-size: .72rem; color: var(--gold); font-weight: 400; font-style: italic;
       padding-top: .2rem;
     }
     .fv-title {
       font-family: 'Playfair Display', serif;
-      font-size: 1rem; font-weight: 400; color: var(--white); margin-bottom: .3rem;
+      font-size: 1rem; font-weight: 400; color: var(--text); margin-bottom: .3rem;
     }
     .fv-body {
-      font-size: .82rem; color: rgba(255,255,255,.45); line-height: 1.8; font-weight: 300;
+      font-size: .82rem; color: var(--text-soft); line-height: 1.8; font-weight: 300;
     }
 
     /* ─── PAGE HERO ─── */
@@ -300,8 +302,8 @@
     }
     .why-card-num {
       font-family: 'Playfair Display', serif;
-      font-size: 3.5rem; font-weight: 400; color: var(--warm-dark);
-      line-height: 1; margin-bottom: 2rem;
+      font-size: 2.8rem; font-weight: 400; color: var(--warm-dark);
+      line-height: 1; margin-bottom: 1.5rem;
     }
     .why-card-title {
       font-family: 'Playfair Display', serif;
@@ -322,7 +324,7 @@
     .reviews { background: var(--warm-light); }
     .reviews-inner { max-width: 1400px; margin: 0 auto; padding: 7rem 6vw; }
     .reviews-header { margin-bottom: 3.5rem; }
-    .reviews-header .heading-lg { margin-top: .5rem; text-transform: uppercase; letter-spacing: .04em; }
+    .reviews-header .heading-lg { margin-top: .5rem; }
     .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
     .review-card {
       background: var(--white); padding: 2.5rem 2rem;

@@ -84,6 +84,8 @@
     }
     .nav-links a:hover { color: var(--text); }
     .nav-links a.active { color: var(--text); border-bottom: 1px solid var(--gold); padding-bottom: 1px; }
+    .nav.dark-hero .nav-links a.active { color: var(--white); border-bottom-color: var(--gold-light); }
+    .nav.dark-hero.scrolled .nav-links a.active { color: var(--text); border-bottom-color: var(--gold); }
     .nav-cta {
       background: var(--blue-deep) !important; color: var(--white) !important;
       padding: .6rem 1.6rem !important; font-weight: 500 !important;
@@ -125,7 +127,7 @@
     .prep-strip .tag { margin-bottom: 1.2rem; }
     .prep-grid {
       display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 2rem; margin-top: 2rem;
+      gap: 2rem; margin-top: 2.5rem;
     }
     .prep-item { }
     .prep-num {
@@ -138,13 +140,20 @@
       margin-bottom: .3rem; letter-spacing: .02em;
     }
     .prep-body { font-size: .78rem; color: var(--text-soft); line-height: 1.7; font-weight: 300; }
+    .prep-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      font-weight: 400; color: var(--text);
+      letter-spacing: -.01em; margin-bottom: .5rem;
+    }
+    .prep-sub { font-size: .85rem; color: var(--text-soft); max-width: 520px; line-height: 1.8; }
     @media (max-width: 900px) { .prep-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 500px) { .prep-grid { grid-template-columns: 1fr; } }
 
     /* ─── PAGE HERO ─── */
     .page-hero {
       background: var(--blue-deep);
-      min-height: 48vh;
+      min-height: 54vh;
       padding: 72px 6vw 0;
       display: flex; align-items: flex-end;
       position: relative; overflow: hidden;
@@ -334,7 +343,7 @@
       transition: max-height .35s ease, padding .35s ease;
     }
     .faq-answer.open {
-      max-height: 320px;
+      max-height: 480px;
     }
     .faq-answer-inner {
       padding-bottom: 1.5rem;
@@ -677,9 +686,9 @@
 <div class="prep-strip">
   <div class="prep-strip-inner reveal">
     <span class="tag">Before You Arrive</span>
-    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.5rem,2.5vw,2rem);font-weight:400;color:var(--text);letter-spacing:-.01em;margin-bottom:.5rem;">A quick prep guide</h2>
-    <p style="font-size:.85rem;color:var(--text-soft);max-width:520px;line-height:1.8;margin-bottom:0;">Everything you need to know so your appointment goes smoothly from the moment you walk in.</p>
-    <div class="prep-grid" style="margin-top:2.5rem;">
+    <h2 class="prep-heading">A quick prep guide</h2>
+    <p class="prep-sub">Everything you need to know so your appointment goes smoothly from the moment you walk in.</p>
+    <div class="prep-grid">
       <div class="prep-item">
         <span class="prep-num">01</span>
         <div class="prep-title">Hair length</div>
