@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Luxe Wax Spa | Waxing & Esthetics in Newtown, CT | Brazilian Wax, Brows & Lash Lift</title>
-  <meta name="description" content="Book online at Luxe Wax Spa — Newtown CT's top-rated waxing studio. Brazilian wax, eyebrow design, lash lifts & body waxing by licensed esthetician Cida. Serving Danbury, Bethel, Ridgefield & Monroe CT." />
+  <title>Luxe Wax Spa | Waxing & Esthetics in Newtown, CT</title>
+  <meta name="description" content="Book online at Luxe Wax Spa — near-painless Brazilian wax, brow design & lash lift in a private suite in Newtown, CT. Licensed esthetician Cida. Serving Danbury, Bethel, Ridgefield & Monroe CT." />
   <meta name="keywords" content="waxing Newtown CT, Brazilian wax Newtown CT, eyebrow waxing Danbury CT, lash lift Connecticut, wax spa Bethel CT, esthetician Ridgefield CT, waxing Monroe CT, bikini wax near me, waxing salon Newtown, body waxing Fairfield County CT" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://luxewaxspa.netlify.app/" />
@@ -56,7 +56,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -120,7 +120,8 @@
       padding-bottom: 1px !important;
     }
     .nav-hamburger {
-      display: none; cursor: pointer; background: none; border: none; padding: 0;
+      display: none; cursor: pointer; background: none; border: none;
+      padding: 8px 6px; margin-right: -6px;
     }
     .nav-hamburger span {
       display: block; width: 22px; height: 1px;
@@ -181,13 +182,24 @@
     }
     .book-link {
       font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.05rem;
-      color: var(--navy); text-decoration: none;
-      border-bottom: 1px solid var(--navy);
-      padding-bottom: 2px; display: inline;
-      transition: opacity .2s;
+      font-style: italic; font-size: 1.1rem;
+      color: var(--cream); text-decoration: none;
+      background: var(--navy);
+      display: inline-flex; align-items: center;
+      padding: .85rem 2.25rem;
+      letter-spacing: .01em;
+      transition: background .2s, opacity .2s;
     }
-    .book-link:hover { opacity: .55; }
+    .book-link:hover { background: var(--slate); }
+    .intro-trust {
+      display: flex; flex-wrap: wrap; gap: .5rem 1.5rem;
+      margin-top: 2rem;
+    }
+    .intro-trust span {
+      font-size: .65rem; font-family: 'Syne', sans-serif;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--brown-light);
+    }
     .intro-right {
       display: flex; align-items: center; justify-content: center;
       background: var(--sand); padding: 5rem 4rem;
@@ -291,7 +303,7 @@
     /* ─── FOUNDER ─── */
     .founder { background: var(--cream); border-top: 1px solid var(--sand-dark); }
     .founder-inner {
-      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
+      max-width: 1440px; margin: 0 auto; padding: 7rem 6vw;
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 7rem; align-items: center;
     }
@@ -327,7 +339,7 @@
     /* ─── REVIEWS ─── */
     .reviews { background: var(--slate); }
     .reviews-inner {
-      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
+      max-width: 1440px; margin: 0 auto; padding: 7rem 6vw;
     }
     .reviews-label {
       font-size: .56rem; letter-spacing: .38em; text-transform: uppercase;
@@ -367,7 +379,7 @@
     /* ─── FINAL CTA ─── */
     .cta-section { background: var(--cream); border-top: 1px solid var(--sand-dark); }
     .cta-inner {
-      max-width: 1440px; margin: 0 auto; padding: 9rem 6vw;
+      max-width: 1440px; margin: 0 auto; padding: 7rem 6vw;
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 8rem; align-items: start;
     }
@@ -476,9 +488,10 @@
       .intro-left { padding: 7rem 1.5rem 3.5rem; }
       .intro-right { padding: 3rem 1.5rem; }
       .svc-col { padding: 3.5rem 1.5rem; }
-      .founder-inner { padding: 6rem 1.5rem; }
-      .reviews-inner { padding: 6rem 1.5rem; }
-      .cta-inner { padding: 6rem 1.5rem; }
+      .founder-inner { padding: 5rem 1.5rem; }
+      .reviews-inner { padding: 5rem 1.5rem; }
+      .review-card { padding: 2rem 1.5rem; }
+      .cta-inner { padding: 5rem 1.5rem; }
       .footer-inner { padding: 3.5rem 1.5rem 1.5rem; }
       .footer-grid { grid-template-columns: 1fr; }
     }
@@ -489,7 +502,7 @@
 <!-- NAV -->
 <nav class="nav" id="nav">
   <div class="nav-inner">
-    <a href="/" class="nav-logo">Luxe Wax Spa</a>
+    <a href="index.html" class="nav-logo">Luxe Wax Spa</a>
     <ul class="nav-links">
       <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html">About</a></li>
@@ -515,13 +528,18 @@
 <!-- ── SECTION 1: INTRO ── -->
 <section class="intro">
   <div class="intro-left">
-    <span class="intro-label">Licensed Esthetician · Newtown, CT</span>
+    <span class="intro-label">5★ Rated · Licensed Esthetician · Newtown, CT</span>
     <h1 class="display-h1">Waxing<br>&amp;<br>Esthetics</h1>
-    <p class="intro-sub">A private suite in Newtown, CT — precision waxing, brow design, and lash work by Cida. One client at a time, always.</p>
+    <p class="intro-sub">Near-painless Brazilian wax, brow design, and lash lift in a private suite — by licensed esthetician Cida. One client at a time, always.</p>
     <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="book-link">Book an Appointment ↗</a>
+    <div class="intro-trust">
+      <span>Licensed &amp; Insured</span>
+      <span>8+ Years Experience</span>
+      <span>Private Suite</span>
+      <span>Book Online 24/7</span>
+    </div>
   </div>
   <div class="intro-right">
-    <!-- SWAP: portrait of Cida or suite photo -->
     <img class="intro-oval" src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&q=85" alt="Licensed esthetician performing waxing treatment at Luxe Wax Spa Newtown CT" fetchpriority="high" />
   </div>
 </section>
@@ -575,7 +593,6 @@
     </div>
 
     <div class="svc-oval-col">
-      <!-- SWAP: body waxing or studio detail photo -->
       <img class="svc-oval" src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=500&q=80" alt="Waxing treatment at Luxe Wax Spa" loading="lazy" />
     </div>
 
@@ -631,7 +648,6 @@
     </div>
 
     <div class="svc-oval-col">
-      <!-- SWAP: brow or face treatment photo -->
       <img class="svc-oval" src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=500&q=80" alt="Eyebrow waxing and design at Luxe Wax Spa Newtown CT" loading="lazy" />
     </div>
 
@@ -687,7 +703,6 @@
     </div>
 
     <div class="svc-oval-col">
-      <!-- SWAP: lash or close-up detail photo -->
       <img class="svc-oval" src="https://images.unsplash.com/photo-1559599101-f09722fb4948?w=500&q=80" alt="Lash lift treatment at Luxe Wax Spa" loading="lazy" />
     </div>
 
@@ -699,7 +714,6 @@
   <div class="founder-inner">
 
     <div class="founder-oval-wrap reveal">
-      <!-- SWAP: portrait of Cida -->
       <img class="founder-oval" src="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=700&q=80" alt="Cida — licensed esthetician and owner of Luxe Wax Spa Newtown CT" loading="lazy" />
     </div>
 
@@ -748,8 +762,8 @@
   <div class="cta-inner">
 
     <div class="reveal">
-      <span class="cta-label">Book Online · Available 24/7</span>
-      <h2 class="cta-heading">Ready to<br>feel your<br>best?</h2>
+      <span class="cta-label">Online Booking · Open 24/7</span>
+      <h2 class="cta-heading">Book your<br>appointment<br>today.</h2>
       <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="cta-link">Book on Vagaro ↗</a>
     </div>
 
@@ -814,7 +828,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2025 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving Danbury, Bethel, Ridgefield &amp; Monroe CT
+    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving Danbury, Bethel, Ridgefield &amp; Monroe CT
   </div>
 </footer>
 
