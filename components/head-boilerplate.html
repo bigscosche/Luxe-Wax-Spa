@@ -1,0 +1,45 @@
+<!--
+  HEAD BOILERPLATE — drop into <head>
+  Replace: {{PAGE_TITLE}}, {{PAGE_DESCRIPTION}}, {{CANONICAL_PATH}},
+           {{BUSINESS_NAME}}, {{BUSINESS_URL}}, {{BUSINESS_ADDRESS}},
+           {{BUSINESS_CITY}}, {{BUSINESS_STATE}}, {{BUSINESS_POSTAL}},
+           {{BUSINESS_LAT}}, {{BUSINESS_LNG}}, {{BOOKING_URL}}, {{INSTAGRAM_URL}},
+           {{OWNER_NAME}}, {{OWNER_TITLE}}
+-->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{{PAGE_TITLE}}</title>
+<meta name="description" content="{{PAGE_DESCRIPTION}}" />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="{{BUSINESS_URL}}{{CANONICAL_PATH}}" />
+
+<meta property="og:title" content="{{PAGE_TITLE}}" />
+<meta property="og:description" content="{{PAGE_DESCRIPTION}}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{BUSINESS_URL}}{{CANONICAL_PATH}}" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "{{BUSINESS_NAME}}",
+  "url": "{{BUSINESS_URL}}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{BUSINESS_ADDRESS}}",
+    "addressLocality": "{{BUSINESS_CITY}}",
+    "addressRegion": "{{BUSINESS_STATE}}",
+    "postalCode": "{{BUSINESS_POSTAL}}",
+    "addressCountry": "US"
+  },
+  "geo": {"@type": "GeoCoordinates", "latitude": {{BUSINESS_LAT}}, "longitude": {{BUSINESS_LNG}}},
+  "priceRange": "$$",
+  "employee": {"@type": "Person", "name": "{{OWNER_NAME}}", "jobTitle": "{{OWNER_TITLE}}"},
+  "sameAs": ["{{INSTAGRAM_URL}}", "{{BOOKING_URL}}"]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/css/theme.css" />

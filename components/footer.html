@@ -1,0 +1,45 @@
+<!--
+  FOOTER — path prefix note:
+    - Root pages (index/services/about/contact): service-areas/waxing-xxx.html
+    - Pages inside /service-areas/:              ./waxing-xxx.html
+  Replace: {{BUSINESS_NAME}}, {{BUSINESS_ADDRESS}}, {{BUSINESS_CITY}}, {{BUSINESS_STATE}},
+           {{BUSINESS_POSTAL}}, {{INSTAGRAM_URL}}, {{BOOKING_URL}},
+           {{SERVICE_AREA_LINKS}} (repeat <a class="footer-city">City</a> per town)
+-->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col footer-brand">
+      <div class="footer-logo">{{BUSINESS_NAME}}</div>
+      <p class="footer-tagline">
+        Serving
+        <a href="service-areas/waxing-danbury-ct.html">Danbury</a>,
+        <a href="service-areas/waxing-bethel-ct.html">Bethel</a>,
+        <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a>,
+        <a href="service-areas/waxing-monroe-ct.html">Monroe</a>,
+        and Newtown CT.
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h4 class="footer-heading">Visit</h4>
+      <p class="footer-body">{{BUSINESS_ADDRESS}}<br>{{BUSINESS_CITY}}, {{BUSINESS_STATE}} {{BUSINESS_POSTAL}}</p>
+    </div>
+
+    <div class="footer-col">
+      <h4 class="footer-heading">Connect</h4>
+      <p class="footer-body">
+        <a href="{{INSTAGRAM_URL}}" target="_blank" rel="noopener">Instagram</a><br>
+        <a href="{{BOOKING_URL}}" target="_blank" rel="noopener">Book Online</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    © <span id="footerYear"></span> {{BUSINESS_NAME}} · Serving
+    <a href="service-areas/waxing-danbury-ct.html">Danbury</a>,
+    <a href="service-areas/waxing-bethel-ct.html">Bethel</a>,
+    <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a>,
+    <a href="service-areas/waxing-monroe-ct.html">Monroe</a>
+    &amp; Newtown CT
+  </div>
+</footer>

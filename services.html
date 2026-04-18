@@ -406,8 +406,9 @@
     .town-pill {
       padding: .38rem .9rem; border: 1px solid var(--sand-dark);
       font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
-      color: var(--brown-light); font-weight: 500;
+      color: var(--brown-light); font-weight: 500; text-decoration: none; display: inline-block;
     }
+    a.town-pill:hover { border-color: var(--navy); color: var(--navy); }
     .town-pill.home { background: var(--slate); color: var(--cream); border-color: var(--slate); }
 
     /* ─── FOOTER ─── */
@@ -424,6 +425,8 @@
       color: var(--cream); margin-bottom: .9rem; display: block;
     }
     .footer-tagline { font-size: .73rem; color: rgba(255,255,255,.32); line-height: 1.95; }
+    .footer-tagline a { color: rgba(255,255,255,.32); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.15); }
+    .footer-tagline a:hover { color: rgba(255,255,255,.55); }
     .footer-col-title {
       font-size: .54rem; letter-spacing: .32em; text-transform: uppercase;
       color: rgba(255,255,255,.28); margin-bottom: 1.3rem; font-weight: 500; display: block;
@@ -440,6 +443,8 @@
       text-align: center; padding-bottom: 2rem;
       font-size: .54rem; color: rgba(255,255,255,.18); letter-spacing: .06em;
     }
+    .footer-bottom a { color: rgba(255,255,255,.18); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .footer-bottom a:hover { color: rgba(255,255,255,.32); }
 
     /* ─── REVEAL ─── */
     .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
@@ -932,10 +937,10 @@
     <h2 class="heading-lg">Clients travel from across Connecticut<br>for results worth the drive.</h2>
     <div class="locations-towns">
       <div class="town-pill home">Newtown</div>
-      <div class="town-pill">Danbury</div>
-      <div class="town-pill">Bethel</div>
-      <div class="town-pill">Ridgefield</div>
-      <div class="town-pill">Monroe</div>
+      <a href="service-areas/waxing-danbury-ct.html" class="town-pill">Danbury</a>
+      <a href="service-areas/waxing-bethel-ct.html" class="town-pill">Bethel</a>
+      <a href="service-areas/waxing-ridgefield-ct.html" class="town-pill">Ridgefield</a>
+      <a href="service-areas/waxing-monroe-ct.html" class="town-pill">Monroe</a>
       <div class="town-pill">Sandy Hook</div>
       <div class="town-pill">Brookfield</div>
       <div class="town-pill">Southbury</div>
@@ -949,7 +954,7 @@
     <div class="footer-grid">
       <div>
         <span class="footer-brand">Luxe Wax Spa</span>
-        <p class="footer-tagline">Premium waxing &amp; esthetician services in Newtown, CT. Serving Danbury, Bethel, Ridgefield, Monroe and all of Fairfield County.</p>
+        <p class="footer-tagline">Premium waxing &amp; esthetician services in Newtown, CT. Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a>, <a href="service-areas/waxing-monroe-ct.html">Monroe</a> and all of Fairfield County.</p>
       </div>
       <div>
         <span class="footer-col-title">Menu</span>
@@ -981,7 +986,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving Danbury, Bethel, Ridgefield &amp; Monroe CT
+    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT
   </div>
 </footer>
 

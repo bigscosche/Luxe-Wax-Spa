@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>System Overview — Luxe Wax Spa (Internal)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --cream:#FFFBF0; --sand:#EBE5D5; --sand-dark:#D4CEBB; --navy:#263242; --brown:#5F553A; --brown-light:#8A8070; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--navy);padding:4rem 6vw;line-height:1.7;font-size:.88rem}
+    .wrap{max-width:860px;margin:0 auto}
+    h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.6rem;margin-bottom:.3rem}
+    h1 em{font-style:italic}
+    .sub{color:var(--brown-light);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;margin-bottom:2.5rem}
+    h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.4rem;margin:2.5rem 0 .8rem;border-bottom:1px solid var(--sand-dark);padding-bottom:.4rem}
+    p,li{color:var(--brown);margin-bottom:.6rem}
+    ul,ol{padding-left:1.3rem}
+    code{font-family:'SF Mono',Menlo,monospace;background:var(--sand);padding:.1rem .35rem;font-size:.78rem;color:var(--navy)}
+    pre{font-family:'SF Mono',Menlo,monospace;background:var(--sand);padding:1rem 1.2rem;line-height:1.55;overflow-x:auto;border:1px solid var(--sand-dark);margin:.8rem 0 1.4rem;font-size:.78rem;white-space:pre;color:var(--navy)}
+    a{color:var(--navy)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;margin:1rem 0 1.8rem}
+    .card{background:var(--sand);border:1px solid var(--sand-dark);padding:1.1rem 1.3rem}
+    .card h3{font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;color:var(--navy);margin-bottom:.6rem;font-weight:500}
+    .card p{font-size:.8rem;line-height:1.65;margin:0;color:var(--brown)}
+    @media(max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>System <em>Overview</em></h1>
+    <p class="sub">Architecture · Reuse · Ownership</p>
+
+    <h2>What this site is</h2>
+    <p>A static, zero-build, single-repo marketing site for a local service business. Pure HTML/CSS/JS, deployed to Netlify. No frameworks, no bundler, no database on the frontend. It's designed to be forked and rebranded for another local business in under a day.</p>
+
+    <h2>Stack</h2>
+    <div class="grid">
+      <div class="card"><h3>Frontend</h3><p>HTML + CSS in &lt;style&gt; blocks + vanilla JS. Google Fonts (Cormorant Garamond + Syne). No framework.</p></div>
+      <div class="card"><h3>Host</h3><p>Netlify. Drag-and-drop deploy or GitHub auto-deploy on push.</p></div>
+      <div class="card"><h3>Booking</h3><p>Vagaro. External link — no auth, no state in this site.</p></div>
+      <div class="card"><h3>Lead capture</h3><p>Contact form → Netlify Function → Supabase row + Slack webhook.</p></div>
+      <div class="card"><h3>SEO</h3><p>Schema.org JSON-LD (BeautySalon + LocalBusiness), sitemap.xml, robots.txt, city-level landing pages.</p></div>
+      <div class="card"><h3>Analytics</h3><p>Not yet wired. Netlify Analytics or Plausible recommended — add a single &lt;script&gt; to &lt;head&gt; of every page.</p></div>
+    </div>
+
+    <h2>Folder map</h2>
+    <pre>/
+├── index.html, services.html, about.html, contact.html
+├── service-areas/
+│   └── waxing-{danbury,bethel,ridgefield,monroe}-ct.html
+│   └── brazilian-wax-newtown-ct.html
+├── components/              ← copy-paste HTML snippets (reuse)
+├── assets/
+│   ├── css/theme.css        ← design tokens
+│   ├── js/main.js           ← shared scripts (reference)
+│   └── images/              ← production photos
+├── images/                  ← legacy photo folder (still referenced)
+├── sitemap.xml, robots.txt
+├── admin-notes.html, lead-structure.html, system-overview.html   ← noindex
+└── README.md, netlify.toml</pre>
+
+    <h2>Reuse model</h2>
+    <p>For a new business (cleaning company, contractor, another salon):</p>
+    <ol>
+      <li>Duplicate the repo.</li>
+      <li>Change the palette + fonts in <code>/assets/css/theme.css</code> and in each page's inline <code>&lt;style&gt;</code> <code>:root</code> block.</li>
+      <li>Find/replace the <code>{{PLACEHOLDERS}}</code> documented in <a href="components/README.md">/components/README.md</a>.</li>
+      <li>Swap services, service areas, and hero copy.</li>
+      <li>Update <code>sitemap.xml</code>, JSON-LD addresses/geo, and <code>canonical</code> URLs.</li>
+      <li>Point Netlify to the new repo.</li>
+    </ol>
+
+    <h2>Why inline per-page CSS</h2>
+    <p>Every page ships as a self-contained file. This makes surgical edits safer, reduces moving parts, and lets the site be hosted anywhere — no build step, no framework lock-in. The trade-off is some duplication between pages; that's accepted in exchange for portability. The shared tokens in <code>/assets/css/theme.css</code> keep rebrands centralized.</p>
+
+    <h2>What lives where</h2>
+    <ul>
+      <li><strong>Public pages</strong> — root <code>.html</code> files + <code>/service-areas/</code>.</li>
+      <li><strong>SEO</strong> — <code>sitemap.xml</code>, <code>robots.txt</code>, per-page JSON-LD in <code>&lt;head&gt;</code>.</li>
+      <li><strong>Reusable markup</strong> — <code>/components/</code> (copy-paste).</li>
+      <li><strong>Design tokens / shared JS</strong> — <code>/assets/</code>.</li>
+      <li><strong>Internal (noindex)</strong> — <a href="admin-notes.html">admin-notes</a>, <a href="lead-structure.html">lead-structure</a>, this page.</li>
+    </ul>
+
+    <h2>Deploy pipeline</h2>
+    <ol>
+      <li>Push to GitHub <code>main</code>.</li>
+      <li>Netlify build runs (no build command — it just publishes the repo root).</li>
+      <li>Live at the Netlify subdomain (or custom domain when configured).</li>
+      <li>Netlify Functions in <code>/netlify/functions/</code> are auto-deployed with the site.</li>
+    </ol>
+
+    <h2>Known follow-ups</h2>
+    <ul>
+      <li>Wire the contact form to <code>/.netlify/functions/lead</code> (code is in <a href="lead-structure.html">lead-structure</a>).</li>
+      <li>Add analytics.</li>
+      <li>Compress and self-host hero imagery instead of Unsplash.</li>
+      <li>Add custom domain + SSL on Netlify.</li>
+    </ul>
+
+    <p style="margin-top:3rem"><a href="admin-notes.html">← admin notes</a> · <a href="lead-structure.html">← lead structure</a></p>
+  </div>
+</body>
+</html>

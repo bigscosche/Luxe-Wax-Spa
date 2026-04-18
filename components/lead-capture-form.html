@@ -1,0 +1,77 @@
+<!--
+  LEAD CAPTURE FORM — Supabase-ready, Slack-forward-compatible.
+  Frontend is wired; backend submission is TODO (see /assets/js/main.js handleLeadSubmit).
+  Replace: service <option> list and location <option> list for the target business.
+
+  Form name/id convention matches Supabase column names directly:
+    leads (
+      id uuid primary key default gen_random_uuid(),
+      created_at timestamptz default now(),
+      name text, phone text, email text,
+      service text, location text, message text,
+      source text  -- set to window.location.pathname client-side
+    )
+-->
+<section class="quote-form-section" id="quote">
+  <div class="quote-inner">
+    <div class="quote-intro reveal">
+      <span class="tag">Request a Quote</span>
+      <h2 class="heading-lg">Not sure what you need?<br><em>Send a note.</em></h2>
+      <p class="body-text">Share a few details and you'll hear back within one business day. For faster turnaround, book directly online.</p>
+    </div>
+
+    <form class="quote-form reveal" data-form="lead-capture" novalidate>
+      <div class="field">
+        <label for="lead-name">Full Name</label>
+        <input id="lead-name" name="name" type="text" autocomplete="name" required />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="lead-phone">Phone</label>
+          <input id="lead-phone" name="phone" type="tel" autocomplete="tel" required />
+        </div>
+        <div class="field">
+          <label for="lead-email">Email</label>
+          <input id="lead-email" name="email" type="email" autocomplete="email" required />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="lead-service">Service</label>
+          <select id="lead-service" name="service" required>
+            <option value="" disabled selected>Select a service</option>
+            <option value="brazilian-wax">Brazilian Wax</option>
+            <option value="bikini-wax">Bikini Wax</option>
+            <option value="eyebrow-design">Eyebrow Design</option>
+            <option value="lash-lift">Lash Lift &amp; Tint</option>
+            <option value="body-waxing">Body Waxing</option>
+            <option value="mens-waxing">Men's Waxing</option>
+            <option value="other">Other / Not Sure</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="lead-location">Location</label>
+          <select id="lead-location" name="location" required>
+            <option value="" disabled selected>Closest town</option>
+            <option value="newtown">Newtown</option>
+            <option value="danbury">Danbury</option>
+            <option value="bethel">Bethel</option>
+            <option value="ridgefield">Ridgefield</option>
+            <option value="monroe">Monroe</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="lead-message">Message <span class="field-optional">(optional)</span></label>
+        <textarea id="lead-message" name="message" rows="4" placeholder="Anything specific you want Cida to know?"></textarea>
+      </div>
+
+      <button type="submit" class="form-submit">Send Note ↗</button>
+      <p class="form-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>

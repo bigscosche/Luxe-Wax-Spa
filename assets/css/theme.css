@@ -1,0 +1,116 @@
+/* ──────────────────────────────────────────────────────────────
+   THEME TOKENS — single source of truth for reuse
+   To rebrand for a new business, change ONLY the values in :root
+   and the two @font-face imports in the HTML <head>.
+   ────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Palette — neutrals + accents */
+  --cream:      #FFFBF0;
+  --sand:       #EBE5D5;
+  --sand-dark:  #D4CEBB;
+  --slate:      #374558;
+  --slate-mid:  #59637E;
+  --navy:       #263242;
+  --brown:      #5F553A;
+  --brown-light:#8A8070;
+  --white:      #FFFFFF;
+
+  /* Role aliases — reference these in component CSS, not raw palette */
+  --bg-page:        var(--cream);
+  --bg-panel:       var(--sand);
+  --bg-panel-dark:  var(--slate);
+  --bg-inverse:     var(--navy);
+  --border-soft:    var(--sand-dark);
+  --text-primary:   var(--navy);
+  --text-muted:     var(--brown-light);
+  --text-body:      var(--brown);
+  --text-inverse:   var(--white);
+  --accent:         var(--slate);
+
+  /* Typography */
+  --font-display:  'Cormorant Garamond', Georgia, serif;
+  --font-body:     'Syne', system-ui, sans-serif;
+  --fs-tag:        .58rem;
+  --fs-body:       .82rem;
+  --fs-h2:         clamp(1.8rem, 3vw, 2.8rem);
+  --fs-h1:         clamp(2.4rem, 5vw, 4rem);
+  --ls-caps:       .36em;
+
+  /* Spacing scale */
+  --space-xs: .5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 6rem;
+
+  /* Layout */
+  --container-max: 1440px;
+  --gutter-x:      6vw;
+
+  /* Motion */
+  --ease:          cubic-bezier(.2,.7,.2,1);
+  --dur-fast:      .2s;
+  --dur-med:       .35s;
+  --dur-slow:      .65s;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   BASE RESET — shared across pages
+   ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Shared typography helpers — match markup already used on pages */
+.tag {
+  font-size: var(--fs-tag);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: .7rem;
+  display: block;
+}
+.heading-lg {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 300;
+  line-height: 1.08;
+  color: var(--text-primary);
+  letter-spacing: -.01em;
+}
+.heading-lg em { font-style: italic; }
+.body-text {
+  font-size: var(--fs-body);
+  color: var(--text-muted);
+  line-height: 1.95;
+  font-weight: 400;
+}
+
+/* Reveal animation — used by /assets/js/main.js */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease); }
+.reveal.visible { opacity: 1; transform: none; }
+
+/*
+  NOTE ON PER-PAGE CSS
+  --------------------
+  Each HTML page currently keeps its own <style> block with component CSS
+  (nav, hero, footer, etc.). That keeps pages self-contained and deployable
+  as single files. This file defines the design *tokens* and the small set
+  of helpers shared by every page. When rebranding for a new business:
+
+    1. Change the palette values in :root above.
+    2. Swap the two @font-face imports in each page <head>.
+    3. Run a find/replace on the {{PLACEHOLDERS}} listed in /components/README.md.
+
+  Do NOT move all per-page CSS into this file — the flat-file portability
+  is a feature for small agency-delivered sites, not a bug.
+*/

@@ -1,0 +1,20 @@
+<!--
+  NAV — add `dark-hero` class when the hero below the nav is dark.
+  Replace: {{BUSINESS_NAME}}, {{BOOKING_URL}}, {{ACTIVE_PAGE}} (home|services|about|contact)
+  Remove `active` on links that are not the current page.
+-->
+<nav class="nav dark-hero" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">{{BUSINESS_NAME}}</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html" class="active">Home</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="{{BOOKING_URL}}" target="_blank" rel="noopener" class="nav-book">Book Now</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>

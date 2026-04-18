@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lead Structure — Luxe Wax Spa (Internal)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root { --cream:#FFFBF0; --sand:#EBE5D5; --sand-dark:#D4CEBB; --navy:#263242; --brown:#5F553A; --brown-light:#8A8070; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Syne',sans-serif;background:var(--cream);color:var(--navy);padding:4rem 6vw;line-height:1.7;font-size:.88rem}
+    .wrap{max-width:860px;margin:0 auto}
+    h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.6rem;margin-bottom:.3rem}
+    h1 em{font-style:italic}
+    .sub{color:var(--brown-light);font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;margin-bottom:2.5rem}
+    h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.4rem;margin:2.5rem 0 .8rem;border-bottom:1px solid var(--sand-dark);padding-bottom:.4rem}
+    h3{font-size:.82rem;letter-spacing:.08em;margin:1.4rem 0 .4rem;color:var(--brown)}
+    p,li{color:var(--brown);margin-bottom:.6rem}
+    ul,ol{padding-left:1.3rem}
+    code{font-family:'SF Mono',Menlo,monospace;background:var(--sand);padding:.1rem .35rem;font-size:.78rem;color:var(--navy)}
+    pre{font-family:'SF Mono',Menlo,monospace;background:#1b1f27;color:#e8e3d4;padding:1.2rem;line-height:1.6;overflow-x:auto;border-radius:2px;margin:.8rem 0 1.4rem;font-size:.76rem;white-space:pre}
+    .flow{background:var(--sand);padding:1.3rem 1.5rem;border-left:3px solid var(--navy);font-size:.82rem;color:var(--brown);margin:1rem 0}
+    a{color:var(--navy)}
+    table{width:100%;border-collapse:collapse;margin:.8rem 0 1.4rem;font-size:.82rem}
+    th,td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--sand-dark);color:var(--brown)}
+    th{color:var(--navy);font-weight:500;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Lead <em>Structure</em></h1>
+    <p class="sub">Form → Supabase → Slack</p>
+
+    <h2>Form fields (frontend)</h2>
+    <p>Source: <a href="contact.html#quote">/contact.html#quote</a>. Field <code>name</code> attributes map 1:1 to Supabase column names.</p>
+
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>name</td><td>text</td><td>yes</td><td>"Alex Ruiz"</td></tr>
+        <tr><td>phone</td><td>tel</td><td>yes</td><td>"+1 203 555 0100"</td></tr>
+        <tr><td>email</td><td>email</td><td>yes</td><td>"alex@example.com"</td></tr>
+        <tr><td>service</td><td>enum</td><td>yes</td><td>brazilian-wax · bikini-wax · eyebrow-design · lash-lift · body-waxing · mens-waxing · other</td></tr>
+        <tr><td>location</td><td>enum</td><td>yes</td><td>newtown · danbury · bethel · ridgefield · monroe · other</td></tr>
+        <tr><td>message</td><td>text</td><td>no</td><td>"First-timer, flexible weekday mornings"</td></tr>
+        <tr><td>source</td><td>text</td><td>auto</td><td>window.location.pathname</td></tr>
+        <tr><td>submitted</td><td>timestamp</td><td>auto</td><td>new Date().toISOString()</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Supabase schema</h2>
+    <p>Create this table in the Supabase SQL editor:</p>
+    <pre>create table public.leads (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+  name        text not null,
+  phone       text not null,
+  email       text not null,
+  service     text not null,
+  location    text not null,
+  message     text,
+  source      text,
+  submitted   timestamptz
+);
+
+-- RLS: lock down everything. Netlify function uses service role key.
+alter table public.leads enable row level security;</pre>
+
+    <h2>End-to-end flow</h2>
+    <div class="flow">
+      1. Visitor fills the form on <code>/contact.html</code>.<br>
+      2. Submit handler POSTs JSON payload to <code>/.netlify/functions/lead</code>.<br>
+      3. Netlify Function inserts a row into Supabase <code>leads</code>.<br>
+      4. Same function POSTs a formatted message to a Slack Incoming Webhook.<br>
+      5. Frontend shows the success message and resets the form.
+    </div>
+
+    <h2>Netlify Function (reference)</h2>
+    <p>Save as <code>/netlify/functions/lead.js</code>. Set env vars in Netlify: <code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_KEY</code>, <code>SLACK_WEBHOOK_URL</code>.</p>
+    <pre>export async function handler(event) {
+  if (event.httpMethod !== 'POST') return { statusCode: 405 };
+
+  const payload = JSON.parse(event.body || '{}');
+  const required = ['name', 'phone', 'email', 'service', 'location'];
+  for (const key of required) {
+    if (!payload[key]) return { statusCode: 400, body: `missing ${key}` };
+  }
+
+  // 1. Insert into Supabase
+  const dbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/leads`, {
+    method: 'POST',
+    headers: {
+      apikey: process.env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!dbRes.ok) return { statusCode: 500, body: 'db_insert_failed' };
+
+  // 2. Post to Slack
+  await fetch(process.env.SLACK_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      text: `*New lead — ${payload.service}* in ${payload.location}\n` +
+            `${payload.name} · ${payload.phone} · ${payload.email}\n` +
+            (payload.message ? `> ${payload.message}\n` : '') +
+            `source: ${payload.source}`,
+    }),
+  });
+
+  return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+}</pre>
+
+    <h2>Frontend wiring (already in contact.html)</h2>
+    <p>The submit handler builds the payload and logs to console today. To go live, uncomment the <code>fetch</code> block marked <code>TODO</code> in the <code>&lt;script&gt;</code> at the bottom of <code>contact.html</code>.</p>
+
+    <h2>Environment setup checklist</h2>
+    <ol>
+      <li>Create a free Supabase project. Run the SQL above in the SQL editor.</li>
+      <li>Copy the project URL and the <strong>service</strong> key (not the anon key — inserts happen server-side).</li>
+      <li>Create a Slack Incoming Webhook for the target channel (#leads).</li>
+      <li>In Netlify → Site settings → Environment variables, add <code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_KEY</code>, <code>SLACK_WEBHOOK_URL</code>.</li>
+      <li>Deploy. Submit a test lead. Verify one row in Supabase and one message in Slack.</li>
+    </ol>
+
+    <p style="margin-top:3rem"><a href="admin-notes.html">← admin notes</a> · <a href="system-overview.html">system overview →</a></p>
+  </div>
+</body>
+</html>
