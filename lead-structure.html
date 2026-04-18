@@ -51,21 +51,27 @@
 
     <h2>Supabase schema</h2>
     <p>Create this table in the Supabase SQL editor:</p>
-    <pre>create table public.leads (
+    <p>Canonical SQL lives at <code>/supabase/leads.sql</code>. Run it once in Supabase → SQL Editor.</p>
+    <pre>create extension if not exists "pgcrypto";
+
+create table if not exists public.leads (
   id          uuid primary key default gen_random_uuid(),
   created_at  timestamptz not null default now(),
-  name        text not null,
-  phone       text not null,
-  email       text not null,
-  service     text not null,
-  location    text not null,
-  message     text,
-  source      text,
+  name        text not null check (char_length(name)  between 1 and 120),
+  phone       text not null check (char_length(phone) between 1 and 40),
+  email       text not null check (char_length(email) between 3 and 160),
+  service     text not null check (service  in ('brazilian-wax','bikini-wax','eyebrow-design','lash-lift','body-waxing','mens-waxing','other')),
+  location    text not null check (location in ('newtown','danbury','bethel','ridgefield','monroe','other')),
+  message     text        check (message is null or char_length(message) <= 2000),
+  source      text        check (source  is null or char_length(source)  <= 200),
   submitted   timestamptz
 );
 
--- RLS: lock down everything. Netlify function uses service role key.
-alter table public.leads enable row level security;</pre>
+create index if not exists leads_created_at_desc on public.leads (created_at desc);
+create index if not exists leads_email_created   on public.leads (email, created_at desc);
+
+alter table public.leads enable row level security;
+-- No policies → only the service-role key (Netlify Function) can read/write.</pre>
 
     <h2>End-to-end flow</h2>
     <div class="flow">
@@ -76,44 +82,8 @@ alter table public.leads enable row level security;</pre>
       5. Frontend shows the success message and resets the form.
     </div>
 
-    <h2>Netlify Function (reference)</h2>
-    <p>Save as <code>/netlify/functions/lead.js</code>. Set env vars in Netlify: <code>SUPABASE_URL</code>, <code>SUPABASE_SERVICE_KEY</code>, <code>SLACK_WEBHOOK_URL</code>.</p>
-    <pre>export async function handler(event) {
-  if (event.httpMethod !== 'POST') return { statusCode: 405 };
-
-  const payload = JSON.parse(event.body || '{}');
-  const required = ['name', 'phone', 'email', 'service', 'location'];
-  for (const key of required) {
-    if (!payload[key]) return { statusCode: 400, body: `missing ${key}` };
-  }
-
-  // 1. Insert into Supabase
-  const dbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/leads`, {
-    method: 'POST',
-    headers: {
-      apikey: process.env.SUPABASE_SERVICE_KEY,
-      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=minimal',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!dbRes.ok) return { statusCode: 500, body: 'db_insert_failed' };
-
-  // 2. Post to Slack
-  await fetch(process.env.SLACK_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      text: `*New lead — ${payload.service}* in ${payload.location}\n` +
-            `${payload.name} · ${payload.phone} · ${payload.email}\n` +
-            (payload.message ? `> ${payload.message}\n` : '') +
-            `source: ${payload.source}`,
-    }),
-  });
-
-  return { statusCode: 200, body: JSON.stringify({ ok: true }) };
-}</pre>
+    <h2>Netlify Function</h2>
+    <p>Canonical implementation lives at <code>/netlify/functions/lead.js</code>. It validates input, rate-limits per email (3 per hour), inserts into Supabase, and posts a Block Kit message to Slack. Slack failures are non-fatal — the lead is already saved. See <a href="BACKEND.md">BACKEND.md</a> for deploy notes.</p>
 
     <h2>Frontend wiring (already in contact.html)</h2>
     <p>The submit handler builds the payload and logs to console today. To go live, uncomment the <code>fetch</code> block marked <code>TODO</code> in the <code>&lt;script&gt;</code> at the bottom of <code>contact.html</code>.</p>

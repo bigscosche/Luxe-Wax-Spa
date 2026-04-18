@@ -755,6 +755,11 @@
       <p class="body-text">Share a few details and Cida will reply within one business day. For faster turnaround, book online 24/7 via Vagaro.</p>
     </div>
     <form class="quote-form reveal" data-form="lead-capture" novalidate>
+      <!-- Honeypot: real users leave this empty. Hidden from view and screen readers. -->
+      <div aria-hidden="true" style="position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;">
+        <label for="lead-website">Website</label>
+        <input id="lead-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
       <div class="field">
         <label for="lead-name">Full Name</label>
         <input id="lead-name" name="name" type="text" autocomplete="name" required />
@@ -924,11 +929,16 @@
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
 
-  // ─── Lead capture — Supabase + Slack ready. Backend TODO below. ───
+  // ─── Lead capture — posts to /.netlify/functions/lead (Supabase + Slack). ───
   const leadForm = document.querySelector('form[data-form="lead-capture"]');
   if (leadForm) {
     const leadStatus = leadForm.querySelector('.form-status');
     const leadBtn = leadForm.querySelector('.form-submit');
+    const errorMessages = {
+      rate_limited: "Looks like this email just sent a note. Please wait an hour or book online directly.",
+      invalid_email: "That email doesn't look right — please double-check and try again.",
+      server_misconfigured: "The booking system is being updated. Please book online via Vagaro for now.",
+    };
     leadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!leadForm.checkValidity()) { leadForm.reportValidity(); return; }
@@ -940,20 +950,23 @@
       leadStatus.textContent = '';
       leadStatus.className = 'form-status';
       try {
-        // TODO: wire to /.netlify/functions/lead — see /lead-structure.html for schema.
-        // const res = await fetch('/.netlify/functions/lead', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(payload),
-        // });
-        // if (!res.ok) throw new Error('submit_failed');
-        console.info('[lead-capture] ready for backend:', payload);
-        await new Promise(r => setTimeout(r, 500));
+        const res = await fetch('/.netlify/functions/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok || body.ok === false) {
+          const code = body.error || 'submit_failed';
+          throw new Error(code);
+        }
         leadForm.reset();
         leadStatus.textContent = "Thanks — your note is in. Cida will reply within one business day.";
         leadStatus.className = 'form-status is-success';
       } catch (err) {
-        leadStatus.textContent = "Something went wrong. Please try again or book online directly.";
+        const msg = errorMessages[err.message]
+          || "Something went wrong. Please try again or book online directly.";
+        leadStatus.textContent = msg;
         leadStatus.className = 'form-status is-error';
       } finally {
         leadBtn.disabled = false;
