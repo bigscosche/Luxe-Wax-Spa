@@ -25,6 +25,7 @@ a:hover { text-decoration: underline; }
 .sidebar { background: var(--panel); border-right: 1px solid var(--line); padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 1.4rem; }
 .sidebar h1 { font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
 .sidebar h1 strong { color: var(--text); display: block; font-size: 1.05rem; letter-spacing: 0.04em; text-transform: none; margin-top: 0.2rem; }
+.sidebar .proto-badge { display: inline-block; margin-top: 0.55rem; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--warn); border: 1px solid var(--line); border-color: var(--warn); border-radius: 999px; padding: 0.16rem 0.45rem; }
 .sidebar nav { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; }
 .sidebar nav a { padding: 0.55rem 0.7rem; border-radius: var(--radius); color: var(--muted); font-size: 0.86rem; }
 .sidebar nav a:hover { background: var(--panel-2); color: var(--text); text-decoration: none; }

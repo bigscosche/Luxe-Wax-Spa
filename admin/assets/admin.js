@@ -24,8 +24,19 @@ const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY,
 });
 window.sb = sb;
 
+// TEMPORARY: prototype-only bypass for the private admin area.
+// This must be turned OFF before any real launch.
+const DEV_BYPASS_AUTH = true;
+const DEV_BYPASS_SESSION = {
+  user: { email: 'Prototype Mode' },
+};
+
 // 3. Auth gate — call at the top of every admin page (except login).
 async function requireAuth() {
+  if (DEV_BYPASS_AUTH) {
+    return DEV_BYPASS_SESSION;
+  }
+
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
     const target = encodeURIComponent(location.pathname + location.search);
@@ -46,19 +57,21 @@ function renderSidebar(active, session) {
     ['inventory',    'Inventory',    '/admin/inventory.html'],
   ];
   el.innerHTML = `
-    <h1>LUXE WAX SPA<strong>Admin</strong></h1>
+    <h1>LUXE WAX SPA<strong>Admin</strong>${DEV_BYPASS_AUTH ? '<span class="proto-badge">Prototype Mode</span>' : ''}</h1>
     <nav>
       ${links.map(([k, label, href]) =>
         `<a href="${href}" class="${k === active ? 'active' : ''}">${label}</a>`
       ).join('')}
     </nav>
-    <div class="who">${session?.user?.email || ''}</div>
-    <button class="signout" id="signOutBtn">Sign out</button>
+    <div class="who">${DEV_BYPASS_AUTH ? 'Auth bypass enabled' : (session?.user?.email || '')}</div>
+    ${DEV_BYPASS_AUTH ? '' : '<button class="signout" id="signOutBtn">Sign out</button>'}
   `;
-  document.getElementById('signOutBtn').addEventListener('click', async () => {
-    await sb.auth.signOut();
-    location.replace('/admin/login.html');
-  });
+  if (!DEV_BYPASS_AUTH) {
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      location.replace('/admin/login.html');
+    });
+  }
 }
 
 // 5. Generic helpers.
@@ -84,4 +97,4 @@ function setStatus(el, text, kind = '') {
 }
 
 // Expose helpers so each page script can use them.
-Object.assign(window, { requireAuth, renderSidebar, fmtDateTime, fmtDate, fmtMoney, escapeHtml, setStatus });
+Object.assign(window, { requireAuth, renderSidebar, fmtDateTime, fmtDate, fmtMoney, escapeHtml, setStatus, DEV_BYPASS_AUTH });
