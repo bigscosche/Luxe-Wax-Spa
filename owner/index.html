@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Owner Access — Luxe Wax Spa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FFFBF0; --sand-dark: #D4CEBB;
+      --navy: #263242; --brown-light: #8A8070; --white: #FFFFFF;
+    }
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--cream); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 1.2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--sand-dark);
+      padding: 3rem 2.4rem;
+      max-width: 460px; width: 100%;
+      text-align: center;
+    }
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1rem;
+      color: var(--brown-light); letter-spacing: .04em;
+      margin-bottom: 1.6rem;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.8rem, 5vw, 2.4rem);
+      line-height: 1.1; letter-spacing: -.015em;
+      margin-bottom: .8rem;
+    }
+    h1 em { font-style: italic; }
+    p.lede {
+      font-size: .78rem; color: var(--brown-light);
+      line-height: 1.8; margin: 0 auto 2.4rem;
+    }
+    .actions { display: flex; flex-direction: column; gap: .8rem; }
+    .btn {
+      display: block; width: 100%;
+      padding: .9rem 1rem;
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem; letter-spacing: .24em; text-transform: uppercase;
+      font-weight: 500;
+      color: var(--white); background: var(--navy);
+      border: 1px solid var(--navy);
+      text-decoration: none; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn.ghost {
+      background: transparent; color: var(--navy);
+    }
+    .btn.ghost:hover { background: var(--navy); color: var(--white); opacity: 1; }
+    .back-link {
+      display: inline-block; margin-top: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: .95rem;
+      color: var(--brown-light); text-decoration: none;
+      border-bottom: 1px solid var(--sand-dark); padding-bottom: 1px;
+    }
+    .back-link:hover { color: var(--navy); border-bottom-color: var(--navy); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">Luxe Wax Spa</div>
+    <h1>Owner <em>access</em></h1>
+    <p class="lede">Private entry for the business owner. This page is not indexed and is not meant for clients.</p>
+
+    <div class="actions">
+      <a href="/admin/login.html" class="btn">Owner Login</a>
+      <a href="/admin/reset-password.html" class="btn ghost">Reset Password</a>
+    </div>
+
+    <a href="/" class="back-link">Back to main site</a>
+  </main>
+</body>
+</html>
