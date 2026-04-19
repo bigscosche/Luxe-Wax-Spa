@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Appointments — Admin</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <h2>Appointments</h2>
+        <span class="meta" id="count"></span>
+      </div>
+
+      <section class="card">
+        <h3>Book a new appointment</h3>
+        <form class="inline-form" id="addForm">
+          <div class="field"><label>Client</label>
+            <select name="client_id" id="clientSelect" required></select>
+          </div>
+          <div class="field"><label>Service</label>
+            <select name="service" required>
+              <option value="">Select…</option>
+              <option>Brazilian Wax</option>
+              <option>Bikini Wax</option>
+              <option>Eyebrow Design</option>
+              <option>Lash Lift &amp; Tint</option>
+              <option>Body Waxing</option>
+              <option>Men's Waxing</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field"><label>Date &amp; time</label><input name="appointment_date" type="datetime-local" required /></div>
+          <div class="field"><label>Price ($)</label><input name="price" type="number" step="0.01" min="0" /></div>
+          <button type="submit">Book</button>
+        </form>
+        <p class="status" id="addStatus"></p>
+      </section>
+
+      <section class="card">
+        <h3>Schedule</h3>
+        <div style="margin-bottom:0.8rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
+          <select id="filterStatus" style="max-width:180px">
+            <option value="">All statuses</option>
+            <option value="booked">Booked</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No-show</option>
+          </select>
+          <select id="filterRange" style="max-width:180px">
+            <option value="upcoming">Upcoming (30 days)</option>
+            <option value="today">Today</option>
+            <option value="past">Past 30 days</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div id="list"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let clientCache = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('appointments', session);
+      await loadClients();
+      await loadAppointments();
+
+      document.getElementById('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const status = document.getElementById('addStatus');
+        const payload = {
+          client_id: f.client_id.value,
+          service: f.service.value,
+          appointment_date: new Date(f.appointment_date.value).toISOString(),
+          price: f.price.value ? Number(f.price.value) : null,
+          status: 'booked',
+        };
+        const { error } = await sb.from('appointments').insert(payload);
+        if (error) { setStatus(status, error.message, 'err'); return; }
+        setStatus(status, 'Appointment booked.', 'ok');
+        f.reset();
+        await loadAppointments();
+      });
+
+      document.getElementById('filterStatus').addEventListener('change', loadAppointments);
+      document.getElementById('filterRange').addEventListener('change', loadAppointments);
+    });
+
+    async function loadClients() {
+      const { data } = await sb.from('clients').select('id, name').order('name');
+      clientCache = data || [];
+      document.getElementById('clientSelect').innerHTML =
+        '<option value="">Select client…</option>' +
+        clientCache.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    }
+
+    async function loadAppointments() {
+      const status = document.getElementById('filterStatus').value;
+      const range  = document.getElementById('filterRange').value;
+      let query = sb.from('appointments')
+        .select('id, service, appointment_date, price, status, notes, client:clients(name, phone)')
+        .order('appointment_date', { ascending: range === 'past' ? false : true });
+
+      const now = new Date();
+      if (range === 'today') {
+        const s = new Date(now); s.setHours(0,0,0,0);
+        const e = new Date(now); e.setHours(23,59,59,999);
+        query = query.gte('appointment_date', s.toISOString()).lte('appointment_date', e.toISOString());
+      } else if (range === 'upcoming') {
+        const e = new Date(now); e.setDate(e.getDate() + 30);
+        query = query.gte('appointment_date', now.toISOString()).lte('appointment_date', e.toISOString());
+      } else if (range === 'past') {
+        const s = new Date(now); s.setDate(s.getDate() - 30);
+        query = query.gte('appointment_date', s.toISOString()).lt('appointment_date', now.toISOString());
+      }
+      if (status) query = query.eq('status', status);
+
+      const { data, error } = await query;
+      if (error) { document.getElementById('list').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; return; }
+      const rows = data || [];
+      document.getElementById('count').textContent = `${rows.length} shown`;
+      const el = document.getElementById('list');
+      if (rows.length === 0) { el.innerHTML = '<p class="empty">No appointments match.</p>'; return; }
+      el.innerHTML = `<table><thead><tr>
+        <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th><th></th>
+      </tr></thead><tbody>${rows.map(a => `<tr>
+        <td>${fmtDateTime(a.appointment_date)}</td>
+        <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+        <td>${escapeHtml(a.service)}</td>
+        <td>${fmtMoney(a.price)}</td>
+        <td><span class="badge ${a.status}">${a.status}</span></td>
+        <td><div class="row-actions">
+          ${a.status === 'booked'
+            ? `<button class="tiny" data-mark="completed" data-id="${a.id}">Complete</button>
+               <button class="ghost tiny" data-mark="no_show" data-id="${a.id}">No-show</button>
+               <button class="ghost tiny" data-mark="cancelled" data-id="${a.id}">Cancel</button>`
+            : `<button class="ghost tiny" data-mark="booked" data-id="${a.id}">Reopen</button>`}
+          <button class="ghost tiny" data-delete="${a.id}">Delete</button>
+        </div></td>
+      </tr>`).join('')}</tbody></table>`;
+
+      document.querySelectorAll('[data-mark]').forEach(btn => btn.addEventListener('click', async () => {
+        await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
+        await loadAppointments();
+      }));
+      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Delete this appointment?')) return;
+        await sb.from('appointments').delete().eq('id', btn.dataset.delete);
+        await loadAppointments();
+      }));
+    }
+  </script>
+</body>
+</html>

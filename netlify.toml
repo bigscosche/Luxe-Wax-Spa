@@ -1,2 +1,9 @@
 [build]
-  publish = "."
+  publish  = "."
+  # Generate config.local.js from SUPABASE_URL / SUPABASE_ANON_KEY env vars
+  # before the site is published. See scripts/build-config.sh.
+  command  = "bash scripts/build-config.sh"
+
+# Hourly run — 24h reminders, post-visit thanks, rebook nudges, low-stock alerts.
+[functions."scheduled-reminders"]
+  schedule = "0 * * * *"

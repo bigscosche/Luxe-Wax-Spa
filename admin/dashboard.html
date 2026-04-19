@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Dashboard — Admin</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <h2>Dashboard</h2>
+        <span class="meta" id="todayLabel"></span>
+      </div>
+
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <h3>Today's appointments</h3>
+        <div id="todayList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <h3>Low stock</h3>
+        <div id="lowStockList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <h3>Open feedback (rating &lt; 5, unresolved)</h3>
+        <div id="feedbackList"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('dashboard', session);
+      document.getElementById('todayLabel').textContent =
+        new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+      // KPIs
+      const { data: kpiRow } = await sb.from('dashboard_today').select('*').single();
+      const k = kpiRow || {};
+      document.getElementById('kpis').innerHTML = `
+        <div class="kpi"><div class="label">Appointments today</div><div class="value">${k.appointments_today ?? 0}</div></div>
+        <div class="kpi good"><div class="label">Completed today</div><div class="value">${k.completed_today ?? 0}</div></div>
+        <div class="kpi good"><div class="label">Revenue today</div><div class="value">${fmtMoney(k.revenue_today)}</div></div>
+        <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low stock items</div><div class="value">${k.low_stock_count ?? 0}</div></div>
+        <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Open feedback</div><div class="value">${k.open_feedback_count ?? 0}</div></div>
+      `;
+
+      // Today's appointments
+      const start = new Date(); start.setHours(0,0,0,0);
+      const end   = new Date(); end.setHours(23,59,59,999);
+      const { data: appts } = await sb.from('appointments')
+        .select('id, service, appointment_date, price, status, client:clients(name, phone)')
+        .gte('appointment_date', start.toISOString())
+        .lte('appointment_date', end.toISOString())
+        .order('appointment_date');
+      const todayEl = document.getElementById('todayList');
+      if (!appts || appts.length === 0) {
+        todayEl.innerHTML = '<p class="empty">Nothing on the books today.</p>';
+      } else {
+        todayEl.innerHTML = `<table><thead><tr>
+          <th>Time</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th>
+        </tr></thead><tbody>${appts.map(a => `<tr>
+          <td>${new Date(a.appointment_date).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' })}</td>
+          <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+          <td>${escapeHtml(a.service)}</td>
+          <td>${fmtMoney(a.price)}</td>
+          <td><span class="badge ${a.status}">${a.status}</span></td>
+        </tr>`).join('')}</tbody></table>`;
+      }
+
+      // Low stock
+      const { data: low } = await sb.from('inventory_alerts').select('*').order('quantity');
+      const lowEl = document.getElementById('lowStockList');
+      if (!low || low.length === 0) {
+        lowEl.innerHTML = '<p class="empty">All items above threshold.</p>';
+      } else {
+        lowEl.innerHTML = `<table><thead><tr>
+          <th>Item</th><th>Qty on hand</th><th>Threshold</th><th>Est. clients left</th>
+        </tr></thead><tbody>${low.map(i => `<tr>
+          <td>${escapeHtml(i.name)}</td>
+          <td><span class="badge low">${i.quantity} ${escapeHtml(i.unit || '')}</span></td>
+          <td>${i.low_stock_threshold} ${escapeHtml(i.unit || '')}</td>
+          <td>${i.estimated_clients_remaining ?? '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+      }
+
+      // Open feedback
+      const { data: fb } = await sb.from('reviews')
+        .select('id, rating, comment, client_name, created_at')
+        .lt('rating', 5).eq('resolved', false)
+        .order('created_at', { ascending: false }).limit(10);
+      const fbEl = document.getElementById('feedbackList');
+      if (!fb || fb.length === 0) {
+        fbEl.innerHTML = '<p class="empty">No open feedback. </p>';
+      } else {
+        fbEl.innerHTML = `<table><thead><tr>
+          <th>When</th><th>Rating</th><th>From</th><th>Comment</th><th></th>
+        </tr></thead><tbody>${fb.map(r => `<tr>
+          <td>${fmtDate(r.created_at)}</td>
+          <td><span class="badge ${r.rating <= 2 ? 'cancelled' : 'no_show'}">${r.rating}/5</span></td>
+          <td>${escapeHtml(r.client_name || '—')}</td>
+          <td>${escapeHtml(r.comment || '—')}</td>
+          <td><button class="ghost tiny" data-resolve="${r.id}">Mark resolved</button></td>
+        </tr>`).join('')}</tbody></table>`;
+        document.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', async () => {
+          const id = btn.dataset.resolve;
+          await sb.from('reviews').update({ resolved: true }).eq('id', id);
+          location.reload();
+        }));
+      }
+    });
+  </script>
+</body>
+</html>

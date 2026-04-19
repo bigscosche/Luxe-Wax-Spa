@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Inventory — Admin</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <h2>Inventory</h2>
+        <span class="meta" id="count"></span>
+      </div>
+
+      <section class="card">
+        <h3>Add an item</h3>
+        <form class="inline-form" id="addForm">
+          <div class="field"><label>Name</label><input name="name" required /></div>
+          <div class="field"><label>Unit</label><input name="unit" placeholder="g, ml, box…" /></div>
+          <div class="field"><label>Quantity on hand</label><input name="quantity" type="number" step="0.01" min="0" required /></div>
+          <div class="field"><label>Use per client</label><input name="usage_per_client" type="number" step="0.01" min="0" /></div>
+          <div class="field"><label>Low-stock threshold</label><input name="low_stock_threshold" type="number" step="0.01" min="0" required /></div>
+          <button type="submit">Add</button>
+        </form>
+        <p class="status" id="addStatus"></p>
+      </section>
+
+      <section class="card">
+        <h3>All items</h3>
+        <div id="list"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('inventory', session);
+      await loadInventory();
+
+      document.getElementById('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const status = document.getElementById('addStatus');
+        const payload = {
+          name: f.name.value.trim(),
+          unit: f.unit.value.trim() || 'unit',
+          quantity: Number(f.quantity.value),
+          usage_per_client: Number(f.usage_per_client.value || 0),
+          low_stock_threshold: Number(f.low_stock_threshold.value),
+        };
+        const { error } = await sb.from('inventory').insert(payload);
+        if (error) { setStatus(status, error.message, 'err'); return; }
+        setStatus(status, 'Added.', 'ok');
+        f.reset();
+        await loadInventory();
+      });
+    });
+
+    async function loadInventory() {
+      const { data, error } = await sb.from('inventory').select('*').order('name');
+      if (error) { document.getElementById('list').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; return; }
+      const rows = data || [];
+      document.getElementById('count').textContent = `${rows.length} items`;
+      const el = document.getElementById('list');
+      if (rows.length === 0) { el.innerHTML = '<p class="empty">No items yet — add your first above.</p>'; return; }
+      el.innerHTML = `<table><thead><tr>
+        <th>Item</th><th>Qty</th><th>Use / client</th><th>Threshold</th><th>Est. clients left</th><th>Status</th><th></th>
+      </tr></thead><tbody>${rows.map(i => {
+        const left = i.usage_per_client > 0 ? Math.floor(i.quantity / i.usage_per_client) : null;
+        const low  = Number(i.quantity) <= Number(i.low_stock_threshold);
+        return `<tr>
+          <td>${escapeHtml(i.name)}<div class="mono">${escapeHtml(i.unit || '')}</div></td>
+          <td>${i.quantity}</td>
+          <td>${i.usage_per_client || '—'}</td>
+          <td>${i.low_stock_threshold}</td>
+          <td>${left ?? '—'}</td>
+          <td>${low ? '<span class="badge low">Low</span>' : '<span class="badge completed">OK</span>'}</td>
+          <td><div class="row-actions">
+            <button class="ghost tiny" data-adjust="${i.id}" data-delta="-1">−1</button>
+            <button class="ghost tiny" data-adjust="${i.id}" data-delta="1">+1</button>
+            <button class="ghost tiny" data-set-qty="${i.id}">Set qty</button>
+            <button class="ghost tiny" data-set-thr="${i.id}">Set threshold</button>
+            <button class="ghost tiny" data-delete="${i.id}">Delete</button>
+          </div></td>
+        </tr>`;
+      }).join('')}</tbody></table>`;
+
+      document.querySelectorAll('[data-adjust]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.adjust;
+        const delta = Number(btn.dataset.delta);
+        const row = rows.find(r => r.id === id);
+        const next = Math.max(0, Number(row.quantity) + delta);
+        await sb.from('inventory').update({ quantity: next, updated_at: new Date().toISOString() }).eq('id', id);
+        await loadInventory();
+      }));
+      document.querySelectorAll('[data-set-qty]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.setQty;
+        const row = rows.find(r => r.id === id);
+        const next = prompt(`New quantity for "${row.name}":`, row.quantity);
+        if (next == null || next === '') return;
+        await sb.from('inventory').update({ quantity: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        await loadInventory();
+      }));
+      document.querySelectorAll('[data-set-thr]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.setThr;
+        const row = rows.find(r => r.id === id);
+        const next = prompt(`Low-stock threshold for "${row.name}":`, row.low_stock_threshold);
+        if (next == null || next === '') return;
+        await sb.from('inventory').update({ low_stock_threshold: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        await loadInventory();
+      }));
+      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Delete this item?')) return;
+        await sb.from('inventory').delete().eq('id', btn.dataset.delete);
+        await loadInventory();
+      }));
+    }
+  </script>
+</body>
+</html>

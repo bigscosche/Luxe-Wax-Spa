@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Clients — Admin</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <h2>Clients</h2>
+        <span class="meta" id="count"></span>
+      </div>
+
+      <section class="card">
+        <h3>Add a new client</h3>
+        <form class="inline-form" id="addForm">
+          <div class="field"><label>Name</label><input name="name" required /></div>
+          <div class="field"><label>Phone</label><input name="phone" type="tel" /></div>
+          <div class="field"><label>Email</label><input name="email" type="email" /></div>
+          <div class="field"><label>Notes</label><input name="notes" placeholder="optional" /></div>
+          <button type="submit">Add client</button>
+        </form>
+        <p class="status" id="addStatus"></p>
+      </section>
+
+      <section class="card">
+        <h3>All clients</h3>
+        <div style="margin-bottom:0.8rem">
+          <input id="search" placeholder="Search by name, email, or phone…" style="max-width:340px" />
+        </div>
+        <div id="list"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let allClients = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('clients', session);
+      await loadClients();
+
+      document.getElementById('addForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const f = e.target;
+        const status = document.getElementById('addStatus');
+        const payload = {
+          name: f.name.value.trim(),
+          phone: f.phone.value.trim() || null,
+          email: f.email.value.trim() || null,
+          notes: f.notes.value.trim() || null,
+        };
+        const { error } = await sb.from('clients').insert(payload);
+        if (error) { setStatus(status, error.message, 'err'); return; }
+        setStatus(status, 'Client added.', 'ok');
+        f.reset();
+        await loadClients();
+      });
+
+      document.getElementById('search').addEventListener('input', renderList);
+    });
+
+    async function loadClients() {
+      const { data, error } = await sb.from('clients')
+        .select('id, name, phone, email, notes, created_at')
+        .order('created_at', { ascending: false });
+      if (error) { document.getElementById('list').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; return; }
+      allClients = data || [];
+      document.getElementById('count').textContent = `${allClients.length} total`;
+      renderList();
+    }
+
+    function renderList() {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const rows = allClients.filter(c =>
+        !q ||
+        (c.name || '').toLowerCase().includes(q) ||
+        (c.email || '').toLowerCase().includes(q) ||
+        (c.phone || '').toLowerCase().includes(q)
+      );
+      const el = document.getElementById('list');
+      if (rows.length === 0) { el.innerHTML = '<p class="empty">No clients match.</p>'; return; }
+      el.innerHTML = `<table><thead><tr>
+        <th>Name</th><th>Phone</th><th>Email</th><th>Notes</th><th>Added</th><th></th>
+      </tr></thead><tbody>${rows.map(c => `<tr>
+        <td>${escapeHtml(c.name)}</td>
+        <td>${escapeHtml(c.phone || '—')}</td>
+        <td>${escapeHtml(c.email || '—')}</td>
+        <td>${escapeHtml(c.notes || '—')}</td>
+        <td class="mono">${fmtDate(c.created_at)}</td>
+        <td><div class="row-actions">
+          <button class="ghost tiny" data-edit="${c.id}">Edit notes</button>
+          <button class="ghost tiny" data-delete="${c.id}">Delete</button>
+        </div></td>
+      </tr>`).join('')}</tbody></table>`;
+
+      document.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.edit;
+        const current = allClients.find(c => c.id === id);
+        const next = prompt('Notes:', current?.notes || '');
+        if (next === null) return;
+        await sb.from('clients').update({ notes: next, updated_at: new Date().toISOString() }).eq('id', id);
+        await loadClients();
+      }));
+      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Delete this client and all their appointments? This cannot be undone.')) return;
+        await sb.from('clients').delete().eq('id', btn.dataset.delete);
+        await loadClients();
+      }));
+    }
+  </script>
+</body>
+</html>

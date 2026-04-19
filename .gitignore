@@ -1,2 +1,10 @@
 .claude/
 .DS_Store
+
+# Environment + secrets — never commit real keys
+.env
+.env.*
+!.env.example
+
+# Local browser config (generated on Netlify, hand-written in dev)
+config.local.js

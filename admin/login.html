@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin Sign-in — Luxe Wax Spa</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="login-shell">
+    <form id="loginForm" class="login-card">
+      <h1>Luxe Wax Spa · Admin</h1>
+      <p class="sub">Owner sign-in. Public visitors should not see this page.</p>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button type="submit" id="submitBtn">Sign in</button>
+      <p id="status" class="status"></p>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // If already signed in, bounce to dashboard (or ?next).
+      const params = new URLSearchParams(location.search);
+      const next = params.get('next') || '/admin/dashboard.html';
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) location.replace(next);
+
+      const form = document.getElementById('loginForm');
+      const status = document.getElementById('status');
+      const btn = document.getElementById('submitBtn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        btn.disabled = true; btn.textContent = 'Signing in…';
+        setStatus(status, '');
+        const email = form.email.value.trim();
+        const password = form.password.value;
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          setStatus(status, error.message || 'Sign-in failed.', 'err');
+          btn.disabled = false; btn.textContent = 'Sign in';
+          return;
+        }
+        location.replace(next);
+      });
+    });
+  </script>
+</body>
+</html>

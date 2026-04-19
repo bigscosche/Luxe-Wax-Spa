@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /admin
+Disallow: /review.html
+Disallow: /lead-structure.html
+Disallow: /admin-notes.html
+Disallow: /system-overview.html
 
 Sitemap: https://luxewaxspa.netlify.app/sitemap.xml

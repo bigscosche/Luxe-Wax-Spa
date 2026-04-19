@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Share Your Experience — Luxe Wax Spa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FFFBF0;
+      --sand: #EBE5D5;
+      --sand-dark: #D4CEBB;
+      --slate: #374558;
+      --navy: #263242;
+      --brown: #5F553A;
+      --brown-light: #8A8070;
+      --white: #FFFFFF;
+      --accent: #B88B4A;
+    }
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--cream); color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      padding: 3rem 1.2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+    .card {
+      background: var(--white);
+      border: 1px solid var(--sand-dark);
+      padding: 3rem 2.4rem;
+      max-width: 560px; width: 100%;
+      text-align: center;
+    }
+    .brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--brown-light);
+      letter-spacing: .04em;
+      margin-bottom: 1.8rem;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      line-height: 1.1; letter-spacing: -.015em;
+      margin-bottom: 1rem;
+    }
+    h1 em { font-style: italic; }
+    p.lede {
+      font-size: .85rem; color: var(--brown-light);
+      line-height: 1.8; max-width: 420px; margin: 0 auto 2.4rem;
+    }
+
+    /* Stars */
+    .stars {
+      display: flex; justify-content: center; gap: .4rem;
+      margin: 0 auto 1rem;
+    }
+    .star {
+      width: 48px; height: 48px;
+      background: none; border: none; cursor: pointer;
+      padding: 4px; color: var(--sand-dark);
+      transition: color .15s, transform .15s;
+    }
+    .star svg { width: 100%; height: 100%; display: block; }
+    .star:hover, .star:focus-visible {
+      color: var(--accent); transform: scale(1.08); outline: none;
+    }
+    .star.active { color: var(--accent); }
+    .stars-hint {
+      font-size: .6rem; letter-spacing: .24em; text-transform: uppercase;
+      color: var(--brown-light); margin-bottom: 2rem;
+    }
+
+    /* Buttons & inputs */
+    .btn {
+      display: inline-block;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic; font-size: 1.1rem;
+      color: var(--navy); text-decoration: none;
+      border: none; background: none; cursor: pointer;
+      border-bottom: 1px solid var(--navy); padding: 2px 4px;
+      transition: opacity .2s;
+    }
+    .btn:hover { opacity: .6; }
+    .btn.primary {
+      background: var(--navy); color: var(--white);
+      border: 1px solid var(--navy);
+      padding: .9rem 2rem; font-size: 1rem;
+    }
+    .btn.primary:hover { opacity: .88; }
+    .btn[disabled] { opacity: .4; cursor: not-allowed; }
+
+    .field { text-align: left; margin-bottom: 1.2rem; }
+    .field label {
+      display: block;
+      font-size: .58rem; letter-spacing: .26em; text-transform: uppercase;
+      color: var(--brown-light); font-weight: 500; margin-bottom: .5rem;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      font-family: inherit; font-size: .9rem; color: var(--navy);
+      background: var(--cream);
+      border: 1px solid var(--sand-dark);
+      padding: .8rem .9rem;
+      transition: border-color .2s;
+    }
+    .field input:focus, .field textarea:focus {
+      outline: none; border-color: var(--slate);
+    }
+    .field textarea { min-height: 120px; resize: vertical; }
+
+    .honeypot {
+      position: absolute; left: -10000px;
+      width: 1px; height: 1px; overflow: hidden;
+    }
+
+    /* Step containers */
+    .step { display: none; }
+    .step.visible { display: block; }
+
+    .status {
+      min-height: 1.2rem; margin-top: 1rem;
+      font-size: .75rem; color: var(--brown-light);
+    }
+    .status.err { color: #a4383d; }
+
+    .divider {
+      border: none; border-top: 1px solid var(--sand-dark);
+      margin: 1.8rem auto; max-width: 80px;
+    }
+
+    .small-link {
+      display: inline-block; margin-top: 1.2rem;
+      font-size: .65rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--brown-light); text-decoration: none;
+    }
+    .small-link:hover { color: var(--navy); }
+
+    @media (max-width: 520px) {
+      .card { padding: 2.2rem 1.4rem; }
+      .star { width: 42px; height: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">Luxe Wax Spa</div>
+
+    <!-- Step 1: rating -->
+    <section class="step visible" id="step-rate">
+      <h1>How was your <em>visit</em>?</h1>
+      <p class="lede">Tap a star to leave a quick rating. It takes less than a minute and helps Cida keep raising the bar.</p>
+      <div class="stars" role="radiogroup" aria-label="Rating out of 5">
+        <button type="button" class="star" data-value="1" aria-label="1 star">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1z"/></svg>
+        </button>
+        <button type="button" class="star" data-value="2" aria-label="2 stars">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1z"/></svg>
+        </button>
+        <button type="button" class="star" data-value="3" aria-label="3 stars">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1z"/></svg>
+        </button>
+        <button type="button" class="star" data-value="4" aria-label="4 stars">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1z"/></svg>
+        </button>
+        <button type="button" class="star" data-value="5" aria-label="5 stars">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.9L22 10l-5.5 4.8L18.2 22 12 18.3 5.8 22l1.7-7.2L2 10l7.1-1.1z"/></svg>
+        </button>
+      </div>
+      <div class="stars-hint">Poor · · · · · Excellent</div>
+    </section>
+
+    <!-- Step 2a: 5-star → Google redirect prompt -->
+    <section class="step" id="step-google">
+      <h1>Thank you <em>so much</em>.</h1>
+      <p class="lede">Would you share a few words on Google? It genuinely helps a small family studio like ours reach other clients in the area.</p>
+      <a class="btn primary" id="googleBtn" href="#" target="_blank" rel="noopener">Write a Google review</a>
+      <hr class="divider" />
+      <a href="#" class="small-link" data-back>No thanks, skip</a>
+    </section>
+
+    <!-- Step 2b: &lt;5 → private feedback form -->
+    <section class="step" id="step-feedback">
+      <h1>We'd love to <em>do better</em>.</h1>
+      <p class="lede">This note goes straight to Cida — no public posting, no algorithm. She reads every one personally.</p>
+      <form id="feedbackForm">
+        <div class="field">
+          <label for="fbName">Your name (optional)</label>
+          <input id="fbName" name="name" type="text" maxlength="120" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="fbComment">What could have been better?</label>
+          <textarea id="fbComment" name="comment" maxlength="2000" placeholder="Tell us what happened — we'll make it right." required></textarea>
+        </div>
+        <div class="honeypot" aria-hidden="true">
+          <label for="fbWebsite">Website</label>
+          <input id="fbWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <button type="submit" class="btn primary" id="fbSubmit">Send privately</button>
+        <p class="status" id="fbStatus"></p>
+      </form>
+    </section>
+
+    <!-- Step 3: done -->
+    <section class="step" id="step-done">
+      <h1>Thank <em>you</em>.</h1>
+      <p class="lede" id="doneMsg">We've received your note. Cida will personally follow up if you'd like a response.</p>
+      <a href="/" class="small-link">Back to luxewaxspa.netlify.app</a>
+    </section>
+  </main>
+
+  <script>
+    // ── CONFIG ────────────────────────────────────────────────
+    // Keys come from /config.local.js (gitignored; generated on Netlify).
+    // RLS allows INSERT on reviews only for the anon role.
+    const CFG = window.LUXE_CONFIG || {};
+    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) {
+      document.body.innerHTML = '<p style="padding:2rem;font-family:sans-serif">Config missing. Please try again later.</p>';
+      throw new Error('Missing /config.local.js');
+    }
+
+    // Update once the Google Business profile URL is live.
+    // Format: https://g.page/r/<PLACE_ID>/review  (or search.google.com/local/writereview?placeid=...)
+    const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=REPLACE_WITH_PLACE_ID';
+
+    // Separate client instance — no session persistence, anon only.
+    const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+
+    // ── STATE ─────────────────────────────────────────────────
+    const params = new URLSearchParams(location.search);
+    const source = (params.get('source') || 'review-page').slice(0, 200);
+    let selectedRating = null;
+
+    const steps = {
+      rate:     document.getElementById('step-rate'),
+      google:   document.getElementById('step-google'),
+      feedback: document.getElementById('step-feedback'),
+      done:     document.getElementById('step-done'),
+    };
+    function showStep(key) {
+      Object.entries(steps).forEach(([k, el]) => el.classList.toggle('visible', k === key));
+    }
+
+    // ── STARS ─────────────────────────────────────────────────
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => selectRating(Number(btn.dataset.value)));
+      btn.addEventListener('mouseenter', () => previewRating(Number(btn.dataset.value)));
+      btn.addEventListener('mouseleave', () => previewRating(selectedRating || 0));
+    });
+    function previewRating(n) {
+      stars.forEach(s => s.classList.toggle('active', Number(s.dataset.value) <= n));
+    }
+    async function selectRating(n) {
+      selectedRating = n;
+      previewRating(n);
+      if (n === 5) {
+        // Log the 5-star rating too (comment stays null).
+        await submitReview({ rating: 5, comment: null, name: null });
+        document.getElementById('googleBtn').href = GOOGLE_REVIEW_URL;
+        showStep('google');
+      } else {
+        showStep('feedback');
+      }
+    }
+
+    // ── FEEDBACK FORM ─────────────────────────────────────────
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = document.getElementById('fbStatus');
+      const btn    = document.getElementById('fbSubmit');
+      const honeypot = document.getElementById('fbWebsite').value;
+      if (honeypot) { goDone(); return; }  // silent success on bot
+
+      const name    = document.getElementById('fbName').value.trim().slice(0, 120) || null;
+      const comment = document.getElementById('fbComment').value.trim().slice(0, 2000);
+      if (!comment) { status.textContent = 'Please share what happened.'; status.classList.add('err'); return; }
+
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const ok = await submitReview({ rating: selectedRating, comment, name });
+      if (!ok) {
+        btn.disabled = false; btn.textContent = 'Send privately';
+        status.textContent = "Couldn't send just now. Please try again.";
+        status.classList.add('err');
+        return;
+      }
+      goDone();
+    });
+
+    // ── SUBMIT ────────────────────────────────────────────────
+    async function submitReview({ rating, comment, name }) {
+      if (!rating || rating < 1 || rating > 5) return false;
+      const { error } = await sb.from('reviews').insert({
+        rating, comment, client_name: name, source, resolved: false,
+      });
+      if (error) { console.warn('review submit failed', error); return false; }
+      return true;
+    }
+
+    // ── NAV HELPERS ───────────────────────────────────────────
+    document.querySelectorAll('[data-back]').forEach(el => {
+      el.addEventListener('click', (e) => { e.preventDefault(); goDone(); });
+    });
+    function goDone() {
+      if (selectedRating === 5) {
+        document.getElementById('doneMsg').textContent =
+          'Thank you again for the kind rating — whenever you have a moment, a Google review would mean the world.';
+      }
+      showStep('done');
+    }
+  </script>
+</body>
+</html>
