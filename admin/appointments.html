@@ -18,7 +18,7 @@
         <div>
           <div class="eyebrow">Calendar</div>
           <h2>Appointments</h2>
-          <p>Book visits, then mark them complete as they finish — revenue logs automatically.</p>
+          <p>Book visits and mark them done — revenue logs itself.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -30,7 +30,7 @@
             <p>Pick the client and service — price auto-fills.</p>
           </div>
           <div class="page-actions">
-            <a class="btn secondary" id="addClientBtn" href="/admin/clients.html#add-client">+ New client</a>
+            <a class="btn secondary" id="addClientBtn" href="/admin/clients.html#add-client">New client</a>
           </div>
         </div>
         <div class="notice success" id="selectedClientNotice" hidden></div>
@@ -47,7 +47,7 @@
           <div class="field">
             <label>Price ($)</label>
             <input name="price" id="priceInput" type="number" step="0.01" min="0" />
-            <div class="field-note" id="priceHint">Price fills in automatically when you pick a service.</div>
+            <div class="field-note" id="priceHint">Pick a service to auto-fill the price.</div>
           </div>
           <button type="submit">Book appointment</button>
         </form>
@@ -64,7 +64,7 @@
         <div class="card-head">
           <div>
             <h3>Schedule</h3>
-            <p>Filter to today, upcoming, or past visits.</p>
+            <p>Filter by time and status.</p>
           </div>
         </div>
         <div class="toolbar">
@@ -182,7 +182,19 @@
     });
 
     async function loadClients() {
-      const { data } = await sb.from('clients').select('id, name').order('name');
+      const { data, error } = await sb.from('clients').select('id, name').order('name');
+      if (error) {
+        clientCache = [];
+        preselectedClientId = '';
+        recentClientSuggestion = null;
+        const clientSelect = document.getElementById('clientSelect');
+        clientSelect.innerHTML = '<option value="">Could not load clients</option>';
+        toggleAppointmentForm(false);
+        syncSelectedClientNotice('');
+        setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+        return;
+      }
+
       clientCache = data || [];
       const clientSelect = document.getElementById('clientSelect');
       clientSelect.innerHTML = clientCache.length
@@ -192,6 +204,8 @@
         clientSelect.value = preselectedClientId;
       } else if (recentClientSuggestion?.id && clientCache.some(c => c.id === recentClientSuggestion.id)) {
         clientSelect.value = recentClientSuggestion.id;
+      } else if (flowContext?.selected_client_id && clientCache.some(c => c.id === flowContext.selected_client_id)) {
+        clientSelect.value = flowContext.selected_client_id;
       }
       rememberSelectedClient(clientSelect.value);
       toggleAppointmentForm(clientCache.length > 0);
@@ -246,26 +260,27 @@
       notice.hidden = false;
       const isRecent = recentClientSuggestion?.id === client.id;
       const cameFromSave = flowContext?.recent_action === 'client_saved' && flowContext?.selected_client_id === client.id;
-      notice.innerHTML = `<strong>${escapeHtml(client.name)}</strong><p>${cameFromSave || isRecent ? 'Recently added and ready to book.' : 'This client is selected.'} Pick the service, date, and price, then book the appointment.</p>`;
+      notice.innerHTML = `<strong>${escapeHtml(client.name)}</strong><p>${cameFromSave || isRecent ? 'Just added.' : ''} Pick the service, date, and price — then book.</p>`;
     }
 
     function rememberSelectedClient(clientId) {
       if (!clientId) return;
       const client = clientCache.find(row => row.id === clientId);
       if (!client) return;
-      rememberAdminFlowContext({
+      flowContext = {
         ...flowContext,
         selected_client_id: client.id,
         selected_client_name: client.name,
         recent_action: flowContext?.recent_action || 'client_selected',
-      });
+      };
+      rememberAdminFlowContext(flowContext);
     }
 
     async function loadAppointments() {
       const status = document.getElementById('filterStatus').value;
       const range  = document.getElementById('filterRange').value;
       let query = sb.from('appointments')
-        .select('id, service, appointment_date, price, status, notes, client:clients(name, phone)')
+        .select('id, client_id, service, appointment_date, price, status, notes, client:clients(name, phone)')
         .order('appointment_date', { ascending: range === 'past' ? false : true });
 
       const now = new Date();
@@ -283,7 +298,7 @@
       if (status) query = query.eq('status', status === 'scheduled' ? 'booked' : status);
 
       const { data, error } = await query;
-      if (error) { document.getElementById('list').innerHTML = `<p class="empty">Could not load appointments: ${escapeHtml(error.message)}</p>`; return; }
+      if (error) { document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>'; return; }
       const rows = data || [];
       document.getElementById('count').textContent = `${rows.length} shown`;
       setStatus(document.getElementById('listStatus'), '');
@@ -318,7 +333,13 @@
         await completeAppointment(appt);
       }));
       document.querySelectorAll('[data-mark]').forEach(btn => btn.addEventListener('click', async () => {
-        await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
+        btn.disabled = true;
+        const { error } = await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
+        if (error) {
+          setStatus(document.getElementById('listStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
         notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
@@ -328,7 +349,13 @@
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this appointment?')) return;
-        await sb.from('appointments').delete().eq('id', btn.dataset.delete);
+        btn.disabled = true;
+        const { error } = await sb.from('appointments').delete().eq('id', btn.dataset.delete);
+        if (error) {
+          setStatus(document.getElementById('listStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
         notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
@@ -356,12 +383,13 @@
 
       setStatus(listStatus, automation.message, automation.kind);
       listStatus.classList.add('highlight');
-      rememberAdminFlowContext({
+      flowContext = {
         ...flowContext,
         selected_client_id: appt.client_id || flowContext?.selected_client_id || '',
         selected_client_name: appt.client?.name || flowContext?.selected_client_name || '',
         recent_action: 'appointment_completed',
-      });
+      };
+      rememberAdminFlowContext(flowContext);
       notifyAdminDataChanged('appointments');
       notifyAdminDataChanged('transactions');
       await loadAppointments();
@@ -380,14 +408,11 @@
         return;
       }
       setStatus(listStatus, 'Appointment note saved.', 'ok');
+      notifyAdminDataChanged('appointments');
       await loadAppointments();
     }
 
     async function ensureAppointmentIncomeTransaction(appt) {
-      if (hasAutoPaymentMarker(appt.notes, appt.id)) {
-        return { kind: 'ok', message: 'Appointment completed. Revenue was already logged automatically.' };
-      }
-
       const amount = Number(appt.price || 0);
       if (!amount || Number.isNaN(amount) || amount <= 0) {
         return {
@@ -397,16 +422,14 @@
       }
 
       const description = buildAppointmentPaymentDescription(appt);
-      const { data: existing, error: existingError } = await sb.from('transactions')
-        .select('id')
-        .eq('type', 'income')
-        .eq('category', SERVICE_CATEGORY)
-        .eq('description', description)
-        .eq('amount', amount)
-        .limit(1);
+      const { data: existing, error: existingError } = await findMatchingAppointmentTransaction(description, amount);
 
       if (existingError) {
         return { kind: 'err', error: existingError.message || 'Could not verify existing payment transaction.' };
+      }
+
+      if (hasAutoPaymentMarker(appt.notes, appt.id) && existing && existing.length > 0) {
+        return { kind: 'ok', message: 'Appointment completed. Revenue was already logged automatically.' };
       }
 
       if (existing && existing.length > 0) {
@@ -435,6 +458,16 @@
       return { kind: 'ok', message: `Appointment completed. Revenue automatically logged: ${fmtMoney(amount)}. No manual transaction needed.` };
     }
 
+    async function findMatchingAppointmentTransaction(description, amount) {
+      return sb.from('transactions')
+        .select('id')
+        .eq('type', 'income')
+        .eq('category', SERVICE_CATEGORY)
+        .eq('description', description)
+        .eq('amount', amount)
+        .limit(1);
+    }
+
     function buildAppointmentPaymentDescription(appt) {
       return `Appointment payment: ${appt.client?.name || 'Client'} - ${normalizeServiceName(appt.service)}`;
     }
@@ -451,7 +484,7 @@
       const { error } = await sb.from('appointments')
         .update({ notes: nextNotes })
         .eq('id', appt.id);
-      return error ? (error.message || 'Could not save appointment automation marker.') : '';
+      return error ? 'Something went wrong. Try again.' : '';
     }
 
     function applySuggestedPrice(service, priceInput) {
@@ -486,21 +519,21 @@
       const suggestedPrice = preset?.defaultPrice;
 
       if (!service) {
-        hint.textContent = 'Select a service to auto-fill the usual price. You can still edit it.';
+        hint.textContent = 'Pick a service to auto-fill the price.';
         return;
       }
 
       if (suggestedPrice == null) {
-        hint.textContent = 'No default price is set for this service yet. Enter the price manually.';
+        hint.textContent = 'No default price for this service — enter it manually.';
         return;
       }
 
       if (Number(currentValue) === Number(suggestedPrice)) {
-        hint.textContent = `Usual price auto-filled at ${fmtMoney(suggestedPrice)}. You can edit it if this visit is different.`;
+        hint.textContent = `Usual price: ${fmtMoney(suggestedPrice)}. Edit if this visit is different.`;
         return;
       }
 
-      hint.textContent = `Usual price is ${fmtMoney(suggestedPrice)}. Current price is overridden for this appointment.`;
+      hint.textContent = `Usual price is ${fmtMoney(suggestedPrice)} — overridden for this visit.`;
     }
 
     function stripAutomationMarkers(notes) {

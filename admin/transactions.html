@@ -18,7 +18,7 @@
         <div>
           <div class="eyebrow">Money</div>
           <h2>Transactions</h2>
-          <p>Log income and expenses — anything outside the normal service flow.</p>
+          <p>Log income and expenses outside the normal service flow.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -29,7 +29,7 @@
         <div class="form-intro">
           <div>
             <h3>Log a transaction</h3>
-            <p>Pick income or expense, then fill in the amount.</p>
+            <p>Choose the type and fill in the amount.</p>
           </div>
         </div>
         <form class="inline-form" id="addForm">
@@ -66,7 +66,7 @@
         <div class="card-head">
           <div>
             <h3>History</h3>
-            <p>Filter by type to focus on income or expenses.</p>
+            <p>Filter by income or expense.</p>
           </div>
         </div>
         <div class="toolbar">
@@ -153,7 +153,7 @@
       const { data, error } = await query;
       const list = document.getElementById('list');
       if (error) {
-        list.innerHTML = '<p class="empty">Could not load transactions right now.</p>';
+        list.innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
         return;
       }
 
@@ -179,7 +179,13 @@
 
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this transaction?')) return;
-        await sb.from('transactions').delete().eq('id', btn.dataset.delete);
+        btn.disabled = true;
+        const { error } = await sb.from('transactions').delete().eq('id', btn.dataset.delete);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
         notifyAdminDataChanged('transactions');
         await Promise.all([loadSummary(), loadTransactions()]);
       }));

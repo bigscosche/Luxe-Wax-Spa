@@ -14,44 +14,36 @@
   <div class="shell">
     <aside id="sidebar" class="sidebar"></aside>
     <main class="main">
-      <div class="page-head">
-        <div>
-          <div class="eyebrow">Today</div>
-          <h2 id="greeting">Good day at Luxe</h2>
+      <!-- Workspace hero: greeting + focus + quick actions, one composed block -->
+      <section class="workspace">
+        <div class="workspace-head">
+          <div>
+            <div class="workspace-greeting-line" id="greeting">Good morning</div>
+            <div class="workspace-headline" id="workspaceHeadline">Luxe Wax Spa</div>
+            <div class="workspace-date" id="todayLabel"></div>
+          </div>
+          <div class="slim-notice">Prototype mode — auth bypassed</div>
         </div>
-        <span class="meta" id="todayLabel"></span>
-      </div>
-
-      <div class="slim-notice">Prototype mode — authentication bypassed</div>
-
-      <section class="today-focus" id="todayFocus">
-        <div class="focus-row"><span class="focus-dot muted"></span><span class="dimmed">Loading today&apos;s summary…</span></div>
+        <div id="todayFocus" class="workspace-focus">
+          <div class="focus-row"><span class="focus-dot muted"></span><span class="dimmed">Loading today&apos;s summary…</span></div>
+        </div>
+        <div class="workspace-actions">
+          <a class="workspace-action" href="/admin/appointments.html#add-appointment">Book appointment</a>
+          <a class="workspace-action" href="/admin/clients.html#add-client">Add client</a>
+          <a class="workspace-action" href="/admin/transactions.html#add-transaction">Log expense</a>
+        </div>
       </section>
 
+      <!-- KPI strip: business pulse at a glance -->
       <section class="kpis" id="kpis"></section>
 
-      <section class="card">
-        <div class="quick-grid">
-          <a class="quick-link" href="/admin/appointments.html#add-appointment">
-            <strong>Book appointment</strong>
-            <span>Schedule a client for a service.</span>
-          </a>
-          <a class="quick-link" href="/admin/clients.html#add-client">
-            <strong>Add client</strong>
-            <span>New walk-in or phone inquiry.</span>
-          </a>
-          <a class="quick-link" href="/admin/transactions.html#add-transaction">
-            <strong>Log expense</strong>
-            <span>Rent, supplies, refunds, other costs.</span>
-          </a>
-        </div>
-      </section>
-
-      <section class="card">
+      <!-- Primary: the dominant work surface for today -->
+      <div class="section-label">Today&apos;s schedule</div>
+      <section class="card primary">
         <div class="card-head">
           <div>
-            <h3>Today&apos;s schedule</h3>
-            <p>Mark visits complete as they finish — revenue gets logged for you.</p>
+            <h3>Schedule</h3>
+            <p>Mark each visit complete when it&apos;s done — revenue logs itself.</p>
           </div>
           <div class="page-actions">
             <a class="btn" href="/admin/appointments.html#add-appointment">Book appointment</a>
@@ -60,68 +52,79 @@
         <div id="todayList"><p class="empty">Loading…</p></div>
       </section>
 
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h3>Low stock</h3>
-            <p>Reorder these before your next shift.</p>
+      <!-- Outreach: relationship & pipeline -->
+      <div class="section-label">Outreach</div>
+      <div class="dash-grid">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3>Follow-ups</h3>
+              <p>A quick text keeps them coming back.</p>
+            </div>
           </div>
-          <div class="page-actions">
-            <a class="btn ghost" href="/admin/inventory.html">Manage inventory</a>
+          <div id="followUpList"><p class="empty">Loading…</p></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3>Coming up</h3>
+              <p>Your next few scheduled visits.</p>
+            </div>
+            <div class="page-actions">
+              <a class="btn secondary" href="/admin/appointments.html">Full calendar</a>
+            </div>
           </div>
-        </div>
-        <div id="lowStockList"><p class="empty">Loading…</p></div>
-      </section>
+          <div id="upcomingList"><p class="empty">Loading…</p></div>
+        </section>
+      </div>
+
+      <!-- Systems: supporting data layers -->
+      <div class="section-label">Systems</div>
+      <div class="dash-grid">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3>Transactions</h3>
+              <p>Auto-logged payments and manual entries.</p>
+            </div>
+            <div class="page-actions">
+              <a class="btn secondary" href="/admin/transactions.html#add-transaction">Log transaction</a>
+            </div>
+          </div>
+          <div id="recentTransactions"><p class="empty">Loading…</p></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3>Low stock</h3>
+              <p>Reorder before your next shift.</p>
+            </div>
+            <div class="page-actions">
+              <a class="btn ghost" href="/admin/inventory.html">Manage inventory</a>
+            </div>
+          </div>
+          <div id="lowStockList"><p class="empty">Loading…</p></div>
+        </section>
+      </div>
 
       <section class="card">
         <div class="card-head">
           <div>
-            <h3>Feedback to review</h3>
-            <p>Low ratings stay here until resolved.</p>
+            <h3>Feedback</h3>
+            <p>Low ratings appear here — read and resolve each one.</p>
           </div>
         </div>
         <div id="feedbackList"><p class="empty">Loading…</p></div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h3>Coming up</h3>
-            <p>Your next few scheduled visits.</p>
-          </div>
-          <div class="page-actions">
-            <a class="btn secondary" href="/admin/appointments.html">See full calendar</a>
-          </div>
-        </div>
-        <div id="upcomingList"><p class="empty">Loading…</p></div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h3>Clients due for follow-up</h3>
-            <p>A quick text keeps them coming back.</p>
-          </div>
-        </div>
-        <div id="followUpList"><p class="empty">Loading…</p></div>
-      </section>
-
-      <section class="card">
-        <div class="card-head">
-          <div>
-            <h3>Recent transactions</h3>
-            <p>Last five entries — service revenue and manual entries.</p>
-          </div>
-          <div class="page-actions">
-            <a class="btn secondary" href="/admin/transactions.html#add-transaction">Log transaction</a>
-          </div>
-        </div>
-        <div id="recentTransactions"><p class="empty">Loading…</p></div>
       </section>
     </main>
   </div>
 
   <script>
+    let dashboardRefreshTimer = null;
+    let dashboardLoadToken = 0;
+
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
       if (!session) return;
@@ -129,7 +132,7 @@
       const now = new Date();
       const hour = now.getHours();
       const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-      document.getElementById('greeting').textContent = `${greeting} at Luxe`;
+      document.getElementById('greeting').textContent = greeting;
       document.getElementById('todayLabel').textContent =
         now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
       await loadDashboard();
@@ -138,23 +141,44 @@
     });
 
     async function loadDashboard() {
+      const loadToken = ++dashboardLoadToken;
+
       // KPIs
       const { data: kpiRow } = await sb.from('dashboard_today').select('*').single();
+      if (loadToken !== dashboardLoadToken) return;
       const k = kpiRow || {};
       const todayIso = new Date().toISOString().slice(0, 10);
       const { data: todaysTransactions } = await sb.from('transactions')
         .select('amount, type')
         .eq('transaction_date', todayIso);
+      if (loadToken !== dashboardLoadToken) return;
       const todayIncome = (todaysTransactions || [])
         .filter(row => row.type === 'income')
         .reduce((sum, row) => sum + Number(row.amount || 0), 0);
+      const apptToday = k.appointments_today ?? 0;
+      const completedToday = k.completed_today ?? 0;
+      const remainingToday = Math.max(0, apptToday - completedToday);
       document.getElementById('kpis').innerHTML = `
-        <div class="kpi"><div class="label">On calendar</div><div class="value">${k.appointments_today ?? 0}</div><div class="subvalue">appointments today</div></div>
-        <div class="kpi good"><div class="label">Completed</div><div class="value">${k.completed_today ?? 0}</div><div class="subvalue">services finished today</div></div>
-        <div class="kpi good"><div class="label">Revenue today</div><div class="value">${fmtMoney(todayIncome)}</div><div class="subvalue">services + manual income</div></div>
-        <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low stock</div><div class="value">${k.low_stock_count ?? 0}</div><div class="subvalue">items to reorder</div></div>
-        <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Needs reply</div><div class="value">${k.open_feedback_count ?? 0}</div><div class="subvalue">open feedback</div></div>
+        <div class="kpi"><div class="label">Today</div><div class="value">${apptToday}</div><div class="subvalue">${apptToday === 1 ? 'appointment' : 'appointments'}</div></div>
+        <div class="kpi good"><div class="label">Completed</div><div class="value">${completedToday}</div><div class="subvalue">marked done</div></div>
+        <div class="kpi good"><div class="label">Earned today</div><div class="value">${fmtMoney(todayIncome)}</div><div class="subvalue">logged today</div></div>
+        <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low stock</div><div class="value">${k.low_stock_count ?? 0}</div><div class="subvalue">${k.low_stock_count > 0 ? 'needs reorder' : 'all stocked'}</div></div>
+        <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Feedback</div><div class="value">${k.open_feedback_count ?? 0}</div><div class="subvalue">${k.open_feedback_count > 0 ? 'needs reply' : 'all clear'}</div></div>
       `;
+
+      // Update workspace headline with live business state
+      const headlineEl = document.getElementById('workspaceHeadline');
+      if (headlineEl) {
+        if (apptToday === 0) {
+          headlineEl.textContent = 'Clear day ahead.';
+        } else if (remainingToday === 0) {
+          headlineEl.textContent = `All ${completedToday} ${completedToday === 1 ? 'visit' : 'visits'} done.`;
+        } else if (remainingToday === apptToday) {
+          headlineEl.textContent = `${apptToday} ${apptToday === 1 ? 'visit' : 'visits'} today.`;
+        } else {
+          headlineEl.textContent = `${remainingToday} of ${apptToday} ${apptToday === 1 ? 'visit' : 'visits'} left.`;
+        }
+      }
 
       // Today's appointments
       const start = new Date(); start.setHours(0,0,0,0);
@@ -164,6 +188,7 @@
         .gte('appointment_date', start.toISOString())
         .lte('appointment_date', end.toISOString())
         .order('appointment_date');
+      if (loadToken !== dashboardLoadToken) return;
       const todayEl = document.getElementById('todayList');
       if (!appts || appts.length === 0) {
         todayEl.innerHTML = `
@@ -187,6 +212,7 @@
 
       // Low stock
       const { data: low } = await sb.from('inventory_alerts').select('*').order('quantity');
+      if (loadToken !== dashboardLoadToken) return;
       const lowEl = document.getElementById('lowStockList');
       if (!low || low.length === 0) {
         lowEl.innerHTML = '<p class="empty">All supplies look good.</p>';
@@ -206,9 +232,10 @@
         .select('id, rating, comment, client_name, created_at')
         .lt('rating', 5).eq('resolved', false)
         .order('created_at', { ascending: false }).limit(10);
+      if (loadToken !== dashboardLoadToken) return;
       const fbEl = document.getElementById('feedbackList');
       if (!fb || fb.length === 0) {
-        fbEl.innerHTML = '<p class="empty">No feedback needs a reply.</p>';
+        fbEl.innerHTML = '<p class="empty">No low ratings right now.</p>';
       } else {
         fbEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
           <th>When</th><th>Rating</th><th>From</th><th>Comment</th><th></th>
@@ -221,8 +248,14 @@
         </tr>`).join('')}</tbody></table></div>`;
         document.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', async () => {
           const id = btn.dataset.resolve;
-          await sb.from('reviews').update({ resolved: true }).eq('id', id);
-          location.reload();
+          btn.disabled = true;
+          const { error } = await sb.from('reviews').update({ resolved: true }).eq('id', id);
+          if (error) {
+            btn.disabled = false;
+            return;
+          }
+          notifyAdminDataChanged('reviews');
+          await loadDashboard();
         }));
       }
 
@@ -232,6 +265,7 @@
         .gte('appointment_date', new Date().toISOString())
         .order('appointment_date')
         .limit(5);
+      if (loadToken !== dashboardLoadToken) return;
       const upcomingEl = document.getElementById('upcomingList');
       if (!upcoming || upcoming.length === 0) {
         upcomingEl.innerHTML = `
@@ -256,6 +290,7 @@
       const { data: followUpClients } = await sb.from('clients')
         .select('id, name, phone, email, notes, appointments(status, appointment_date, service)')
         .order('name');
+      if (loadToken !== dashboardLoadToken) return;
       const followUpEl = document.getElementById('followUpList');
       const dueClients = (followUpClients || [])
         .map(client => ({
@@ -279,7 +314,7 @@
         .slice(0, 8);
 
       if (dueClients.length === 0) {
-        followUpEl.innerHTML = '<p class="empty">Everyone is up to date — no one to reach out to.</p>';
+        followUpEl.innerHTML = '<p class="empty">Everyone&apos;s up to date.</p>';
       } else {
         followUpEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
           <th>Client</th><th>Last appointment</th><th>Next follow-up</th><th>Priority</th><th>Contact</th>
@@ -310,13 +345,14 @@
         .order('transaction_date', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(5);
+      if (loadToken !== dashboardLoadToken) return;
       const txEl = document.getElementById('recentTransactions');
       if (!recentTransactions || recentTransactions.length === 0) {
         txEl.innerHTML = `
           <div class="empty">
-            No money activity yet.
+            No transactions yet.
             <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-              <a class="btn" href="/admin/transactions.html#add-transaction">Log your first transaction</a>
+              <a class="btn" href="/admin/transactions.html#add-transaction">Log a transaction</a>
             </div>
           </div>`;
       } else {
@@ -333,12 +369,19 @@
     }
 
     function handleDashboardRefresh() {
-      loadDashboard();
+      queueDashboardRefresh();
     }
 
     function handleDashboardStorageRefresh(event) {
       if (event.key !== 'luxe-admin-data-event') return;
-      loadDashboard();
+      queueDashboardRefresh();
+    }
+
+    function queueDashboardRefresh() {
+      clearTimeout(dashboardRefreshTimer);
+      dashboardRefreshTimer = setTimeout(() => {
+        loadDashboard();
+      }, 80);
     }
 
     function renderTodayFocus(k, dueClients) {
@@ -350,32 +393,37 @@
       const remaining = Math.max(0, totalToday - completedToday);
       const followUpCount = dueClients.length;
       const lowStockCount = k.low_stock_count ?? 0;
+      const allClear = remaining === 0 && followUpCount === 0 && lowStockCount === 0;
 
       const rows = [];
 
-      // Appointments
-      if (totalToday === 0) {
-        rows.push({ dot: 'muted', text: 'No appointments scheduled today.', link: '/admin/appointments.html#add-appointment', linkText: 'Book one?' });
-      } else if (remaining === 0) {
-        rows.push({ dot: 'good', text: `All ${totalToday} appointment${totalToday !== 1 ? 's' : ''} completed today.` });
+      if (allClear && totalToday === 0) {
+        rows.push({ dot: 'muted', text: 'Nothing on the calendar today.', link: '/admin/appointments.html#add-appointment', linkText: 'Book an appointment' });
+      } else if (allClear) {
+        rows.push({ dot: 'good', text: `All clear — visits done, clients taken care of.` });
       } else {
-        rows.push({ dot: 'warn', text: `${remaining} of ${totalToday} appointment${totalToday !== 1 ? 's' : ''} still need to be marked complete.`, link: '/admin/appointments.html', linkText: 'Go to schedule' });
+        // Appointments — only show if there's something to act on
+        if (totalToday > 0 && remaining > 0) {
+          const s = remaining === 1 ? 'visit' : 'visits';
+          rows.push({ dot: 'warn', text: `${remaining} ${s} left to complete today.`, link: '/admin/appointments.html', linkText: 'Open schedule' });
+        } else if (totalToday > 0 && remaining === 0) {
+          rows.push({ dot: 'good', text: `All ${totalToday} ${totalToday === 1 ? 'visit' : 'visits'} completed today.` });
+        }
+
+        // Follow-ups — only show when action is needed
+        if (followUpCount > 0) {
+          const s = followUpCount === 1 ? 'client hasn\'t' : 'clients haven\'t';
+          rows.push({ dot: 'warn', text: `${followUpCount} ${s} heard from you in a while.`, link: '#followUpList', linkText: 'Reach out' });
+        }
+
+        // Low stock — only show when action is needed
+        if (lowStockCount > 0) {
+          const s = lowStockCount === 1 ? 'item is' : 'items are';
+          rows.push({ dot: 'bad', text: `${lowStockCount} supply ${s} running low.`, link: '/admin/inventory.html', linkText: 'Check inventory' });
+        }
       }
 
-      // Follow-ups
-      if (followUpCount > 0) {
-        rows.push({ dot: 'warn', text: `${followUpCount} client${followUpCount !== 1 ? 's' : ''} ${followUpCount === 1 ? 'is' : 'are'} due for a quick check-in.`, link: '#followUpList', linkText: 'See who' });
-      } else {
-        rows.push({ dot: 'good', text: 'No client follow-ups needed right now.' });
-      }
-
-      // Low stock
-      if (lowStockCount > 0) {
-        rows.push({ dot: 'bad', text: `${lowStockCount} supply item${lowStockCount !== 1 ? 's' : ''} running low.`, link: '/admin/inventory.html', linkText: 'Reorder now' });
-      }
-
-      const allClear = remaining === 0 && followUpCount === 0 && lowStockCount === 0;
-      el.className = `today-focus${allClear ? ' all-clear' : ''}`;
+      el.className = `workspace-focus today-focus${allClear ? ' all-clear' : ''}`;
       el.innerHTML = rows.map(r =>
         `<div class="focus-row">
           <span class="focus-dot ${r.dot}"></span>
@@ -436,6 +484,8 @@
       const wantsNote = confirm('Add quick note?');
       const note = wantsNote ? prompt('Add quick note?', client.followUpMeta?.last_contact_note || '') : '';
       if (wantsNote && note === null) return;
+      const trigger = document.querySelector(`[data-contacted="${client.id}"]`);
+      if (trigger) trigger.disabled = true;
 
       const nextMeta = {
         ...client.followUpMeta,
@@ -449,6 +499,7 @@
 
       if (error) {
         console.error('[dashboard] markClientContacted failed:', error.message);
+        if (trigger) trigger.disabled = false;
         return;
       }
 

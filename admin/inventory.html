@@ -59,6 +59,8 @@
   </div>
 
   <script>
+    let isSavingInventory = false;
+
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
       if (!session) return;
@@ -67,8 +69,12 @@
 
       document.getElementById('addForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSavingInventory) return;
         const f = e.target;
         const status = document.getElementById('addStatus');
+        isSavingInventory = true;
+        setFormBusy(f, true, 'Saving...');
+        setStatus(status, '');
         const payload = {
           name: f.name.value.trim(),
           unit: f.unit.value.trim() || 'unit',
@@ -77,16 +83,29 @@
           low_stock_threshold: Number(f.low_stock_threshold.value),
         };
         const { error } = await sb.from('inventory').insert(payload);
-        if (error) { setStatus(status, 'Could not save the item. Please try again.', 'err'); return; }
+        if (error) {
+          setStatus(status, 'Something went wrong. Try again.', 'err');
+          isSavingInventory = false;
+          setFormBusy(f, false);
+          return;
+        }
         setStatus(status, 'Item added.', 'ok');
         f.reset();
+        notifyAdminDataChanged('inventory');
         await loadInventory();
+        isSavingInventory = false;
+        setFormBusy(f, false);
+        flashFormSuccess(f, 'Saved');
       });
     });
 
     async function loadInventory() {
       const { data, error } = await sb.from('inventory').select('*').order('name');
-      if (error) { document.getElementById('list').innerHTML = '<p class="empty">Could not load inventory right now.</p>'; return; }
+      if (error) {
+        document.getElementById('count').textContent = '';
+        document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
+        return;
+      }
       const rows = data || [];
       document.getElementById('count').textContent = `${rows.length} items`;
       const el = document.getElementById('list');
@@ -121,7 +140,14 @@
         const delta = Number(btn.dataset.delta);
         const row = rows.find(r => r.id === id);
         const next = Math.max(0, Number(row.quantity) + delta);
-        await sb.from('inventory').update({ quantity: next, updated_at: new Date().toISOString() }).eq('id', id);
+        btn.disabled = true;
+        const { error } = await sb.from('inventory').update({ quantity: next, updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-set-qty]').forEach(btn => btn.addEventListener('click', async () => {
@@ -129,7 +155,14 @@
         const row = rows.find(r => r.id === id);
         const next = prompt(`New quantity for "${row.name}":`, row.quantity);
         if (next == null || next === '') return;
-        await sb.from('inventory').update({ quantity: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        btn.disabled = true;
+        const { error } = await sb.from('inventory').update({ quantity: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-set-thr]').forEach(btn => btn.addEventListener('click', async () => {
@@ -137,12 +170,26 @@
         const row = rows.find(r => r.id === id);
         const next = prompt(`Low-stock threshold for "${row.name}":`, row.low_stock_threshold);
         if (next == null || next === '') return;
-        await sb.from('inventory').update({ low_stock_threshold: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        btn.disabled = true;
+        const { error } = await sb.from('inventory').update({ low_stock_threshold: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this item?')) return;
-        await sb.from('inventory').delete().eq('id', btn.dataset.delete);
+        btn.disabled = true;
+        const { error } = await sb.from('inventory').delete().eq('id', btn.dataset.delete);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
     }

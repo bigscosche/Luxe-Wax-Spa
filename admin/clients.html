@@ -18,7 +18,7 @@
         <div>
           <div class="eyebrow">People</div>
           <h2>Clients</h2>
-          <p>Add someone new, then book their first appointment.</p>
+          <p>Add a client, then book their first appointment.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -132,7 +132,12 @@
       const { data, error } = await sb.from('clients')
         .select('id, name, phone, email, notes, created_at, appointments(price, status, appointment_date)')
         .order('created_at', { ascending: false });
-      if (error) { document.getElementById('list').innerHTML = `<p class="empty">Could not load clients: ${escapeHtml(error.message)}</p>`; return; }
+      if (error) {
+        allClients = [];
+        document.getElementById('count').textContent = '';
+        document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
+        return;
+      }
       allClients = data || [];
       document.getElementById('count').textContent = `${allClients.length} total`;
       renderList();
@@ -178,9 +183,16 @@
         if (next === null || !next.trim()) return;
         const combined = appendQuickNote(stripClientFollowUpMeta(current?.notes), next.trim());
         const meta = parseClientFollowUpMeta(current?.notes);
-        await sb.from('clients')
+        btn.disabled = true;
+        const { error } = await sb.from('clients')
           .update({ notes: buildClientNotesWithFollowUpMeta(combined, meta), updated_at: new Date().toISOString() })
           .eq('id', id);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('clients');
         await loadClients();
       }));
       document.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
@@ -189,14 +201,28 @@
         const next = prompt('Notes:', stripClientFollowUpMeta(current?.notes) || '');
         if (next === null) return;
         const meta = parseClientFollowUpMeta(current?.notes);
-        await sb.from('clients')
+        btn.disabled = true;
+        const { error } = await sb.from('clients')
           .update({ notes: buildClientNotesWithFollowUpMeta(next, meta), updated_at: new Date().toISOString() })
           .eq('id', id);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('clients');
         await loadClients();
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this client and all their appointments? This cannot be undone.')) return;
-        await sb.from('clients').delete().eq('id', btn.dataset.delete);
+        btn.disabled = true;
+        const { error } = await sb.from('clients').delete().eq('id', btn.dataset.delete);
+        if (error) {
+          setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
+          btn.disabled = false;
+          return;
+        }
+        notifyAdminDataChanged('clients');
         await loadClients();
       }));
     }
