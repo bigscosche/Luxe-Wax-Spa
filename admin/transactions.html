@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Transactions — Admin</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.local.js"></script>
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Money tracking</div>
+          <h2>Transactions</h2>
+          <p>Log income and expenses here so the owner can start tracking day-to-day business activity immediately.</p>
+        </div>
+        <span class="meta" id="count"></span>
+      </div>
+
+      <section class="kpis" id="summaryCards"></section>
+
+      <section class="card" id="add-transaction">
+        <div class="form-intro">
+          <div>
+            <h3>Log a transaction</h3>
+            <p>Use income for service revenue or product sales. Use expense for supplies, rent, software, or other costs.</p>
+          </div>
+        </div>
+        <form class="inline-form" id="addForm">
+          <div class="field">
+            <label>Type</label>
+            <select name="type" required>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Amount</label>
+            <input name="amount" type="number" min="0" step="0.01" required />
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select name="category">
+              <option value="">Select category…</option>
+              <option value="Service">Service</option>
+              <option value="Product">Product</option>
+              <option value="Supplies">Supplies</option>
+              <option value="Rent">Rent</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input name="transaction_date" type="date" required />
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <input name="description" placeholder="Optional detail" />
+          </div>
+          <button type="submit">Log transaction</button>
+        </form>
+        <p class="status" id="addStatus"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Recent transactions</h3>
+            <p>Filter by type to focus on revenue or expenses, then edit by deleting and re-adding if needed.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <select id="filterType" style="max-width:180px">
+            <option value="">All types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <a class="btn ghost tiny" href="#add-transaction">Log another transaction</a>
+        </div>
+        <div id="list"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('transactions', session);
+
+      const form = document.getElementById('addForm');
+      form.transaction_date.value = new Date().toISOString().slice(0, 10);
+      populateCategoryOptions();
+
+      await loadSummary();
+      await loadTransactions();
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const status = document.getElementById('addStatus');
+        const payload = {
+          type: form.type.value,
+          amount: Number(form.amount.value),
+          category: normalizeTransactionCategory(form.category.value.trim()) || null,
+          description: form.description.value.trim() || null,
+          transaction_date: form.transaction_date.value,
+        };
+        const { error } = await sb.from('transactions').insert(payload);
+        if (error) {
+          setStatus(status, error.message || 'Could not save transaction.', 'err');
+          return;
+        }
+        setStatus(status, 'Transaction logged. Use this page for expenses and one-off money activity that does not come from appointments.', 'ok');
+        form.reset();
+        form.transaction_date.value = new Date().toISOString().slice(0, 10);
+        form.type.value = 'income';
+        form.category.value = '';
+        await loadSummary();
+        await loadTransactions();
+      });
+
+      document.getElementById('filterType').addEventListener('change', loadTransactions);
+    });
+
+    async function loadTransactions() {
+      const type = document.getElementById('filterType').value;
+      let query = sb.from('transactions')
+        .select('id, amount, type, category, description, transaction_date, created_at')
+        .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (type) query = query.eq('type', type);
+
+      const { data, error } = await query;
+      const list = document.getElementById('list');
+      if (error) {
+        list.innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+        return;
+      }
+
+      const rows = data || [];
+      document.getElementById('count').textContent = `${rows.length} shown`;
+      if (rows.length === 0) {
+        list.innerHTML = type
+          ? '<p class="empty">No transactions match this filter yet. Try another type or log a new transaction above.</p>'
+          : `<div class="empty">No transactions logged yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-transaction">Log the first transaction</a></div></div>`;
+        return;
+      }
+
+      list.innerHTML = `<div class="table-wrap"><table><thead><tr>
+        <th>Date</th><th>Type</th><th>Amount</th><th>Category</th><th>Description</th><th></th>
+      </tr></thead><tbody>${rows.map(row => `<tr>
+        <td>${fmtDate(row.transaction_date)}</td>
+        <td><span class="badge ${row.type === 'income' ? 'completed' : 'low'}">${escapeHtml(fmtTransactionType(row.type))}</span></td>
+        <td>${fmtMoney(row.amount)}</td>
+        <td>${escapeHtml(normalizeTransactionCategory(row.category) || '—')}</td>
+        <td>${escapeHtml(row.description || '—')}</td>
+        <td><div class="row-actions"><button class="ghost tiny" data-delete="${row.id}">Delete</button></div></td>
+      </tr>`).join('')}</tbody></table></div>`;
+
+      document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
+        if (!confirm('Delete this transaction?')) return;
+        await sb.from('transactions').delete().eq('id', btn.dataset.delete);
+        await loadSummary();
+        await loadTransactions();
+      }));
+    }
+
+    async function loadSummary() {
+      const summaryEl = document.getElementById('summaryCards');
+      const today = new Date();
+      const start = new Date(today);
+      start.setDate(start.getDate() - 6);
+
+      const from = start.toISOString().slice(0, 10);
+      const to = today.toISOString().slice(0, 10);
+
+      const { data, error } = await sb.from('transactions')
+        .select('amount, type, transaction_date')
+        .gte('transaction_date', from)
+        .lte('transaction_date', to);
+
+      if (error) {
+        console.error('[transactions] loadSummary failed:', error.message);
+        summaryEl.innerHTML = `
+          <div class="kpi bad">
+            <div class="label">Income, last 7 days</div>
+            <div class="value">—</div>
+            <div class="subvalue">Could not load summary</div>
+          </div>
+          <div class="kpi bad">
+            <div class="label">Expenses, last 7 days</div>
+            <div class="value">—</div>
+            <div class="subvalue">Could not load summary</div>
+          </div>
+          <div class="kpi bad">
+            <div class="label">Net profit, last 7 days</div>
+            <div class="value">—</div>
+            <div class="subvalue">Could not load summary</div>
+          </div>
+        `;
+        return;
+      }
+
+      const rows = data || [];
+      const income = rows.reduce((sum, row) =>
+        row.type === 'income' ? sum + Number(row.amount || 0) : sum, 0);
+      const expenses = rows.reduce((sum, row) =>
+        row.type === 'expense' ? sum + Number(row.amount || 0) : sum, 0);
+      const net = income - expenses;
+
+      summaryEl.innerHTML = `
+        <div class="kpi good">
+          <div class="label">Income, last 7 days</div>
+          <div class="value">${fmtMoney(income)}</div>
+          <div class="subvalue">Service revenue and any other income entries</div>
+        </div>
+        <div class="kpi ${expenses > 0 ? 'warn' : ''}">
+          <div class="label">Expenses, last 7 days</div>
+          <div class="value">${fmtMoney(expenses)}</div>
+          <div class="subvalue">Supplies, rent, software, and other costs</div>
+        </div>
+        <div class="kpi ${net < 0 ? 'bad' : 'good'}">
+          <div class="label">Net profit, last 7 days</div>
+          <div class="value">${fmtMoney(net)}</div>
+          <div class="subvalue">${net < 0 ? 'Expenses are higher than income this week' : 'Income minus expenses for the last 7 days'}</div>
+        </div>
+      `;
+    }
+
+    function populateCategoryOptions() {
+      const select = document.querySelector('select[name="category"]');
+      select.innerHTML = '<option value="">Select category…</option>' +
+        TRANSACTION_CATEGORIES.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
+    }
+  </script>
+</body>
+</html>

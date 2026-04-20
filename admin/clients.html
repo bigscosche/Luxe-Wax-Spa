@@ -15,25 +15,45 @@
     <aside id="sidebar" class="sidebar"></aside>
     <main class="main">
       <div class="page-head">
-        <h2>Clients</h2>
+        <div>
+          <div class="eyebrow">Client records</div>
+          <h2>Clients</h2>
+          <p>Start here when you need to add a new person to the system before booking services or saving notes.</p>
+        </div>
         <span class="meta" id="count"></span>
       </div>
 
-      <section class="card">
-        <h3>Add a new client</h3>
+      <section class="card" id="add-client">
+        <div class="form-intro">
+          <div>
+            <h3>Add a new client</h3>
+            <p>Start here, then book the appointment. Use the basics only. Quick notes can be added later from the client list after the first visit or conversation.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn ghost" href="/admin/appointments.html#add-appointment">Then book an appointment</a>
+          </div>
+        </div>
         <form class="inline-form" id="addForm">
-          <div class="field"><label>Name</label><input name="name" required /></div>
-          <div class="field"><label>Phone</label><input name="phone" type="tel" /></div>
-          <div class="field"><label>Email</label><input name="email" type="email" /></div>
-          <div class="field"><label>Notes</label><input name="notes" placeholder="optional" /></div>
+          <div class="field"><label>Client name</label><input name="name" required /></div>
+          <div class="field"><label>Phone number</label><input name="phone" type="tel" placeholder="Optional" /></div>
+          <div class="field"><label>Email address</label><input name="email" type="email" placeholder="Optional" /></div>
+          <div class="field"><label>Starting note</label><input name="notes" placeholder="Optional" /></div>
           <button type="submit">Add client</button>
         </form>
         <p class="status" id="addStatus"></p>
+        <div class="page-actions" id="postAddActions" hidden>
+          <a class="btn" id="bookNewClientBtn" href="/admin/appointments.html#add-appointment">Book appointment for this client</a>
+        </div>
       </section>
 
       <section class="card">
-        <h3>All clients</h3>
-        <div style="margin-bottom:0.8rem">
+        <div class="card-head">
+          <div>
+            <h3>Client list</h3>
+            <p>Search by name, phone, or email to quickly find the right record.</p>
+          </div>
+        </div>
+        <div class="toolbar">
           <input id="search" placeholder="Search by name, email, or phone…" style="max-width:340px" />
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
@@ -61,10 +81,26 @@
           notes: f.notes.value.trim() || null,
         };
         const { error } = await sb.from('clients').insert(payload);
-        if (error) { setStatus(status, error.message, 'err'); return; }
-        setStatus(status, 'Client added.', 'ok');
-        f.reset();
+        if (error) {
+          setStatus(status, 'Could not add client. This is usually a database permissions issue in prototype mode.', 'err');
+          document.getElementById('postAddActions').hidden = true;
+          return;
+        }
+        setStatus(status, 'Client added. You can book an appointment next or add more notes from the list below.', 'ok');
         await loadClients();
+        const matchingClient = allClients.find((client) =>
+          client.name === payload.name &&
+          (client.phone || null) === payload.phone &&
+          (client.email || null) === payload.email
+        );
+        const postAddActions = document.getElementById('postAddActions');
+        const bookBtn = document.getElementById('bookNewClientBtn');
+        bookBtn.href = matchingClient
+          ? `/admin/appointments.html?client=${encodeURIComponent(matchingClient.id)}#add-appointment`
+          : '/admin/appointments.html#add-appointment';
+        bookBtn.textContent = `Book appointment for ${payload.name}`;
+        postAddActions.hidden = false;
+        f.reset();
       });
 
       document.getElementById('search').addEventListener('input', renderList);
@@ -72,9 +108,9 @@
 
     async function loadClients() {
       const { data, error } = await sb.from('clients')
-        .select('id, name, phone, email, notes, created_at')
+        .select('id, name, phone, email, notes, created_at, appointments(price, status, appointment_date)')
         .order('created_at', { ascending: false });
-      if (error) { document.getElementById('list').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; return; }
+      if (error) { document.getElementById('list').innerHTML = `<p class="empty">Could not load clients: ${escapeHtml(error.message)}</p>`; return; }
       allClients = data || [];
       document.getElementById('count').textContent = `${allClients.length} total`;
       renderList();
@@ -89,27 +125,51 @@
         (c.phone || '').toLowerCase().includes(q)
       );
       const el = document.getElementById('list');
-      if (rows.length === 0) { el.innerHTML = '<p class="empty">No clients match.</p>'; return; }
-      el.innerHTML = `<table><thead><tr>
-        <th>Name</th><th>Phone</th><th>Email</th><th>Notes</th><th>Added</th><th></th>
+      if (rows.length === 0) {
+        el.innerHTML = q
+          ? '<p class="empty">No clients match this search. Try a different name, phone number, or email.</p>'
+          : `<div class="empty">No clients yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-client">Add your first client</a></div></div>`;
+        return;
+      }
+      el.innerHTML = `<div class="table-wrap"><table><thead><tr>
+        <th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Total spent</th><th>Last visit</th><th>Notes</th><th>Added</th><th></th>
       </tr></thead><tbody>${rows.map(c => `<tr>
         <td>${escapeHtml(c.name)}</td>
         <td>${escapeHtml(c.phone || '—')}</td>
         <td>${escapeHtml(c.email || '—')}</td>
-        <td>${escapeHtml(c.notes || '—')}</td>
+        <td>${clientVisitCount(c)}</td>
+        <td>${fmtMoney(clientTotalSpent(c))}</td>
+        <td>${fmtDate(clientLastVisit(c))}</td>
+        <td>${renderClientNote(c)}</td>
         <td class="mono">${fmtDate(c.created_at)}</td>
         <td><div class="row-actions">
+          <button class="ghost tiny" data-quick-note="${c.id}">Quick note</button>
           <button class="ghost tiny" data-edit="${c.id}">Edit notes</button>
           <button class="ghost tiny" data-delete="${c.id}">Delete</button>
         </div></td>
-      </tr>`).join('')}</tbody></table>`;
+      </tr>`).join('')}</tbody></table></div>`;
 
+      document.querySelectorAll('[data-quick-note]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.quickNote;
+        const current = allClients.find(c => c.id === id);
+        const next = prompt('Add quick note:', '');
+        if (next === null || !next.trim()) return;
+        const combined = appendQuickNote(stripClientFollowUpMeta(current?.notes), next.trim());
+        const meta = parseClientFollowUpMeta(current?.notes);
+        await sb.from('clients')
+          .update({ notes: buildClientNotesWithFollowUpMeta(combined, meta), updated_at: new Date().toISOString() })
+          .eq('id', id);
+        await loadClients();
+      }));
       document.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
         const id = btn.dataset.edit;
         const current = allClients.find(c => c.id === id);
-        const next = prompt('Notes:', current?.notes || '');
+        const next = prompt('Notes:', stripClientFollowUpMeta(current?.notes) || '');
         if (next === null) return;
-        await sb.from('clients').update({ notes: next, updated_at: new Date().toISOString() }).eq('id', id);
+        const meta = parseClientFollowUpMeta(current?.notes);
+        await sb.from('clients')
+          .update({ notes: buildClientNotesWithFollowUpMeta(next, meta), updated_at: new Date().toISOString() })
+          .eq('id', id);
         await loadClients();
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
@@ -117,6 +177,40 @@
         await sb.from('clients').delete().eq('id', btn.dataset.delete);
         await loadClients();
       }));
+    }
+
+    function completedAppointments(client) {
+      return (client.appointments || []).filter(appt => appt.status === 'completed');
+    }
+
+    function clientVisitCount(client) {
+      return completedAppointments(client).length;
+    }
+
+    function clientTotalSpent(client) {
+      return completedAppointments(client).reduce((sum, appt) => sum + Number(appt.price || 0), 0);
+    }
+
+    function clientLastVisit(client) {
+      const dates = completedAppointments(client)
+        .map(appt => appt.appointment_date)
+        .filter(Boolean)
+        .sort((a, b) => new Date(b) - new Date(a));
+      return dates[0] || null;
+    }
+
+    function appendQuickNote(existingNotes, nextNote) {
+      const datedNote = `${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}: ${nextNote}`;
+      return [String(existingNotes || '').trim(), datedNote].filter(Boolean).join('\n');
+    }
+
+    function renderClientNote(client) {
+      const note = stripClientFollowUpMeta(client.notes);
+      if (!note) return '<span class="muted">No note</span>';
+      const lines = note.split('\n').filter(Boolean);
+      const preview = lines.slice(0, 2).join('\n');
+      const extra = lines.length > 2 ? `<div class="muted">+${lines.length - 2} more</div>` : '';
+      return `<div class="note-preview">${escapeHtml(preview)}</div>${extra}`;
     }
   </script>
 </body>

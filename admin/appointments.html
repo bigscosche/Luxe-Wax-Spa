@@ -15,44 +15,63 @@
     <aside id="sidebar" class="sidebar"></aside>
     <main class="main">
       <div class="page-head">
-        <h2>Appointments</h2>
+        <div>
+          <div class="eyebrow">Calendar</div>
+          <h2>Appointments</h2>
+          <p>Book new visits here, then use the schedule below to complete, cancel, or reopen appointments.</p>
+        </div>
         <span class="meta" id="count"></span>
       </div>
 
-      <section class="card">
-        <h3>Book a new appointment</h3>
+      <section class="card" id="add-appointment">
+        <div class="form-intro">
+          <div>
+            <h3>Book a new appointment</h3>
+            <p>Choose the client, service, date, and let the usual price fill in automatically.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn" id="addClientBtn" href="/admin/clients.html#add-client">Add Client First</a>
+          </div>
+        </div>
         <form class="inline-form" id="addForm">
           <div class="field"><label>Client</label>
             <select name="client_id" id="clientSelect" required></select>
           </div>
           <div class="field"><label>Service</label>
-            <select name="service" required>
-              <option value="">Select…</option>
-              <option>Brazilian Wax</option>
-              <option>Bikini Wax</option>
-              <option>Eyebrow Design</option>
-              <option>Lash Lift &amp; Tint</option>
-              <option>Body Waxing</option>
-              <option>Men's Waxing</option>
-              <option>Other</option>
+            <select name="service" id="serviceSelect" required>
+              <option value="">Select service…</option>
             </select>
           </div>
           <div class="field"><label>Date &amp; time</label><input name="appointment_date" type="datetime-local" required /></div>
-          <div class="field"><label>Price ($)</label><input name="price" type="number" step="0.01" min="0" /></div>
-          <button type="submit">Book</button>
+          <div class="field">
+            <label>Price ($)</label>
+            <input name="price" id="priceInput" type="number" step="0.01" min="0" />
+            <div class="field-note" id="priceHint">Select a service to auto-fill the usual price. You can still edit it.</div>
+          </div>
+          <button type="submit">Schedule appointment</button>
         </form>
         <p class="status" id="addStatus"></p>
+        <div class="empty" id="noClientsState" hidden>
+          Add your first client to start booking appointments.
+          <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
+            <a class="btn" href="/admin/clients.html#add-client">Go to Clients</a>
+          </div>
+        </div>
       </section>
 
       <section class="card">
-        <h3>Schedule</h3>
-        <div style="margin-bottom:0.8rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
+        <div class="card-head">
+          <div>
+            <h3>Appointment list</h3>
+            <p>Filter the schedule to focus on today, upcoming appointments, or recent history.</p>
+          </div>
+        </div>
+        <div class="toolbar">
           <select id="filterStatus" style="max-width:180px">
             <option value="">All statuses</option>
-            <option value="booked">Booked</option>
+            <option value="scheduled">Scheduled</option>
             <option value="completed">Completed</option>
             <option value="cancelled">Cancelled</option>
-            <option value="no_show">No-show</option>
           </select>
           <select id="filterRange" style="max-width:180px">
             <option value="upcoming">Upcoming (30 days)</option>
@@ -60,37 +79,67 @@
             <option value="past">Past 30 days</option>
             <option value="all">All</option>
           </select>
+          <a class="btn ghost tiny" href="#add-appointment">Schedule another appointment</a>
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
+        <p class="status" id="listStatus"></p>
       </section>
     </main>
   </div>
 
   <script>
     let clientCache = [];
+    const SERVICE_CATEGORY = 'Service';
+    const AUTO_PAYMENT_NOTE_PREFIX = '[auto-payment-logged:';
+    let priceWasManuallyEdited = false;
+    let currentServiceSuggestedPrice = null;
+    let lastSelectedService = '';
+    let preselectedClientId = '';
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
       if (!session) return;
       renderSidebar('appointments', session);
+      preselectedClientId = new URLSearchParams(window.location.search).get('client') || '';
+      populateServiceOptions();
       await loadClients();
       await loadAppointments();
 
-      document.getElementById('addForm').addEventListener('submit', async (e) => {
+      const form = document.getElementById('addForm');
+      const serviceSelect = document.getElementById('serviceSelect');
+      const priceInput = document.getElementById('priceInput');
+
+      serviceSelect.addEventListener('change', () => {
+        applySuggestedPrice(serviceSelect.value, priceInput);
+      });
+
+      priceInput.addEventListener('input', () => {
+        priceWasManuallyEdited = true;
+        updatePriceHint(serviceSelect.value, priceInput.value);
+      });
+
+      form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const f = e.target;
         const status = document.getElementById('addStatus');
         const payload = {
           client_id: f.client_id.value,
-          service: f.service.value,
+          service: normalizeServiceName(f.service.value),
           appointment_date: new Date(f.appointment_date.value).toISOString(),
           price: f.price.value ? Number(f.price.value) : null,
           status: 'booked',
         };
         const { error } = await sb.from('appointments').insert(payload);
-        if (error) { setStatus(status, error.message, 'err'); return; }
-        setStatus(status, 'Appointment booked.', 'ok');
+        if (error) { setStatus(status, `Could not schedule appointment: ${error.message}`, 'err'); return; }
+        setStatus(status, 'Appointment scheduled. You can complete it from the list below when the service is finished.', 'ok');
         f.reset();
+        if (preselectedClientId) {
+          f.client_id.value = preselectedClientId;
+        }
+        priceWasManuallyEdited = false;
+        currentServiceSuggestedPrice = null;
+        lastSelectedService = '';
+        updatePriceHint('', '');
         await loadAppointments();
       });
 
@@ -101,9 +150,37 @@
     async function loadClients() {
       const { data } = await sb.from('clients').select('id, name').order('name');
       clientCache = data || [];
-      document.getElementById('clientSelect').innerHTML =
-        '<option value="">Select client…</option>' +
-        clientCache.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+      const clientSelect = document.getElementById('clientSelect');
+      clientSelect.innerHTML = clientCache.length
+        ? '<option value="">Select client…</option>' + clientCache.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')
+        : '<option value="">Add a client first…</option>';
+      if (preselectedClientId && clientCache.some(c => c.id === preselectedClientId)) {
+        clientSelect.value = preselectedClientId;
+      }
+      toggleAppointmentForm(clientCache.length > 0);
+      if (clientCache.length === 0) {
+        setStatus(document.getElementById('addStatus'), '');
+      }
+    }
+
+    function populateServiceOptions() {
+      const serviceSelect = document.getElementById('serviceSelect');
+      serviceSelect.innerHTML = '<option value="">Select service…</option>' +
+        listServiceNames().map(service => `<option value="${escapeHtml(service)}">${escapeHtml(service)}</option>`).join('');
+    }
+
+    function toggleAppointmentForm(hasClients) {
+      const form = document.getElementById('addForm');
+      const emptyState = document.getElementById('noClientsState');
+      const addStatus = document.getElementById('addStatus');
+      form.querySelectorAll('input, select, button').forEach(el => {
+        el.disabled = !hasClients;
+      });
+      emptyState.hidden = hasClients;
+      if (!hasClients) {
+        addStatus.textContent = '';
+        addStatus.className = 'status';
+      }
     }
 
     async function loadAppointments() {
@@ -125,41 +202,237 @@
         const s = new Date(now); s.setDate(s.getDate() - 30);
         query = query.gte('appointment_date', s.toISOString()).lt('appointment_date', now.toISOString());
       }
-      if (status) query = query.eq('status', status);
+      if (status) query = query.eq('status', status === 'scheduled' ? 'booked' : status);
 
       const { data, error } = await query;
-      if (error) { document.getElementById('list').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; return; }
+      if (error) { document.getElementById('list').innerHTML = `<p class="empty">Could not load appointments: ${escapeHtml(error.message)}</p>`; return; }
       const rows = data || [];
       document.getElementById('count').textContent = `${rows.length} shown`;
+      setStatus(document.getElementById('listStatus'), '');
       const el = document.getElementById('list');
-      if (rows.length === 0) { el.innerHTML = '<p class="empty">No appointments match.</p>'; return; }
-      el.innerHTML = `<table><thead><tr>
-        <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th><th></th>
+      if (rows.length === 0) {
+        el.innerHTML = range === 'all' && !status
+          ? `<div class="empty">No appointments yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-appointment">Schedule the first appointment</a></div></div>`
+          : '<p class="empty">No appointments match the current filters. Try another range or status.</p>';
+        return;
+      }
+      el.innerHTML = `<div class="table-wrap"><table><thead><tr>
+        <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th><th>Notes</th><th></th>
       </tr></thead><tbody>${rows.map(a => `<tr>
         <td>${fmtDateTime(a.appointment_date)}</td>
         <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
-        <td>${escapeHtml(a.service)}</td>
+        <td>${escapeHtml(normalizeServiceName(a.service))}</td>
         <td>${fmtMoney(a.price)}</td>
-        <td><span class="badge ${a.status}">${a.status}</span></td>
+        <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
+        <td>${renderQuickNote(stripAutomationMarkers(a.notes))}</td>
         <td><div class="row-actions">
           ${a.status === 'booked'
-            ? `<button class="tiny" data-mark="completed" data-id="${a.id}">Complete</button>
-               <button class="ghost tiny" data-mark="no_show" data-id="${a.id}">No-show</button>
+            ? `<button class="good tiny" data-complete="${a.id}">Complete</button>
                <button class="ghost tiny" data-mark="cancelled" data-id="${a.id}">Cancel</button>`
-            : `<button class="ghost tiny" data-mark="booked" data-id="${a.id}">Reopen</button>`}
+            : `<button class="ghost tiny" data-mark="booked" data-id="${a.id}">Mark scheduled</button>`}
+          <button class="ghost tiny" data-note="${a.id}">${stripAutomationMarkers(a.notes) ? 'Edit note' : 'Add note'}</button>
           <button class="ghost tiny" data-delete="${a.id}">Delete</button>
         </div></td>
-      </tr>`).join('')}</tbody></table>`;
+      </tr>`).join('')}</tbody></table></div>`;
 
+      document.querySelectorAll('[data-complete]').forEach(btn => btn.addEventListener('click', async () => {
+        const appt = rows.find(row => row.id === btn.dataset.complete);
+        await completeAppointment(appt);
+      }));
       document.querySelectorAll('[data-mark]').forEach(btn => btn.addEventListener('click', async () => {
         await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
         await loadAppointments();
+      }));
+      document.querySelectorAll('[data-note]').forEach(btn => btn.addEventListener('click', async () => {
+        const appt = rows.find(row => row.id === btn.dataset.note);
+        await editAppointmentNote(appt);
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this appointment?')) return;
         await sb.from('appointments').delete().eq('id', btn.dataset.delete);
         await loadAppointments();
       }));
+    }
+
+    async function completeAppointment(appt) {
+      const listStatus = document.getElementById('listStatus');
+      if (!appt) return;
+
+      const { error: updateError } = await sb.from('appointments')
+        .update({ status: 'completed' })
+        .eq('id', appt.id);
+
+      if (updateError) {
+        setStatus(listStatus, updateError.message || 'Could not mark appointment completed.', 'err');
+        return;
+      }
+
+      const automation = await ensureAppointmentIncomeTransaction(appt);
+      if (automation.error) {
+        setStatus(listStatus, `Appointment completed, but payment automation failed: ${automation.error}`, 'err');
+        await loadAppointments();
+        return;
+      }
+
+      setStatus(listStatus, automation.message, automation.kind);
+      listStatus.classList.add('highlight');
+      await loadAppointments();
+    }
+
+    async function editAppointmentNote(appt) {
+      if (!appt) return;
+      const currentNote = stripAutomationMarkers(appt.notes);
+      const next = prompt('Add or update the appointment note:', currentNote);
+      if (next === null) return;
+      const combinedNotes = buildAppointmentNotes(next, appt.notes);
+      const { error } = await sb.from('appointments').update({ notes: combinedNotes }).eq('id', appt.id);
+      const listStatus = document.getElementById('listStatus');
+      if (error) {
+        setStatus(listStatus, `Could not save note: ${error.message}`, 'err');
+        return;
+      }
+      setStatus(listStatus, 'Appointment note saved.', 'ok');
+      await loadAppointments();
+    }
+
+    async function ensureAppointmentIncomeTransaction(appt) {
+      if (hasAutoPaymentMarker(appt.notes, appt.id)) {
+        return { kind: 'ok', message: 'Appointment completed. Revenue was already logged automatically.' };
+      }
+
+      const amount = Number(appt.price || 0);
+      if (!amount || Number.isNaN(amount) || amount <= 0) {
+        return {
+          kind: 'err',
+          error: 'Missing appointment price. Add a price, then log the payment manually in Transactions.',
+        };
+      }
+
+      const description = buildAppointmentPaymentDescription(appt);
+      const { data: existing, error: existingError } = await sb.from('transactions')
+        .select('id')
+        .eq('type', 'income')
+        .eq('category', SERVICE_CATEGORY)
+        .eq('description', description)
+        .eq('amount', amount)
+        .limit(1);
+
+      if (existingError) {
+        return { kind: 'err', error: existingError.message || 'Could not verify existing payment transaction.' };
+      }
+
+      if (existing && existing.length > 0) {
+        const markerError = await markAppointmentPaymentLogged(appt);
+        if (markerError) return { kind: 'err', error: markerError };
+        return { kind: 'ok', message: 'Appointment completed. Matching revenue entry already existed.' };
+      }
+
+      const { error: txError } = await sb.from('transactions').insert({
+        amount,
+        type: 'income',
+        category: SERVICE_CATEGORY,
+        description,
+        transaction_date: new Date().toISOString().slice(0, 10),
+      });
+
+      if (txError) {
+        return { kind: 'err', error: txError.message || 'Could not create automatic income transaction.' };
+      }
+
+      const markerError = await markAppointmentPaymentLogged(appt);
+      if (markerError) return { kind: 'err', error: markerError };
+
+      // Next step: read SERVICE_INVENTORY_USAGE[appt.service] here and deduct
+      // the mapped supply quantities from inventory automatically.
+      return { kind: 'ok', message: `Appointment completed. Revenue automatically logged: ${fmtMoney(amount)}. No manual transaction needed.` };
+    }
+
+    function buildAppointmentPaymentDescription(appt) {
+      return `Appointment payment: ${appt.client?.name || 'Client'} - ${normalizeServiceName(appt.service)}`;
+    }
+
+    function hasAutoPaymentMarker(notes, appointmentId) {
+      if (!notes) return false;
+      return notes.includes(`${AUTO_PAYMENT_NOTE_PREFIX}${appointmentId}]`);
+    }
+
+    async function markAppointmentPaymentLogged(appt) {
+      const marker = `${AUTO_PAYMENT_NOTE_PREFIX}${appt.id}]`;
+      if (hasAutoPaymentMarker(appt.notes, appt.id)) return '';
+      const nextNotes = [stripAutomationMarkers(appt.notes), marker].filter(Boolean).join('\n');
+      const { error } = await sb.from('appointments')
+        .update({ notes: nextNotes })
+        .eq('id', appt.id);
+      return error ? (error.message || 'Could not save appointment automation marker.') : '';
+    }
+
+    function applySuggestedPrice(service, priceInput) {
+      const normalizedService = normalizeServiceName(service);
+      const suggestedPrice = getServicePreset(normalizedService)?.defaultPrice;
+      const previousSuggestedPrice = currentServiceSuggestedPrice;
+      const numericCurrentPrice = priceInput.value === '' ? null : Number(priceInput.value);
+      const currentMatchesPreviousSuggestion =
+        previousSuggestedPrice != null &&
+        numericCurrentPrice != null &&
+        Number(numericCurrentPrice) === Number(previousSuggestedPrice);
+      const serviceChanged = normalizedService !== lastSelectedService;
+      const shouldAutofill =
+        !priceInput.value ||
+        (serviceChanged && currentMatchesPreviousSuggestion) ||
+        (!priceWasManuallyEdited && currentMatchesPreviousSuggestion) ||
+        currentMatchesPreviousSuggestion;
+
+      if (suggestedPrice != null && shouldAutofill) {
+        priceInput.value = suggestedPrice;
+        priceWasManuallyEdited = false;
+      }
+
+      currentServiceSuggestedPrice = suggestedPrice ?? null;
+      lastSelectedService = normalizedService;
+      updatePriceHint(normalizedService, priceInput.value);
+    }
+
+    function updatePriceHint(service, currentValue) {
+      const hint = document.getElementById('priceHint');
+      const preset = getServicePreset(service);
+      const suggestedPrice = preset?.defaultPrice;
+
+      if (!service) {
+        hint.textContent = 'Select a service to auto-fill the usual price. You can still edit it.';
+        return;
+      }
+
+      if (suggestedPrice == null) {
+        hint.textContent = 'No default price is set for this service yet. Enter the price manually.';
+        return;
+      }
+
+      if (Number(currentValue) === Number(suggestedPrice)) {
+        hint.textContent = `Usual price auto-filled at ${fmtMoney(suggestedPrice)}. You can edit it if this visit is different.`;
+        return;
+      }
+
+      hint.textContent = `Usual price is ${fmtMoney(suggestedPrice)}. Current price is overridden for this appointment.`;
+    }
+
+    function stripAutomationMarkers(notes) {
+      return String(notes || '')
+        .split('\n')
+        .filter(line => line && !line.startsWith(AUTO_PAYMENT_NOTE_PREFIX))
+        .join('\n')
+        .trim();
+    }
+
+    function buildAppointmentNotes(visibleNote, existingNotes) {
+      const marker = String(existingNotes || '')
+        .split('\n')
+        .find(line => line.startsWith(AUTO_PAYMENT_NOTE_PREFIX));
+      return [String(visibleNote || '').trim(), marker].filter(Boolean).join('\n').trim() || null;
+    }
+
+    function renderQuickNote(note) {
+      if (!note) return '<span class="muted">No note</span>';
+      return `<div class="note-preview">${escapeHtml(note)}</div>`;
     }
   </script>
 </body>

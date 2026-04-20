@@ -47,6 +47,17 @@
       font-size: .78rem; color: var(--brown-light);
       line-height: 1.8; margin: 0 auto 2.4rem;
     }
+    .note {
+      margin: -1.1rem auto 1.8rem;
+      padding: .75rem .9rem;
+      border: 1px solid var(--sand-dark);
+      background: rgba(38, 50, 66, 0.03);
+      color: var(--brown-light);
+      font-size: .72rem;
+      line-height: 1.7;
+      text-align: left;
+    }
+    .note strong { color: var(--navy); font-weight: 500; }
     .actions { display: flex; flex-direction: column; gap: .8rem; }
     .btn {
       display: block; width: 100%;
@@ -79,9 +90,10 @@
     <div class="brand">Luxe Wax Spa</div>
     <h1>Owner <em>access</em></h1>
     <p class="lede">Private entry for the business owner. This page is not indexed and is not meant for clients.</p>
+    <p class="note"><strong>Prototype mode:</strong> admin auth is temporarily bypassed, so Owner Login goes straight to the dashboard for faster testing.</p>
 
     <div class="actions">
-      <a href="/admin/login.html" class="btn">Owner Login</a>
+      <a href="/admin/dashboard.html" class="btn">Owner Login</a>
       <a href="/admin/reset-password.html" class="btn ghost">Reset Password</a>
     </div>
 

@@ -15,25 +15,141 @@
     <aside id="sidebar" class="sidebar"></aside>
     <main class="main">
       <div class="page-head">
-        <h2>Dashboard</h2>
+        <div>
+          <div class="eyebrow">Admin overview</div>
+          <h2>Business Dashboard</h2>
+          <p>Use this page to see today&apos;s priorities at a glance, then move straight into booking, completing services, or follow-up.</p>
+        </div>
         <span class="meta" id="todayLabel"></span>
       </div>
+
+      <section class="notice">
+        <strong>Prototype mode is active.</strong>
+        <p>Authentication is temporarily bypassed so you can test the admin flow quickly. Turn this off before launch.</p>
+      </section>
+
+      <section class="notice">
+        <strong>Operations layer.</strong>
+        <p>Luxe can run as the internal operations dashboard while Vagaro remains the booking and customer source of truth.</p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Quick actions</h3>
+            <p>Start here when you need to enter something manually. Completed appointments handle normal service revenue automatically, so manual transactions are mostly for exceptions.</p>
+          </div>
+        </div>
+        <div class="quick-grid">
+          <a class="quick-link" href="/admin/appointments.html#add-appointment">
+            <strong>Add Appointment</strong>
+            <span>Book a client and put them on the calendar.</span>
+          </a>
+          <a class="quick-link" href="/admin/clients.html#add-client">
+            <strong>Add Client</strong>
+            <span>Create a client record before booking services.</span>
+          </a>
+          <a class="quick-link" href="/admin/inventory.html#add-inventory-item">
+            <strong>Add Inventory Item</strong>
+            <span>Track wax, supplies, and reorder thresholds.</span>
+          </a>
+          <a class="quick-link" href="/admin/transactions.html#add-transaction">
+            <strong>Log Income / Expense</strong>
+            <span>Record sales, supplies, and other business activity.</span>
+          </a>
+        </div>
+      </section>
 
       <section class="kpis" id="kpis"></section>
 
       <section class="card">
-        <h3>Today's appointments</h3>
+        <div class="card-head">
+          <div>
+            <h3>Today&apos;s workflow</h3>
+            <p>Follow this order to keep the day moving and reduce extra admin work.</p>
+          </div>
+        </div>
+        <div class="helper-list">
+          <div><strong>1. Book appointments</strong> Add the client if needed, pick the service, and let the default price fill in for you.</div>
+          <div><strong>2. Complete services</strong> Mark finished appointments as completed and the system will log normal service revenue automatically.</div>
+          <div><strong>3. Log exceptions manually</strong> Use Transactions for rent, supplies, software, refunds, product sales, or anything outside the standard appointment flow.</div>
+        </div>
+        <div class="page-actions" style="margin-top:1rem">
+          <a class="btn" href="/admin/appointments.html">Open Appointments</a>
+          <a class="btn secondary" href="/admin/transactions.html">Open Transactions</a>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Today&apos;s schedule</h3>
+            <p>See who is scheduled today, what service they booked, and what still needs to be marked complete.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn" href="/admin/appointments.html#add-appointment">Add Appointment</a>
+          </div>
+        </div>
         <div id="todayList"><p class="empty">Loading…</p></div>
       </section>
 
       <section class="card">
-        <h3>Low stock</h3>
+        <div class="card-head">
+          <div>
+            <h3>Inventory needing attention</h3>
+            <p>Review items at or below their low-stock threshold before they slow down service or create last-minute supply runs.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn ghost" href="/admin/inventory.html#add-inventory-item">Add Inventory Item</a>
+          </div>
+        </div>
         <div id="lowStockList"><p class="empty">Loading…</p></div>
       </section>
 
       <section class="card">
-        <h3>Open feedback (rating &lt; 5, unresolved)</h3>
+        <div class="card-head">
+          <div>
+            <h3>Client feedback to review</h3>
+            <p>Low ratings stay here until you mark them resolved.</p>
+          </div>
+        </div>
         <div id="feedbackList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Upcoming appointments</h3>
+            <p>The next few scheduled visits so you can see what&apos;s coming up without opening the full calendar.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn secondary" href="/admin/appointments.html">View all appointments</a>
+          </div>
+        </div>
+        <div id="upcomingList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Clients due for follow-up</h3>
+            <p>Use this list for simple outreach. Follow-up timing is based on each client&apos;s last completed service and the default service follow-up window.</p>
+          </div>
+        </div>
+        <div id="followUpList"><p class="empty">Loading…</p></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Recent transactions</h3>
+            <p>The last five money entries, including auto-logged appointment revenue and manual exceptions.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn secondary" href="/admin/transactions.html#add-transaction">Log transaction</a>
+          </div>
+        </div>
+        <div id="recentTransactions"><p class="empty">Loading…</p></div>
       </section>
     </main>
   </div>
@@ -49,12 +165,19 @@
       // KPIs
       const { data: kpiRow } = await sb.from('dashboard_today').select('*').single();
       const k = kpiRow || {};
+      const todayIso = new Date().toISOString().slice(0, 10);
+      const { data: todaysTransactions } = await sb.from('transactions')
+        .select('amount, type')
+        .eq('transaction_date', todayIso);
+      const todayIncome = (todaysTransactions || [])
+        .filter(row => row.type === 'income')
+        .reduce((sum, row) => sum + Number(row.amount || 0), 0);
       document.getElementById('kpis').innerHTML = `
-        <div class="kpi"><div class="label">Appointments today</div><div class="value">${k.appointments_today ?? 0}</div></div>
-        <div class="kpi good"><div class="label">Completed today</div><div class="value">${k.completed_today ?? 0}</div></div>
-        <div class="kpi good"><div class="label">Revenue today</div><div class="value">${fmtMoney(k.revenue_today)}</div></div>
-        <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low stock items</div><div class="value">${k.low_stock_count ?? 0}</div></div>
-        <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Open feedback</div><div class="value">${k.open_feedback_count ?? 0}</div></div>
+        <div class="kpi"><div class="label">Appointments today</div><div class="value">${k.appointments_today ?? 0}</div><div class="subvalue">What is on today&apos;s calendar</div></div>
+        <div class="kpi good"><div class="label">Completed today</div><div class="value">${k.completed_today ?? 0}</div><div class="subvalue">Mark services complete as they finish</div></div>
+        <div class="kpi good"><div class="label">Revenue logged today</div><div class="value">${fmtMoney(todayIncome)}</div><div class="subvalue">Completed appointments + any manual income entries</div></div>
+        <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low-stock items</div><div class="value">${k.low_stock_count ?? 0}</div><div class="subvalue">Items that may need reordering soon</div></div>
+        <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Open feedback</div><div class="value">${k.open_feedback_count ?? 0}</div><div class="subvalue">Client issues that still need a response</div></div>
       `;
 
       // Today's appointments
@@ -67,33 +190,45 @@
         .order('appointment_date');
       const todayEl = document.getElementById('todayList');
       if (!appts || appts.length === 0) {
-        todayEl.innerHTML = '<p class="empty">Nothing on the books today.</p>';
+        todayEl.innerHTML = `
+          <div class="empty">
+            No appointments are scheduled for today.
+            <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
+              <a class="btn" href="/admin/appointments.html#add-appointment">Schedule the first appointment</a>
+            </div>
+          </div>`;
       } else {
-        todayEl.innerHTML = `<table><thead><tr>
+        todayEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
           <th>Time</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th>
         </tr></thead><tbody>${appts.map(a => `<tr>
           <td>${new Date(a.appointment_date).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' })}</td>
           <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
-          <td>${escapeHtml(a.service)}</td>
+          <td>${escapeHtml(normalizeServiceName(a.service))}</td>
           <td>${fmtMoney(a.price)}</td>
-          <td><span class="badge ${a.status}">${a.status}</span></td>
-        </tr>`).join('')}</tbody></table>`;
+          <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
+        </tr>`).join('')}</tbody></table></div>`;
       }
 
       // Low stock
       const { data: low } = await sb.from('inventory_alerts').select('*').order('quantity');
       const lowEl = document.getElementById('lowStockList');
       if (!low || low.length === 0) {
-        lowEl.innerHTML = '<p class="empty">All items above threshold.</p>';
+        lowEl.innerHTML = `
+          <div class="empty">
+            Nothing is below threshold right now.
+            <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
+              <a class="btn ghost" href="/admin/inventory.html">Review inventory levels</a>
+            </div>
+          </div>`;
       } else {
-        lowEl.innerHTML = `<table><thead><tr>
+        lowEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
           <th>Item</th><th>Qty on hand</th><th>Threshold</th><th>Est. clients left</th>
         </tr></thead><tbody>${low.map(i => `<tr>
           <td>${escapeHtml(i.name)}</td>
           <td><span class="badge low">${i.quantity} ${escapeHtml(i.unit || '')}</span></td>
           <td>${i.low_stock_threshold} ${escapeHtml(i.unit || '')}</td>
           <td>${i.estimated_clients_remaining ?? '—'}</td>
-        </tr>`).join('')}</tbody></table>`;
+        </tr>`).join('')}</tbody></table></div>`;
       }
 
       // Open feedback
@@ -103,9 +238,9 @@
         .order('created_at', { ascending: false }).limit(10);
       const fbEl = document.getElementById('feedbackList');
       if (!fb || fb.length === 0) {
-        fbEl.innerHTML = '<p class="empty">No open feedback. </p>';
+        fbEl.innerHTML = '<p class="empty">No unresolved low-rating feedback right now.</p>';
       } else {
-        fbEl.innerHTML = `<table><thead><tr>
+        fbEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
           <th>When</th><th>Rating</th><th>From</th><th>Comment</th><th></th>
         </tr></thead><tbody>${fb.map(r => `<tr>
           <td>${fmtDate(r.created_at)}</td>
@@ -113,14 +248,175 @@
           <td>${escapeHtml(r.client_name || '—')}</td>
           <td>${escapeHtml(r.comment || '—')}</td>
           <td><button class="ghost tiny" data-resolve="${r.id}">Mark resolved</button></td>
-        </tr>`).join('')}</tbody></table>`;
+        </tr>`).join('')}</tbody></table></div>`;
         document.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', async () => {
           const id = btn.dataset.resolve;
           await sb.from('reviews').update({ resolved: true }).eq('id', id);
           location.reload();
         }));
       }
+
+      const { data: upcoming } = await sb.from('appointments')
+        .select('id, service, appointment_date, price, status, client:clients(name, phone)')
+        .eq('status', 'booked')
+        .gte('appointment_date', new Date().toISOString())
+        .order('appointment_date')
+        .limit(5);
+      const upcomingEl = document.getElementById('upcomingList');
+      if (!upcoming || upcoming.length === 0) {
+        upcomingEl.innerHTML = '<p class="empty">No upcoming scheduled appointments right now.</p>';
+      } else {
+        upcomingEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
+          <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th>
+        </tr></thead><tbody>${upcoming.map(a => `<tr>
+          <td>${fmtDateTime(a.appointment_date)}</td>
+          <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+          <td>${escapeHtml(normalizeServiceName(a.service))}</td>
+          <td>${fmtMoney(a.price)}</td>
+          <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
+        </tr>`).join('')}</tbody></table></div>`;
+      }
+
+      const { data: followUpClients } = await sb.from('clients')
+        .select('id, name, phone, email, notes, appointments(status, appointment_date, service)')
+        .order('name');
+      const followUpEl = document.getElementById('followUpList');
+      const dueClients = (followUpClients || [])
+        .map(client => ({
+          ...client,
+          lastAppointment: getLastCompletedAppointment(client.appointments || []),
+          followUpMeta: parseClientFollowUpMeta(client.notes),
+        }))
+        .filter(client => client.lastAppointment?.appointment_date)
+        .map(client => ({
+          ...client,
+          nextFollowUpDate: addDays(client.lastAppointment.appointment_date, getServicePreset(client.lastAppointment.service)?.followUpDays || 21),
+        }))
+        .map(client => ({
+          ...client,
+          followUpDeltaDays: daysUntil(client.nextFollowUpDate),
+          lastVisibleNote: stripClientFollowUpMeta(client.notes),
+        }))
+        .filter(client => client.followUpDeltaDays <= 7)
+        .filter(client => !wasContactedRecently(client.followUpMeta))
+        .sort((a, b) => a.followUpDeltaDays - b.followUpDeltaDays)
+        .slice(0, 8);
+
+      if (dueClients.length === 0) {
+        followUpEl.innerHTML = '<p class="empty">All clients are up to date.</p>';
+      } else {
+        followUpEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
+          <th>Client</th><th>Last appointment</th><th>Next follow-up</th><th>Priority</th><th>Contact</th>
+        </tr></thead><tbody>${dueClients.map(client => `<tr>
+          <td>${escapeHtml(client.name || '—')}${client.followUpMeta?.last_contact_note ? `<div class="mono">Last note: ${escapeHtml(client.followUpMeta.last_contact_note)}</div>` : ''}</td>
+          <td>${fmtDate(client.lastAppointment.appointment_date)}<div class="mono">${escapeHtml(normalizeServiceName(client.lastAppointment.service) || 'Service')}</div></td>
+          <td>${fmtDate(client.nextFollowUpDate)}<div class="mono">${followUpTimingLabel(client.followUpDeltaDays)}</div></td>
+          <td><span class="badge ${followUpUrgencyClass(client.followUpDeltaDays)}">${followUpUrgencyLabel(client.followUpDeltaDays)}</span></td>
+          <td><div class="row-actions">
+            ${client.phone ? `<a class="btn secondary tiny" href="tel:${escapeHtml(phoneHref(client.phone))}">Call</a>` : ''}
+            ${client.phone ? `<a class="btn ghost tiny" href="sms:${escapeHtml(phoneHref(client.phone))}">Text</a>` : ''}
+            <button class="ghost tiny" data-contacted="${client.id}">Mark contacted</button>
+            ${!client.phone ? `<span class="mono">${escapeHtml(client.email || '—')}</span>` : ''}
+          </div></td>
+        </tr>`).join('')}</tbody></table></div>`;
+
+        document.querySelectorAll('[data-contacted]').forEach(btn => btn.addEventListener('click', async () => {
+          const client = dueClients.find(row => row.id === btn.dataset.contacted);
+          await markClientContacted(client);
+        }));
+      }
+
+      const { data: recentTransactions } = await sb.from('transactions')
+        .select('id, amount, type, category, description, transaction_date, created_at')
+        .order('transaction_date', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(5);
+      const txEl = document.getElementById('recentTransactions');
+      if (!recentTransactions || recentTransactions.length === 0) {
+        txEl.innerHTML = '<p class="empty">No transactions logged yet. Use Transactions to record the first payment or expense.</p>';
+      } else {
+        txEl.innerHTML = `<div class="table-wrap"><table><thead><tr>
+          <th>Date</th><th>Type</th><th>Amount</th><th>Category</th><th>Description</th>
+        </tr></thead><tbody>${recentTransactions.map(row => `<tr>
+          <td>${fmtDate(row.transaction_date)}</td>
+          <td><span class="badge ${row.type === 'income' ? 'completed' : 'low'}">${escapeHtml(fmtTransactionType(row.type))}</span></td>
+          <td>${fmtMoney(row.amount)}</td>
+          <td>${escapeHtml(normalizeTransactionCategory(row.category) || '—')}</td>
+          <td>${escapeHtml(row.description || '—')}</td>
+        </tr>`).join('')}</tbody></table></div>`;
+      }
     });
+
+    function getLastCompletedAppointment(appointments) {
+      const completedAppointments = appointments
+        .filter(appt => appt.status === 'completed' && appt.appointment_date)
+        .sort((a, b) => new Date(b.appointment_date) - new Date(a.appointment_date));
+      return completedAppointments[0] || null;
+    }
+
+    function daysUntil(iso) {
+      const msPerDay = 1000 * 60 * 60 * 24;
+      const today = new Date();
+      const target = new Date(iso);
+      return Math.floor((target - today) / msPerDay);
+    }
+
+    function followUpUrgencyLabel(deltaDays) {
+      if (deltaDays <= -24) return 'Very overdue';
+      if (deltaDays < 0) return 'Overdue';
+      return 'Due soon';
+    }
+
+    function followUpUrgencyClass(deltaDays) {
+      if (deltaDays <= -24) return 'cancelled';
+      if (deltaDays < 0) return 'no_show';
+      return 'scheduled';
+    }
+
+    function followUpTimingLabel(deltaDays) {
+      if (deltaDays < 0) return `Overdue by ${Math.abs(deltaDays)} day${Math.abs(deltaDays) === 1 ? '' : 's'}`;
+      if (deltaDays === 0) return 'Due today';
+      return `Due in ${deltaDays} day${deltaDays === 1 ? '' : 's'}`;
+    }
+
+    function addDays(iso, days) {
+      const date = new Date(iso);
+      date.setDate(date.getDate() + days);
+      return date.toISOString();
+    }
+
+    function wasContactedRecently(meta) {
+      if (!meta?.last_contacted_at) return false;
+      return daysUntil(meta.last_contacted_at) >= -7;
+    }
+
+    function phoneHref(phone) {
+      return String(phone || '').replace(/[^\d+]/g, '');
+    }
+
+    async function markClientContacted(client) {
+      if (!client) return;
+      const wantsNote = confirm('Add quick note?');
+      const note = wantsNote ? prompt('Add quick note?', client.followUpMeta?.last_contact_note || '') : '';
+      if (wantsNote && note === null) return;
+
+      const nextMeta = {
+        ...client.followUpMeta,
+        last_contacted_at: new Date().toISOString(),
+        last_contact_note: (note || '').trim() || null,
+      };
+
+      const { error } = await sb.from('clients')
+        .update({ notes: buildClientNotesWithFollowUpMeta(client.lastVisibleNote, nextMeta) })
+        .eq('id', client.id);
+
+      if (error) {
+        console.error('[dashboard] markClientContacted failed:', error.message);
+        return;
+      }
+
+      location.reload();
+    }
   </script>
 </body>
 </html>

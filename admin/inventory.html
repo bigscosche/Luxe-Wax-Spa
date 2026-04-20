@@ -15,12 +15,21 @@
     <aside id="sidebar" class="sidebar"></aside>
     <main class="main">
       <div class="page-head">
-        <h2>Inventory</h2>
+        <div>
+          <div class="eyebrow">Supplies</div>
+          <h2>Inventory</h2>
+          <p>Track what you have on hand so low-stock items are visible before they become a problem.</p>
+        </div>
         <span class="meta" id="count"></span>
       </div>
 
-      <section class="card">
-        <h3>Add an item</h3>
+      <section class="card" id="add-inventory-item">
+        <div class="form-intro">
+          <div>
+            <h3>Add an inventory item</h3>
+            <p>Start with the item name, current quantity, and the threshold where you want a warning.</p>
+          </div>
+        </div>
         <form class="inline-form" id="addForm">
           <div class="field"><label>Name</label><input name="name" required /></div>
           <div class="field"><label>Unit</label><input name="unit" placeholder="g, ml, box…" /></div>
@@ -33,7 +42,12 @@
       </section>
 
       <section class="card">
-        <h3>All items</h3>
+        <div class="card-head">
+          <div>
+            <h3>Inventory list</h3>
+            <p>Use the quick quantity buttons for small adjustments, or set the exact quantity and threshold when you restock.</p>
+          </div>
+        </div>
         <div id="list"><p class="empty">Loading…</p></div>
       </section>
     </main>
@@ -71,8 +85,11 @@
       const rows = data || [];
       document.getElementById('count').textContent = `${rows.length} items`;
       const el = document.getElementById('list');
-      if (rows.length === 0) { el.innerHTML = '<p class="empty">No items yet — add your first above.</p>'; return; }
-      el.innerHTML = `<table><thead><tr>
+      if (rows.length === 0) {
+        el.innerHTML = `<div class="empty">No inventory items yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-inventory-item">Add the first item</a></div></div>`;
+        return;
+      }
+      el.innerHTML = `<div class="table-wrap"><table><thead><tr>
         <th>Item</th><th>Qty</th><th>Use / client</th><th>Threshold</th><th>Est. clients left</th><th>Status</th><th></th>
       </tr></thead><tbody>${rows.map(i => {
         const left = i.usage_per_client > 0 ? Math.floor(i.quantity / i.usage_per_client) : null;
@@ -92,7 +109,7 @@
             <button class="ghost tiny" data-delete="${i.id}">Delete</button>
           </div></td>
         </tr>`;
-      }).join('')}</tbody></table>`;
+      }).join('')}</tbody></table></div>`;
 
       document.querySelectorAll('[data-adjust]').forEach(btn => btn.addEventListener('click', async () => {
         const id = btn.dataset.adjust;
