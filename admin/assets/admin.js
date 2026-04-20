@@ -50,6 +50,7 @@ async function requireAuth() {
 function renderSidebar(active, session) {
   const el = document.getElementById('sidebar');
   if (!el) return;
+  document.body.classList.add('admin-shell-ready');
   const links = [
     ['dashboard',    'Dashboard',    '/admin/dashboard.html'],
     ['appointments', 'Appointments', '/admin/appointments.html'],
@@ -57,6 +58,23 @@ function renderSidebar(active, session) {
     ['inventory',    'Inventory',    '/admin/inventory.html'],
     ['transactions', 'Transactions', '/admin/transactions.html'],
   ];
+  const existingChrome = document.querySelector('.mobile-admin-bar');
+  if (!existingChrome) {
+    const chrome = document.createElement('div');
+    chrome.className = 'mobile-admin-bar';
+    chrome.innerHTML = `
+      <button type="button" class="mobile-nav-toggle" aria-expanded="false" aria-controls="sidebar">Menu</button>
+      <div class="mobile-admin-title">Luxe Admin</div>
+    `;
+    document.body.prepend(chrome);
+  }
+  if (!document.querySelector('.sidebar-backdrop')) {
+    const backdrop = document.createElement('button');
+    backdrop.type = 'button';
+    backdrop.className = 'sidebar-backdrop';
+    backdrop.setAttribute('aria-label', 'Close navigation');
+    document.body.append(backdrop);
+  }
   el.innerHTML = `
     <h1>LUXE WAX SPA<strong>Admin</strong>${DEV_BYPASS_AUTH ? '<span class="proto-badge">Prototype Mode</span>' : ''}</h1>
     <nav>
@@ -67,12 +85,44 @@ function renderSidebar(active, session) {
     <div class="who">${DEV_BYPASS_AUTH ? 'Auth bypass enabled' : (session?.user?.email || '')}</div>
     ${DEV_BYPASS_AUTH ? '' : '<button class="signout" id="signOutBtn">Sign out</button>'}
   `;
+  bindMobileSidebar();
   if (!DEV_BYPASS_AUTH) {
     document.getElementById('signOutBtn').addEventListener('click', async () => {
       await sb.auth.signOut();
       location.replace('/admin/login.html');
     });
   }
+}
+
+function bindMobileSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const toggle = document.querySelector('.mobile-nav-toggle');
+  const backdrop = document.querySelector('.sidebar-backdrop');
+  if (!sidebar || !toggle || !backdrop) return;
+
+  const closeSidebar = () => {
+    document.body.classList.remove('sidebar-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+  const openSidebar = () => {
+    document.body.classList.add('sidebar-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  };
+
+  toggle.onclick = () => {
+    if (document.body.classList.contains('sidebar-open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  };
+  backdrop.onclick = closeSidebar;
+  sidebar.querySelectorAll('a').forEach((link) => {
+    link.onclick = closeSidebar;
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 760) closeSidebar();
+  }, { passive: true });
 }
 
 // 5. Generic helpers.
@@ -171,6 +221,9 @@ const SERVICE_INVENTORY_USAGE = Object.fromEntries(
 );
 const FOLLOW_UP_META_START = '[follow-up-meta]';
 const FOLLOW_UP_META_END = '[/follow-up-meta]';
+const RECENT_CLIENT_STORAGE_KEY = 'luxe-recent-client';
+const ADMIN_DATA_EVENT_KEY = 'luxe-admin-data-event';
+const ADMIN_FLOW_CONTEXT_KEY = 'luxe-admin-flow-context';
 const escapeHtml = (str) => String(str ?? '').replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[c]));
@@ -210,11 +263,102 @@ function buildClientNotesWithFollowUpMeta(visibleNotes, meta) {
   return [cleanNotes, metaBlock].filter(Boolean).join('\n').trim() || null;
 }
 
+function rememberRecentClient(client) {
+  if (!client?.id) return;
+  try {
+    localStorage.setItem(RECENT_CLIENT_STORAGE_KEY, JSON.stringify({
+      id: client.id,
+      name: client.name || 'Client',
+      saved_at: new Date().toISOString(),
+    }));
+  } catch {}
+}
+
+function getRecentClientSuggestion(maxAgeMinutes = 30) {
+  try {
+    const raw = localStorage.getItem(RECENT_CLIENT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.id || !parsed?.saved_at) return null;
+    const ageMs = Date.now() - new Date(parsed.saved_at).getTime();
+    if (Number.isNaN(ageMs) || ageMs > maxAgeMinutes * 60 * 1000) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function notifyAdminDataChanged(scope = 'general') {
+  const detail = { scope, at: new Date().toISOString() };
+  try {
+    localStorage.setItem(ADMIN_DATA_EVENT_KEY, JSON.stringify(detail));
+  } catch {}
+  window.dispatchEvent(new CustomEvent('admin:data-changed', { detail }));
+}
+
+function rememberAdminFlowContext(context = {}) {
+  try {
+    localStorage.setItem(ADMIN_FLOW_CONTEXT_KEY, JSON.stringify({
+      ...context,
+      saved_at: new Date().toISOString(),
+    }));
+  } catch {}
+}
+
+function getAdminFlowContext(maxAgeMinutes = 90) {
+  try {
+    const raw = localStorage.getItem(ADMIN_FLOW_CONTEXT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed?.saved_at) return null;
+    const ageMs = Date.now() - new Date(parsed.saved_at).getTime();
+    if (Number.isNaN(ageMs) || ageMs > maxAgeMinutes * 60 * 1000) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 // 6. Status helper for inline messages.
-function setStatus(el, text, kind = '') {
+function setStatus(el, text, kind = '', options = {}) {
   if (!el) return;
+  clearTimeout(el._statusTimer);
   el.textContent = text;
   el.className = 'status' + (kind ? ' ' + kind : '');
+  if (!text) return;
+  const duration = options.duration ?? (kind === 'ok' ? 2400 : 0);
+  if (duration > 0) {
+    el._statusTimer = setTimeout(() => {
+      el.textContent = '';
+      el.className = 'status';
+    }, duration);
+  }
+}
+
+function setFormBusy(form, busy, buttonText) {
+  if (!form) return;
+  const submit = form.querySelector('button[type="submit"], button:not([type]), .btn[type="submit"]');
+  form.querySelectorAll('input, select, textarea, button').forEach((el) => {
+    el.disabled = busy;
+  });
+  if (submit) {
+    if (!submit.dataset.defaultLabel) submit.dataset.defaultLabel = submit.textContent;
+    submit.textContent = busy ? (buttonText || 'Saving...') : submit.dataset.defaultLabel;
+  }
+}
+
+function flashFormSuccess(form, label = 'Saved', duration = 900) {
+  if (!form) return;
+  const submit = form.querySelector('button[type="submit"], button:not([type]), .btn[type="submit"]');
+  if (!submit) return;
+  clearTimeout(submit._flashTimer);
+  if (!submit.dataset.defaultLabel) submit.dataset.defaultLabel = submit.textContent;
+  submit.textContent = label;
+  submit.classList.add('success-flash');
+  submit._flashTimer = setTimeout(() => {
+    submit.textContent = submit.dataset.defaultLabel;
+    submit.classList.remove('success-flash');
+  }, duration);
 }
 
 // Expose helpers so each page script can use them.
@@ -239,6 +383,13 @@ Object.assign(window, {
   parseClientFollowUpMeta,
   stripClientFollowUpMeta,
   buildClientNotesWithFollowUpMeta,
+  rememberRecentClient,
+  getRecentClientSuggestion,
+  notifyAdminDataChanged,
+  rememberAdminFlowContext,
+  getAdminFlowContext,
+  setFormBusy,
+  flashFormSuccess,
   escapeHtml,
   setStatus,
   DEV_BYPASS_AUTH,

@@ -16,9 +16,9 @@
     <main class="main">
       <div class="page-head">
         <div>
-          <div class="eyebrow">Client records</div>
+          <div class="eyebrow">People</div>
           <h2>Clients</h2>
-          <p>Start here when you need to add a new person to the system before booking services or saving notes.</p>
+          <p>Add someone new, then book their first appointment.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -26,22 +26,25 @@
       <section class="card" id="add-client">
         <div class="form-intro">
           <div>
-            <h3>Add a new client</h3>
-            <p>Start here, then book the appointment. Use the basics only. Quick notes can be added later from the client list after the first visit or conversation.</p>
-          </div>
-          <div class="page-actions">
-            <a class="btn ghost" href="/admin/appointments.html#add-appointment">Then book an appointment</a>
+            <h3>Add a client</h3>
+            <p>Name and phone are usually all you need to start.</p>
           </div>
         </div>
         <form class="inline-form" id="addForm">
-          <div class="field"><label>Client name</label><input name="name" required /></div>
-          <div class="field"><label>Phone number</label><input name="phone" type="tel" placeholder="Optional" /></div>
-          <div class="field"><label>Email address</label><input name="email" type="email" placeholder="Optional" /></div>
-          <div class="field"><label>Starting note</label><input name="notes" placeholder="Optional" /></div>
+          <div class="field"><label>Name</label><input name="name" required placeholder="First and last" /></div>
+          <div class="field"><label>Phone</label><input name="phone" type="tel" placeholder="(555) 555-5555" /></div>
+          <details class="more-fields">
+            <summary>Add email or a note</summary>
+            <div class="more-grid">
+              <div class="field"><label>Email</label><input name="email" type="email" /></div>
+              <div class="field"><label>Note</label><input name="notes" placeholder="Allergies, preferences…" /></div>
+            </div>
+          </details>
           <button type="submit">Add client</button>
         </form>
         <p class="status" id="addStatus"></p>
         <div class="page-actions" id="postAddActions" hidden>
+          <span class="helper-chip">Next step</span>
           <a class="btn" id="bookNewClientBtn" href="/admin/appointments.html#add-appointment">Book appointment for this client</a>
         </div>
       </section>
@@ -49,12 +52,12 @@
       <section class="card">
         <div class="card-head">
           <div>
-            <h3>Client list</h3>
-            <p>Search by name, phone, or email to quickly find the right record.</p>
+            <h3>Your clients</h3>
+            <p>Search by name, phone, or email.</p>
           </div>
         </div>
         <div class="toolbar">
-          <input id="search" placeholder="Search by name, email, or phone…" style="max-width:340px" />
+          <input id="search" placeholder="Search clients…" style="max-width:340px" />
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
       </section>
@@ -63,6 +66,7 @@
 
   <script>
     let allClients = [];
+    let isSavingClient = false;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
@@ -72,8 +76,12 @@
 
       document.getElementById('addForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSavingClient) return;
         const f = e.target;
         const status = document.getElementById('addStatus');
+        isSavingClient = true;
+        setFormBusy(f, true, 'Saving...');
+        setStatus(status, '');
         const payload = {
           name: f.name.value.trim(),
           phone: f.phone.value.trim() || null,
@@ -82,17 +90,27 @@
         };
         const { error } = await sb.from('clients').insert(payload);
         if (error) {
-          setStatus(status, 'Could not add client. This is usually a database permissions issue in prototype mode.', 'err');
+          setStatus(status, 'Could not add client right now. Please try again.', 'err');
           document.getElementById('postAddActions').hidden = true;
+          isSavingClient = false;
+          setFormBusy(f, false);
           return;
         }
-        setStatus(status, 'Client added. You can book an appointment next or add more notes from the list below.', 'ok');
+        setStatus(status, 'Client saved.', 'ok');
         await loadClients();
         const matchingClient = allClients.find((client) =>
           client.name === payload.name &&
           (client.phone || null) === payload.phone &&
           (client.email || null) === payload.email
         );
+        if (matchingClient) {
+          rememberRecentClient(matchingClient);
+          rememberAdminFlowContext({
+            selected_client_id: matchingClient.id,
+            selected_client_name: matchingClient.name,
+            recent_action: 'client_saved',
+          });
+        }
         const postAddActions = document.getElementById('postAddActions');
         const bookBtn = document.getElementById('bookNewClientBtn');
         bookBtn.href = matchingClient
@@ -100,7 +118,11 @@
           : '/admin/appointments.html#add-appointment';
         bookBtn.textContent = `Book appointment for ${payload.name}`;
         postAddActions.hidden = false;
+        notifyAdminDataChanged('clients');
         f.reset();
+        isSavingClient = false;
+        setFormBusy(f, false);
+        flashFormSuccess(f, 'Saved');
       });
 
       document.getElementById('search').addEventListener('input', renderList);
@@ -127,8 +149,8 @@
       const el = document.getElementById('list');
       if (rows.length === 0) {
         el.innerHTML = q
-          ? '<p class="empty">No clients match this search. Try a different name, phone number, or email.</p>'
-          : `<div class="empty">No clients yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-client">Add your first client</a></div></div>`;
+          ? '<p class="empty">No match. Try a different name, phone, or email.</p>'
+          : `<div class="empty">Start by adding your first client.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-client">Add your first client</a></div></div>`;
         return;
       }
       el.innerHTML = `<div class="table-wrap"><table><thead><tr>

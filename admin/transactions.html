@@ -16,9 +16,9 @@
     <main class="main">
       <div class="page-head">
         <div>
-          <div class="eyebrow">Money tracking</div>
+          <div class="eyebrow">Money</div>
           <h2>Transactions</h2>
-          <p>Log income and expenses here so the owner can start tracking day-to-day business activity immediately.</p>
+          <p>Log income and expenses — anything outside the normal service flow.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -29,39 +29,33 @@
         <div class="form-intro">
           <div>
             <h3>Log a transaction</h3>
-            <p>Use income for service revenue or product sales. Use expense for supplies, rent, software, or other costs.</p>
+            <p>Pick income or expense, then fill in the amount.</p>
           </div>
         </div>
         <form class="inline-form" id="addForm">
-          <div class="field">
+          <div class="field" style="grid-column: 1 / -1;">
             <label>Type</label>
-            <select name="type" required>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-            </select>
+            <div class="seg income" id="typeSeg">
+              <button type="button" data-type="income" class="active">Income</button>
+              <button type="button" data-type="expense">Expense</button>
+            </div>
+            <input type="hidden" name="type" value="income" />
           </div>
           <div class="field">
             <label>Amount</label>
-            <input name="amount" type="number" min="0" step="0.01" required />
-          </div>
-          <div class="field">
-            <label>Category</label>
-            <select name="category">
-              <option value="">Select category…</option>
-              <option value="Service">Service</option>
-              <option value="Product">Product</option>
-              <option value="Supplies">Supplies</option>
-              <option value="Rent">Rent</option>
-              <option value="Other">Other</option>
-            </select>
+            <input name="amount" type="number" min="0" step="0.01" required placeholder="0.00" />
           </div>
           <div class="field">
             <label>Date</label>
             <input name="transaction_date" type="date" required />
           </div>
           <div class="field">
+            <label>Category</label>
+            <select name="category"></select>
+          </div>
+          <div class="field">
             <label>Description</label>
-            <input name="description" placeholder="Optional detail" />
+            <input name="description" placeholder="Optional" />
           </div>
           <button type="submit">Log transaction</button>
         </form>
@@ -71,8 +65,8 @@
       <section class="card">
         <div class="card-head">
           <div>
-            <h3>Recent transactions</h3>
-            <p>Filter by type to focus on revenue or expenses, then edit by deleting and re-adding if needed.</p>
+            <h3>History</h3>
+            <p>Filter by type to focus on income or expenses.</p>
           </div>
         </div>
         <div class="toolbar">
@@ -81,7 +75,7 @@
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
-          <a class="btn ghost tiny" href="#add-transaction">Log another transaction</a>
+          <a class="btn ghost tiny" href="#add-transaction">Log another</a>
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
       </section>
@@ -89,6 +83,12 @@
   </div>
 
   <script>
+    const DEFAULT_TRANSACTION_CATEGORY = {
+      income: 'Service',
+      expense: 'Supplies',
+    };
+    let isSavingTransaction = false;
+
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
       if (!session) return;
@@ -97,13 +97,19 @@
       const form = document.getElementById('addForm');
       form.transaction_date.value = new Date().toISOString().slice(0, 10);
       populateCategoryOptions();
+      applyDefaultTransactionCategory();
+      bindTypeSegmented();
 
       await loadSummary();
       await loadTransactions();
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSavingTransaction) return;
         const status = document.getElementById('addStatus');
+        isSavingTransaction = true;
+        setFormBusy(form, true, 'Saving...');
+        setStatus(status, '');
         const payload = {
           type: form.type.value,
           amount: Number(form.amount.value),
@@ -113,16 +119,23 @@
         };
         const { error } = await sb.from('transactions').insert(payload);
         if (error) {
-          setStatus(status, error.message || 'Could not save transaction.', 'err');
+          setStatus(status, 'Could not save the transaction. Please try again.', 'err');
+          isSavingTransaction = false;
+          setFormBusy(form, false);
           return;
         }
-        setStatus(status, 'Transaction logged. Use this page for expenses and one-off money activity that does not come from appointments.', 'ok');
+        setStatus(status, 'Transaction recorded.', 'ok');
         form.reset();
         form.transaction_date.value = new Date().toISOString().slice(0, 10);
-        form.type.value = 'income';
-        form.category.value = '';
-        await loadSummary();
-        await loadTransactions();
+        setTransactionType('income');
+        rememberAdminFlowContext({
+          recent_action: 'transaction_recorded',
+        });
+        notifyAdminDataChanged('transactions');
+        await Promise.all([loadSummary(), loadTransactions()]);
+        isSavingTransaction = false;
+        setFormBusy(form, false);
+        flashFormSuccess(form, 'Recorded');
       });
 
       document.getElementById('filterType').addEventListener('change', loadTransactions);
@@ -140,7 +153,7 @@
       const { data, error } = await query;
       const list = document.getElementById('list');
       if (error) {
-        list.innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+        list.innerHTML = '<p class="empty">Could not load transactions right now.</p>';
         return;
       }
 
@@ -148,8 +161,8 @@
       document.getElementById('count').textContent = `${rows.length} shown`;
       if (rows.length === 0) {
         list.innerHTML = type
-          ? '<p class="empty">No transactions match this filter yet. Try another type or log a new transaction above.</p>'
-          : `<div class="empty">No transactions logged yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-transaction">Log the first transaction</a></div></div>`;
+          ? '<p class="empty">Nothing here yet. Try the other type or log something new.</p>'
+          : `<div class="empty">Log your first transaction to track revenue.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-transaction">Log your first transaction</a></div></div>`;
         return;
       }
 
@@ -167,8 +180,8 @@
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this transaction?')) return;
         await sb.from('transactions').delete().eq('id', btn.dataset.delete);
-        await loadSummary();
-        await loadTransactions();
+        notifyAdminDataChanged('transactions');
+        await Promise.all([loadSummary(), loadTransactions()]);
       }));
     }
 
@@ -192,17 +205,17 @@
           <div class="kpi bad">
             <div class="label">Income, last 7 days</div>
             <div class="value">—</div>
-            <div class="subvalue">Could not load summary</div>
+            <div class="subvalue">Summary unavailable right now</div>
           </div>
           <div class="kpi bad">
             <div class="label">Expenses, last 7 days</div>
             <div class="value">—</div>
-            <div class="subvalue">Could not load summary</div>
+            <div class="subvalue">Summary unavailable right now</div>
           </div>
           <div class="kpi bad">
             <div class="label">Net profit, last 7 days</div>
             <div class="value">—</div>
-            <div class="subvalue">Could not load summary</div>
+            <div class="subvalue">Summary unavailable right now</div>
           </div>
         `;
         return;
@@ -217,19 +230,19 @@
 
       summaryEl.innerHTML = `
         <div class="kpi good">
-          <div class="label">Income, last 7 days</div>
+          <div class="label">Income this week</div>
           <div class="value">${fmtMoney(income)}</div>
-          <div class="subvalue">Service revenue and any other income entries</div>
+          <div class="subvalue">last 7 days</div>
         </div>
         <div class="kpi ${expenses > 0 ? 'warn' : ''}">
-          <div class="label">Expenses, last 7 days</div>
+          <div class="label">Expenses this week</div>
           <div class="value">${fmtMoney(expenses)}</div>
-          <div class="subvalue">Supplies, rent, software, and other costs</div>
+          <div class="subvalue">last 7 days</div>
         </div>
         <div class="kpi ${net < 0 ? 'bad' : 'good'}">
-          <div class="label">Net profit, last 7 days</div>
+          <div class="label">Net this week</div>
           <div class="value">${fmtMoney(net)}</div>
-          <div class="subvalue">${net < 0 ? 'Expenses are higher than income this week' : 'Income minus expenses for the last 7 days'}</div>
+          <div class="subvalue">${net < 0 ? 'spending more than earning' : 'income minus expenses'}</div>
         </div>
       `;
     }
@@ -238,6 +251,36 @@
       const select = document.querySelector('select[name="category"]');
       select.innerHTML = '<option value="">Select category…</option>' +
         TRANSACTION_CATEGORIES.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
+    }
+
+    function applyDefaultTransactionCategory() {
+      const form = document.getElementById('addForm');
+      const suggested = DEFAULT_TRANSACTION_CATEGORY[form.type.value] || '';
+      if (!suggested) return;
+      if (!form.category.value || Object.values(DEFAULT_TRANSACTION_CATEGORY).includes(form.category.value)) {
+        form.category.value = suggested;
+      }
+    }
+
+    function bindTypeSegmented() {
+      const seg = document.getElementById('typeSeg');
+      if (!seg) return;
+      seg.querySelectorAll('button[data-type]').forEach((btn) => {
+        btn.addEventListener('click', () => setTransactionType(btn.dataset.type));
+      });
+    }
+
+    function setTransactionType(nextType) {
+      const form = document.getElementById('addForm');
+      const seg = document.getElementById('typeSeg');
+      if (!form || !seg) return;
+      form.type.value = nextType;
+      seg.classList.toggle('income', nextType === 'income');
+      seg.classList.toggle('expense', nextType === 'expense');
+      seg.querySelectorAll('button[data-type]').forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.type === nextType);
+      });
+      applyDefaultTransactionCategory();
     }
   </script>
 </body>

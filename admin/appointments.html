@@ -18,7 +18,7 @@
         <div>
           <div class="eyebrow">Calendar</div>
           <h2>Appointments</h2>
-          <p>Book new visits here, then use the schedule below to complete, cancel, or reopen appointments.</p>
+          <p>Book visits, then mark them complete as they finish — revenue logs automatically.</p>
         </div>
         <span class="meta" id="count"></span>
       </div>
@@ -26,13 +26,14 @@
       <section class="card" id="add-appointment">
         <div class="form-intro">
           <div>
-            <h3>Book a new appointment</h3>
-            <p>Choose the client, service, date, and let the usual price fill in automatically.</p>
+            <h3>New appointment</h3>
+            <p>Pick the client and service — price auto-fills.</p>
           </div>
           <div class="page-actions">
-            <a class="btn" id="addClientBtn" href="/admin/clients.html#add-client">Add Client First</a>
+            <a class="btn secondary" id="addClientBtn" href="/admin/clients.html#add-client">+ New client</a>
           </div>
         </div>
+        <div class="notice success" id="selectedClientNotice" hidden></div>
         <form class="inline-form" id="addForm">
           <div class="field"><label>Client</label>
             <select name="client_id" id="clientSelect" required></select>
@@ -46,15 +47,15 @@
           <div class="field">
             <label>Price ($)</label>
             <input name="price" id="priceInput" type="number" step="0.01" min="0" />
-            <div class="field-note" id="priceHint">Select a service to auto-fill the usual price. You can still edit it.</div>
+            <div class="field-note" id="priceHint">Price fills in automatically when you pick a service.</div>
           </div>
-          <button type="submit">Schedule appointment</button>
+          <button type="submit">Book appointment</button>
         </form>
         <p class="status" id="addStatus"></p>
         <div class="empty" id="noClientsState" hidden>
-          Add your first client to start booking appointments.
+          Start by adding your first client.
           <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-            <a class="btn" href="/admin/clients.html#add-client">Go to Clients</a>
+            <a class="btn" href="/admin/clients.html#add-client">Add a client</a>
           </div>
         </div>
       </section>
@@ -62,8 +63,8 @@
       <section class="card">
         <div class="card-head">
           <div>
-            <h3>Appointment list</h3>
-            <p>Filter the schedule to focus on today, upcoming appointments, or recent history.</p>
+            <h3>Schedule</h3>
+            <p>Filter to today, upcoming, or past visits.</p>
           </div>
         </div>
         <div class="toolbar">
@@ -79,7 +80,7 @@
             <option value="past">Past 30 days</option>
             <option value="all">All</option>
           </select>
-          <a class="btn ghost tiny" href="#add-appointment">Schedule another appointment</a>
+          <a class="btn ghost tiny" href="#add-appointment">Book another</a>
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
         <p class="status" id="listStatus"></p>
@@ -95,22 +96,37 @@
     let currentServiceSuggestedPrice = null;
     let lastSelectedService = '';
     let preselectedClientId = '';
+    let recentClientSuggestion = null;
+    let flowContext = null;
+    let isSavingAppointment = false;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
       if (!session) return;
       renderSidebar('appointments', session);
       preselectedClientId = new URLSearchParams(window.location.search).get('client') || '';
+      recentClientSuggestion = getRecentClientSuggestion();
+      flowContext = getAdminFlowContext();
+      if (!preselectedClientId && flowContext?.selected_client_id) {
+        preselectedClientId = flowContext.selected_client_id;
+      }
       populateServiceOptions();
+      setDefaultAppointmentDate();
       await loadClients();
       await loadAppointments();
 
       const form = document.getElementById('addForm');
       const serviceSelect = document.getElementById('serviceSelect');
       const priceInput = document.getElementById('priceInput');
+      const clientSelect = document.getElementById('clientSelect');
 
       serviceSelect.addEventListener('change', () => {
         applySuggestedPrice(serviceSelect.value, priceInput);
+      });
+
+      clientSelect.addEventListener('change', () => {
+        rememberSelectedClient(clientSelect.value);
+        syncSelectedClientNotice(clientSelect.value);
       });
 
       priceInput.addEventListener('input', () => {
@@ -120,8 +136,12 @@
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (isSavingAppointment) return;
         const f = e.target;
         const status = document.getElementById('addStatus');
+        isSavingAppointment = true;
+        setFormBusy(f, true, 'Saving...');
+        setStatus(status, '');
         const payload = {
           client_id: f.client_id.value,
           service: normalizeServiceName(f.service.value),
@@ -130,17 +150,31 @@
           status: 'booked',
         };
         const { error } = await sb.from('appointments').insert(payload);
-        if (error) { setStatus(status, `Could not schedule appointment: ${error.message}`, 'err'); return; }
-        setStatus(status, 'Appointment scheduled. You can complete it from the list below when the service is finished.', 'ok');
+        if (error) {
+          setStatus(status, 'Could not save the appointment. Please try again.', 'err');
+          isSavingAppointment = false;
+          setFormBusy(f, false);
+          return;
+        }
+        setStatus(status, 'Appointment scheduled.', 'ok');
         f.reset();
         if (preselectedClientId) {
           f.client_id.value = preselectedClientId;
+        } else if (recentClientSuggestion?.id) {
+          f.client_id.value = recentClientSuggestion.id;
         }
         priceWasManuallyEdited = false;
         currentServiceSuggestedPrice = null;
         lastSelectedService = '';
+        setDefaultAppointmentDate();
         updatePriceHint('', '');
+        rememberSelectedClient(f.client_id.value);
+        syncSelectedClientNotice(f.client_id.value);
+        notifyAdminDataChanged('appointments');
         await loadAppointments();
+        isSavingAppointment = false;
+        setFormBusy(f, false);
+        flashFormSuccess(f, 'Scheduled');
       });
 
       document.getElementById('filterStatus').addEventListener('change', loadAppointments);
@@ -156,8 +190,12 @@
         : '<option value="">Add a client first…</option>';
       if (preselectedClientId && clientCache.some(c => c.id === preselectedClientId)) {
         clientSelect.value = preselectedClientId;
+      } else if (recentClientSuggestion?.id && clientCache.some(c => c.id === recentClientSuggestion.id)) {
+        clientSelect.value = recentClientSuggestion.id;
       }
+      rememberSelectedClient(clientSelect.value);
       toggleAppointmentForm(clientCache.length > 0);
+      syncSelectedClientNotice(clientSelect.value);
       if (clientCache.length === 0) {
         setStatus(document.getElementById('addStatus'), '');
       }
@@ -169,18 +207,58 @@
         listServiceNames().map(service => `<option value="${escapeHtml(service)}">${escapeHtml(service)}</option>`).join('');
     }
 
+    function setDefaultAppointmentDate() {
+      const field = document.querySelector('input[name="appointment_date"]');
+      const next = new Date();
+      next.setMinutes(Math.ceil(next.getMinutes() / 15) * 15, 0, 0);
+      field.value = next.toISOString().slice(0, 16);
+    }
+
     function toggleAppointmentForm(hasClients) {
       const form = document.getElementById('addForm');
       const emptyState = document.getElementById('noClientsState');
       const addStatus = document.getElementById('addStatus');
+      const selectedClientNotice = document.getElementById('selectedClientNotice');
       form.querySelectorAll('input, select, button').forEach(el => {
         el.disabled = !hasClients;
       });
       emptyState.hidden = hasClients;
+      if (!hasClients) selectedClientNotice.hidden = true;
       if (!hasClients) {
         addStatus.textContent = '';
         addStatus.className = 'status';
       }
+    }
+
+    function syncSelectedClientNotice(clientId) {
+      const notice = document.getElementById('selectedClientNotice');
+      if (!clientId) {
+        notice.hidden = true;
+        notice.innerHTML = '';
+        return;
+      }
+      const client = clientCache.find(row => row.id === clientId);
+      if (!client) {
+        notice.hidden = true;
+        notice.innerHTML = '';
+        return;
+      }
+      notice.hidden = false;
+      const isRecent = recentClientSuggestion?.id === client.id;
+      const cameFromSave = flowContext?.recent_action === 'client_saved' && flowContext?.selected_client_id === client.id;
+      notice.innerHTML = `<strong>${escapeHtml(client.name)}</strong><p>${cameFromSave || isRecent ? 'Recently added and ready to book.' : 'This client is selected.'} Pick the service, date, and price, then book the appointment.</p>`;
+    }
+
+    function rememberSelectedClient(clientId) {
+      if (!clientId) return;
+      const client = clientCache.find(row => row.id === clientId);
+      if (!client) return;
+      rememberAdminFlowContext({
+        ...flowContext,
+        selected_client_id: client.id,
+        selected_client_name: client.name,
+        recent_action: flowContext?.recent_action || 'client_selected',
+      });
     }
 
     async function loadAppointments() {
@@ -212,8 +290,8 @@
       const el = document.getElementById('list');
       if (rows.length === 0) {
         el.innerHTML = range === 'all' && !status
-          ? `<div class="empty">No appointments yet.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-appointment">Schedule the first appointment</a></div></div>`
-          : '<p class="empty">No appointments match the current filters. Try another range or status.</p>';
+          ? `<div class="empty">No appointments yet. Your calendar starts here.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-appointment">Schedule the first appointment</a></div></div>`
+          : '<p class="empty">Nothing matches. Try a different range or status.</p>';
         return;
       }
       el.innerHTML = `<div class="table-wrap"><table><thead><tr>
@@ -241,6 +319,7 @@
       }));
       document.querySelectorAll('[data-mark]').forEach(btn => btn.addEventListener('click', async () => {
         await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
+        notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
       document.querySelectorAll('[data-note]').forEach(btn => btn.addEventListener('click', async () => {
@@ -250,6 +329,7 @@
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this appointment?')) return;
         await sb.from('appointments').delete().eq('id', btn.dataset.delete);
+        notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
     }
@@ -263,19 +343,27 @@
         .eq('id', appt.id);
 
       if (updateError) {
-        setStatus(listStatus, updateError.message || 'Could not mark appointment completed.', 'err');
+        setStatus(listStatus, 'Could not complete the appointment. Please try again.', 'err');
         return;
       }
 
       const automation = await ensureAppointmentIncomeTransaction(appt);
       if (automation.error) {
-        setStatus(listStatus, `Appointment completed, but payment automation failed: ${automation.error}`, 'err');
+        setStatus(listStatus, 'Appointment completed, but the payment was not recorded automatically.', 'err');
         await loadAppointments();
         return;
       }
 
       setStatus(listStatus, automation.message, automation.kind);
       listStatus.classList.add('highlight');
+      rememberAdminFlowContext({
+        ...flowContext,
+        selected_client_id: appt.client_id || flowContext?.selected_client_id || '',
+        selected_client_name: appt.client?.name || flowContext?.selected_client_name || '',
+        recent_action: 'appointment_completed',
+      });
+      notifyAdminDataChanged('appointments');
+      notifyAdminDataChanged('transactions');
       await loadAppointments();
     }
 
@@ -288,7 +376,7 @@
       const { error } = await sb.from('appointments').update({ notes: combinedNotes }).eq('id', appt.id);
       const listStatus = document.getElementById('listStatus');
       if (error) {
-        setStatus(listStatus, `Could not save note: ${error.message}`, 'err');
+        setStatus(listStatus, 'Could not save the note. Please try again.', 'err');
         return;
       }
       setStatus(listStatus, 'Appointment note saved.', 'ok');
