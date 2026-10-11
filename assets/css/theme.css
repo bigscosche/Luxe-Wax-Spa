@@ -497,5 +497,55 @@ footer { background: var(--slate); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@media (max-width: 900px) {
+  .service-menu-section .svc-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .menu-tabs {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1.5rem !important;
+    padding-bottom: 0.5rem !important;
+    scrollbar-width: none;
+  }
+  .menu-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .menu-tab {
+    white-space: nowrap !important;
+    padding: 0.5rem 1rem !important;
+    background: var(--sand) !important;
+    border: 1px solid var(--sand-dark) !important;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.12em !important;
+  }
+  .menu-tab.active {
+    background: var(--navy) !important;
+    color: var(--white) !important;
+    border-color: var(--navy) !important;
+  }
+  .svc-book-link {
+    display: inline-block !important;
+    margin-top: 1.5rem !important;
+    padding: 0.75rem 1.8rem !important;
+    background: var(--slate) !important;
+    color: var(--white) !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-style: normal !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.05em !important;
+    text-align: center !important;
+  }
+  .svc-desc {
+    margin-top: 1.25rem !important;
+    font-size: 0.84rem !important;
+    line-height: 1.75 !important;
+  }
+}
+
 
 

@@ -345,6 +345,7 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1100px) {
+      .service-menu-section .svc-inner,
       .svc-inner { grid-template-columns: 1fr 1fr; }
       .svc-oval-col { display: none; }
       .founder-inner { grid-template-columns: 1fr; gap: 4rem; }
@@ -352,25 +353,27 @@
     }
     @media (max-width: 900px) {
       .intro { grid-template-columns: 1fr; min-height: auto; }
-      .intro-left { border-right: none; border-bottom: 1px solid var(--sand-dark); padding: 8rem 6vw 4rem; }
-      .intro-right { min-height: 55vh; }
+      .intro-left { border-right: none; border-bottom: 1px solid var(--sand-dark); padding: 7rem 6vw 3.5rem; }
+      .intro-right { min-height: 45vh; }
       .intro-sub { max-width: 100%; }
-      .svc-inner { grid-template-columns: 1fr; }
-      .svc-col + .svc-col { border-left: none; border-top: 1px solid var(--sand-dark); }
-      .s-dark .svc-col + .svc-col { border-left: none; border-top-color: rgba(255,255,255,.1); }
+      .service-menu-section .svc-inner,
+      .svc-inner { grid-template-columns: 1fr !important; }
+      .svc-col + .svc-col { border-left: none !important; border-top: 1px solid var(--sand-dark) !important; }
+      .s-dark .svc-col + .svc-col { border-left: none !important; border-top-color: rgba(255,255,255,.1) !important; }
       .reviews-grid { grid-template-columns: 1fr; }
       .review-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
       .review-card:last-child { border-bottom: none; }
       .cta-inner { grid-template-columns: 1fr; gap: 4rem; }
     }
     @media (max-width: 600px) {
-      .intro-left { padding: 7rem 1.5rem 3.5rem; }
-      .intro-right { padding: 3rem 1.5rem; }
-      .svc-col { padding: 3.5rem 1.5rem; }
-      .founder-inner { padding: 5rem 1.5rem; }
-      .reviews-inner { padding: 5rem 1.5rem; }
-      .review-card { padding: 2rem 1.5rem; }
-      .cta-inner { padding: 5rem 1.5rem; }
+      .display-h1 { font-size: 3.5rem; line-height: 0.92; margin-bottom: 1.5rem; }
+      .intro-left { padding: 5.5rem 1.25rem 2.5rem; }
+      .intro-right { padding: 2rem 1.25rem; min-height: 35vh; }
+      .svc-col { padding: 2.25rem 1.25rem !important; }
+      .founder-inner { padding: 3.5rem 1.25rem; }
+      .reviews-inner { padding: 3.5rem 1.25rem; }
+      .review-card { padding: 1.5rem 1.25rem; }
+      .cta-inner { padding: 3.5rem 1.25rem; }
     }
   </style>
 </head>
