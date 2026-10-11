@@ -547,5 +547,59 @@ footer { background: var(--slate); }
   }
 }
 
+/* ─── PRICE EMPHASIS (global) ─── */
+.row-price,
+.price-row-price {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--navy);
+  letter-spacing: -.01em;
+}
+.s-dark .row-price { color: var(--cream); }
+
+/* ─── INLINE BOOK PILL ─── */
+.row-book {
+  font-family: var(--font-body);
+  font-size: .65rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--cream);
+  border: 1px solid var(--navy);
+  border-radius: 999px;
+  padding: .35rem .85rem;
+  text-decoration: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .2s ease;
+}
+.row-book:hover {
+  background: var(--navy);
+  color: var(--white);
+}
+
+/* ─── MOBILE: 1-COLUMN DENSITY & FLUFF REDUCTION ─── */
+@media (max-width: 600px) {
+  .price-two-col { grid-template-columns: 1fr !important; gap: 0 !important; }
+  .menu-section-desc,
+  .svc-desc,
+  .menu-intro-text { display: none !important; }
+  .num-row, .price-row { padding: 0.85rem 0 !important; }
+  .row-price, .price-row-price { font-size: 1.15rem !important; }
+  .row-sub, .price-row-desc {
+    font-size: .72rem !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4 !important;
+    margin-top: .15rem !important;
+  }
+}
+
 
 
