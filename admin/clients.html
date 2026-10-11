@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Clients — Admin</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -45,7 +45,7 @@
         <p class="status" id="addStatus"></p>
         <div class="page-actions" id="postAddActions" hidden>
           <span class="helper-chip">Next step</span>
-          <a class="btn" id="bookNewClientBtn" href="/admin/appointments.html#add-appointment">Book appointment for this client</a>
+          <a class="btn" id="bookNewClientBtn" href="appointments.html#add-appointment">Book appointment for this client</a>
         </div>
       </section>
 
@@ -60,6 +60,11 @@
           <input id="search" placeholder="Search clients…" style="max-width:340px" />
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
+        <div class="pagination-bar" id="paginationBar" style="display:flex; justify-content:center; align-items:center; gap:1rem; margin-top:1.5rem;">
+          <button class="btn secondary tiny" id="prevBtn">← Previous</button>
+          <span id="pageIndicator" class="mono" style="font-size:0.8rem">Showing 1-50 of 120</span>
+          <button class="btn secondary tiny" id="nextBtn">Next →</button>
+        </div>
       </section>
     </main>
   </div>
@@ -67,6 +72,9 @@
   <script>
     let allClients = [];
     let isSavingClient = false;
+    let currentPage = 0;
+    const PAGE_SIZE = 50;
+    let totalCount = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
@@ -88,8 +96,10 @@
           email: f.email.value.trim() || null,
           notes: f.notes.value.trim() || null,
         };
-        const { error } = await sb.from('clients').insert(payload);
-        if (error) {
+        let savedClient;
+        try {
+          savedClient = await luxeDb.saveClient(payload);
+        } catch (err) {
           setStatus(status, 'Could not add client right now. Please try again.', 'err');
           document.getElementById('postAddActions').hidden = true;
           isSavingClient = false;
@@ -98,24 +108,19 @@
         }
         setStatus(status, 'Client saved.', 'ok');
         await loadClients();
-        const matchingClient = allClients.find((client) =>
-          client.name === payload.name &&
-          (client.phone || null) === payload.phone &&
-          (client.email || null) === payload.email
-        );
-        if (matchingClient) {
-          rememberRecentClient(matchingClient);
+        if (savedClient) {
+          rememberRecentClient(savedClient);
           rememberAdminFlowContext({
-            selected_client_id: matchingClient.id,
-            selected_client_name: matchingClient.name,
+            selected_client_id: savedClient.id,
+            selected_client_name: savedClient.name,
             recent_action: 'client_saved',
           });
         }
         const postAddActions = document.getElementById('postAddActions');
         const bookBtn = document.getElementById('bookNewClientBtn');
-        bookBtn.href = matchingClient
-          ? `/admin/appointments.html?client=${encodeURIComponent(matchingClient.id)}#add-appointment`
-          : '/admin/appointments.html#add-appointment';
+        bookBtn.href = savedClient
+          ? `appointments.html?client=${encodeURIComponent(savedClient.id)}#add-appointment`
+          : 'appointments.html#add-appointment';
         bookBtn.textContent = `Book appointment for ${payload.name}`;
         postAddActions.hidden = false;
         notifyAdminDataChanged('clients');
@@ -125,34 +130,75 @@
         flashFormSuccess(f, 'Saved');
       });
 
-      document.getElementById('search').addEventListener('input', renderList);
+      document.getElementById('search').addEventListener('input', () => {
+        currentPage = 0;
+        loadClients();
+      });
+
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentPage > 0) {
+          currentPage--;
+          loadClients();
+        }
+      });
+
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        if (currentPage + 1 < totalPages) {
+          currentPage++;
+          loadClients();
+        }
+      });
     });
 
     async function loadClients() {
-      const { data, error } = await sb.from('clients')
-        .select('id, name, phone, email, notes, created_at, appointments(price, status, appointment_date)')
-        .order('created_at', { ascending: false });
-      if (error) {
+      const q = document.getElementById('search').value.trim();
+
+      let result;
+      try {
+        result = await luxeDb.getClientsPage({
+          search: q,
+          page: currentPage + 1,
+          limit: PAGE_SIZE
+        });
+      } catch (err) {
         allClients = [];
         document.getElementById('count').textContent = '';
         document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
         return;
       }
-      allClients = data || [];
-      document.getElementById('count').textContent = `${allClients.length} total`;
+      allClients = result.data || [];
+      totalCount = result.total || 0;
+      document.getElementById('count').textContent = `${totalCount} total`;
       renderList();
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const paginationBar = document.getElementById('paginationBar');
+
+      if (totalCount === 0) {
+        paginationBar.style.display = 'none';
+        return;
+      }
+      paginationBar.style.display = 'flex';
+
+      const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+      const from = currentPage * PAGE_SIZE + 1;
+      const to = Math.min(totalCount, (currentPage + 1) * PAGE_SIZE);
+
+      pageIndicator.textContent = `Showing ${from}-${to} of ${totalCount}`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = (currentPage + 1) >= totalPages;
     }
 
     function renderList() {
-      const q = document.getElementById('search').value.toLowerCase().trim();
-      const rows = allClients.filter(c =>
-        !q ||
-        (c.name || '').toLowerCase().includes(q) ||
-        (c.email || '').toLowerCase().includes(q) ||
-        (c.phone || '').toLowerCase().includes(q)
-      );
+      const q = document.getElementById('search').value.trim();
       const el = document.getElementById('list');
-      if (rows.length === 0) {
+      if (allClients.length === 0) {
         el.innerHTML = q
           ? '<p class="empty">No match. Try a different name, phone, or email.</p>'
           : `<div class="empty">Start by adding your first client.<div class="page-actions" style="justify-content:center; margin-top:0.9rem"><a class="btn" href="#add-client">Add your first client</a></div></div>`;
@@ -160,13 +206,13 @@
       }
       el.innerHTML = `<div class="table-wrap"><table><thead><tr>
         <th>Name</th><th>Phone</th><th>Email</th><th>Visits</th><th>Total spent</th><th>Last visit</th><th>Notes</th><th>Added</th><th></th>
-      </tr></thead><tbody>${rows.map(c => `<tr>
+      </tr></thead><tbody>${allClients.map(c => `<tr>
         <td>${escapeHtml(c.name)}</td>
         <td>${escapeHtml(c.phone || '—')}</td>
         <td>${escapeHtml(c.email || '—')}</td>
-        <td>${clientVisitCount(c)}</td>
-        <td>${fmtMoney(clientTotalSpent(c))}</td>
-        <td>${fmtDate(clientLastVisit(c))}</td>
+        <td>${c.visit_count}</td>
+        <td>${fmtMoney(c.total_spent)}</td>
+        <td>${fmtDate(c.last_visit_date)}</td>
         <td>${renderClientNote(c)}</td>
         <td class="mono">${fmtDate(c.created_at)}</td>
         <td><div class="row-actions">
@@ -184,15 +230,19 @@
         const combined = appendQuickNote(stripClientFollowUpMeta(current?.notes), next.trim());
         const meta = parseClientFollowUpMeta(current?.notes);
         btn.disabled = true;
-        const { error } = await sb.from('clients')
-          .update({ notes: buildClientNotesWithFollowUpMeta(combined, meta), updated_at: new Date().toISOString() })
-          .eq('id', id);
-        if (error) {
+        try {
+          await luxeDb.saveClient({
+            id,
+            name: current.name,
+            phone: current.phone,
+            email: current.email,
+            notes: buildClientNotesWithFollowUpMeta(combined, meta)
+          });
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('clients');
         await loadClients();
       }));
       document.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', async () => {
@@ -202,49 +252,33 @@
         if (next === null) return;
         const meta = parseClientFollowUpMeta(current?.notes);
         btn.disabled = true;
-        const { error } = await sb.from('clients')
-          .update({ notes: buildClientNotesWithFollowUpMeta(next, meta), updated_at: new Date().toISOString() })
-          .eq('id', id);
-        if (error) {
+        try {
+          await luxeDb.saveClient({
+            id,
+            name: current.name,
+            phone: current.phone,
+            email: current.email,
+            notes: buildClientNotesWithFollowUpMeta(next, meta)
+          });
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('clients');
         await loadClients();
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this client and all their appointments? This cannot be undone.')) return;
         btn.disabled = true;
-        const { error } = await sb.from('clients').delete().eq('id', btn.dataset.delete);
-        if (error) {
+        try {
+          await luxeDb.deleteClient(btn.dataset.delete);
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('clients');
         await loadClients();
       }));
-    }
-
-    function completedAppointments(client) {
-      return (client.appointments || []).filter(appt => appt.status === 'completed');
-    }
-
-    function clientVisitCount(client) {
-      return completedAppointments(client).length;
-    }
-
-    function clientTotalSpent(client) {
-      return completedAppointments(client).reduce((sum, appt) => sum + Number(appt.price || 0), 0);
-    }
-
-    function clientLastVisit(client) {
-      const dates = completedAppointments(client)
-        .map(appt => appt.appointment_date)
-        .filter(Boolean)
-        .sort((a, b) => new Date(b) - new Date(a));
-      return dates[0] || null;
     }
 
     function appendQuickNote(existingNotes, nextNote) {

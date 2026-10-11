@@ -64,7 +64,7 @@ These appear across pages. Do a whole-repo find/replace:
 |------|---|
 | `Luxe Wax Spa` | new business name |
 | `luxewaxspa.netlify.app` | new production URL |
-| `125b S Main St f` / `Newtown, CT 06470` | new address |
+| `125 S Main St, Suite Space` / `Newtown, CT 06470` | new address |
 | `41.4143` / `-73.2954` | new lat/lng |
 | `vagaro.com/luxewaxspa/services` | booking URL (Calendly, Square, etc.) |
 | `@luxewaxspact` / instagram URL | new social |

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Appointments — Admin</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -30,7 +30,7 @@
             <p>Pick the client and service — price auto-fills.</p>
           </div>
           <div class="page-actions">
-            <a class="btn secondary" id="addClientBtn" href="/admin/clients.html#add-client">New client</a>
+            <a class="btn secondary" id="addClientBtn" href="clients.html#add-client">New client</a>
           </div>
         </div>
         <div class="notice success" id="selectedClientNotice" hidden></div>
@@ -55,7 +55,7 @@
         <div class="empty" id="noClientsState" hidden>
           Start by adding your first client.
           <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-            <a class="btn" href="/admin/clients.html#add-client">Add a client</a>
+            <a class="btn" href="clients.html#add-client">Add a client</a>
           </div>
         </div>
       </section>
@@ -83,6 +83,11 @@
           <a class="btn ghost tiny" href="#add-appointment">Book another</a>
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
+        <div class="pagination-bar" id="paginationBar" style="display:flex; justify-content:center; align-items:center; gap:1rem; margin-top:1.5rem;">
+          <button class="btn secondary tiny" id="prevBtn">← Previous</button>
+          <span id="pageIndicator" class="mono" style="font-size:0.8rem">Showing 1-50 of 120</span>
+          <button class="btn secondary tiny" id="nextBtn">Next →</button>
+        </div>
         <p class="status" id="listStatus"></p>
       </section>
     </main>
@@ -99,6 +104,9 @@
     let recentClientSuggestion = null;
     let flowContext = null;
     let isSavingAppointment = false;
+    let currentPage = 0;
+    const PAGE_SIZE = 50;
+    let totalCount = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
@@ -147,10 +155,11 @@
           service: normalizeServiceName(f.service.value),
           appointment_date: new Date(f.appointment_date.value).toISOString(),
           price: f.price.value ? Number(f.price.value) : null,
-          status: 'booked',
+          notes: '' // Book appointment has no notes field in this form view
         };
-        const { error } = await sb.from('appointments').insert(payload);
-        if (error) {
+        try {
+          await luxeDb.bookAppointment(payload);
+        } catch (err) {
           setStatus(status, 'Could not save the appointment. Please try again.', 'err');
           isSavingAppointment = false;
           setFormBusy(f, false);
@@ -170,20 +179,43 @@
         updatePriceHint('', '');
         rememberSelectedClient(f.client_id.value);
         syncSelectedClientNotice(f.client_id.value);
-        notifyAdminDataChanged('appointments');
         await loadAppointments();
         isSavingAppointment = false;
         setFormBusy(f, false);
         flashFormSuccess(f, 'Scheduled');
       });
 
-      document.getElementById('filterStatus').addEventListener('change', loadAppointments);
-      document.getElementById('filterRange').addEventListener('change', loadAppointments);
+      document.getElementById('filterStatus').addEventListener('change', () => {
+        currentPage = 0;
+        loadAppointments();
+      });
+      document.getElementById('filterRange').addEventListener('change', () => {
+        currentPage = 0;
+        loadAppointments();
+      });
+
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentPage > 0) {
+          currentPage--;
+          loadAppointments();
+        }
+      });
+
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        if (currentPage + 1 < totalPages) {
+          currentPage++;
+          loadAppointments();
+        }
+      });
     });
 
     async function loadClients() {
-      const { data, error } = await sb.from('clients').select('id, name').order('name');
-      if (error) {
+      let data = [];
+      try {
+        const result = await luxeDb.getClientsPage({ limit: 1000 });
+        data = (result.data || []).sort((a, b) => a.name.localeCompare(b.name));
+      } catch (err) {
         clientCache = [];
         preselectedClientId = '';
         recentClientSuggestion = null;
@@ -279,28 +311,23 @@
     async function loadAppointments() {
       const status = document.getElementById('filterStatus').value;
       const range  = document.getElementById('filterRange').value;
-      let query = sb.from('appointments')
-        .select('id, client_id, service, appointment_date, price, status, notes, client:clients(name, phone)')
-        .order('appointment_date', { ascending: range === 'past' ? false : true });
 
-      const now = new Date();
-      if (range === 'today') {
-        const s = new Date(now); s.setHours(0,0,0,0);
-        const e = new Date(now); e.setHours(23,59,59,999);
-        query = query.gte('appointment_date', s.toISOString()).lte('appointment_date', e.toISOString());
-      } else if (range === 'upcoming') {
-        const e = new Date(now); e.setDate(e.getDate() + 30);
-        query = query.gte('appointment_date', now.toISOString()).lte('appointment_date', e.toISOString());
-      } else if (range === 'past') {
-        const s = new Date(now); s.setDate(s.getDate() - 30);
-        query = query.gte('appointment_date', s.toISOString()).lt('appointment_date', now.toISOString());
+      let result;
+      try {
+        result = await luxeDb.getAppointmentsPage({
+          status: status === 'scheduled' ? 'booked' : (status || 'all'),
+          range,
+          page: currentPage + 1,
+          limit: PAGE_SIZE
+        });
+      } catch (err) {
+        document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
+        return;
       }
-      if (status) query = query.eq('status', status === 'scheduled' ? 'booked' : status);
 
-      const { data, error } = await query;
-      if (error) { document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>'; return; }
-      const rows = data || [];
-      document.getElementById('count').textContent = `${rows.length} shown`;
+      const rows = result.data || [];
+      totalCount = result.total || 0;
+      document.getElementById('count').textContent = `${totalCount} shown`;
       setStatus(document.getElementById('listStatus'), '');
       const el = document.getElementById('list');
       if (rows.length === 0) {
@@ -313,7 +340,7 @@
         <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th><th>Notes</th><th></th>
       </tr></thead><tbody>${rows.map(a => `<tr>
         <td>${fmtDateTime(a.appointment_date)}</td>
-        <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+        <td>${escapeHtml(a.client_name || '—')}<div class="mono">${escapeHtml(a.client_phone || '')}</div></td>
         <td>${escapeHtml(normalizeServiceName(a.service))}</td>
         <td>${fmtMoney(a.price)}</td>
         <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
@@ -334,13 +361,13 @@
       }));
       document.querySelectorAll('[data-mark]').forEach(btn => btn.addEventListener('click', async () => {
         btn.disabled = true;
-        const { error } = await sb.from('appointments').update({ status: btn.dataset.mark }).eq('id', btn.dataset.id);
-        if (error) {
+        try {
+          await luxeDb.updateAppointmentStatus(btn.dataset.id, btn.dataset.mark);
+        } catch (err) {
           setStatus(document.getElementById('listStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
       document.querySelectorAll('[data-note]').forEach(btn => btn.addEventListener('click', async () => {
@@ -350,48 +377,58 @@
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this appointment?')) return;
         btn.disabled = true;
-        const { error } = await sb.from('appointments').delete().eq('id', btn.dataset.delete);
-        if (error) {
+        try {
+          await luxeDb.deleteAppointment(btn.dataset.delete);
+        } catch (err) {
           setStatus(document.getElementById('listStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('appointments');
         await loadAppointments();
       }));
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const paginationBar = document.getElementById('paginationBar');
+
+      if (totalCount === 0) {
+        paginationBar.style.display = 'none';
+        return;
+      }
+      paginationBar.style.display = 'flex';
+
+      const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+      const from = currentPage * PAGE_SIZE + 1;
+      const to = Math.min(totalCount, (currentPage + 1) * PAGE_SIZE);
+
+      pageIndicator.textContent = `Showing ${from}-${to} of ${totalCount}`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = (currentPage + 1) >= totalPages;
     }
 
     async function completeAppointment(appt) {
       const listStatus = document.getElementById('listStatus');
       if (!appt) return;
 
-      const { error: updateError } = await sb.from('appointments')
-        .update({ status: 'completed' })
-        .eq('id', appt.id);
-
-      if (updateError) {
-        setStatus(listStatus, 'Could not complete the appointment. Please try again.', 'err');
-        return;
+      try {
+        await luxeDb.completeAppointment(appt.id);
+        setStatus(listStatus, `Appointment completed. Revenue automatically logged: ${fmtMoney(appt.price)}.`, 'ok');
+      } catch (err) {
+        setStatus(listStatus, 'Could not complete the appointment: ' + err.message, 'err');
       }
 
-      const automation = await ensureAppointmentIncomeTransaction(appt);
-      if (automation.error) {
-        setStatus(listStatus, 'Appointment completed, but the payment was not recorded automatically.', 'err');
-        await loadAppointments();
-        return;
-      }
-
-      setStatus(listStatus, automation.message, automation.kind);
       listStatus.classList.add('highlight');
       flowContext = {
         ...flowContext,
         selected_client_id: appt.client_id || flowContext?.selected_client_id || '',
-        selected_client_name: appt.client?.name || flowContext?.selected_client_name || '',
+        selected_client_name: appt.client_name || flowContext?.selected_client_name || '',
         recent_action: 'appointment_completed',
       };
       rememberAdminFlowContext(flowContext);
-      notifyAdminDataChanged('appointments');
-      notifyAdminDataChanged('transactions');
       await loadAppointments();
     }
 
@@ -401,90 +438,15 @@
       const next = prompt('Add or update the appointment note:', currentNote);
       if (next === null) return;
       const combinedNotes = buildAppointmentNotes(next, appt.notes);
-      const { error } = await sb.from('appointments').update({ notes: combinedNotes }).eq('id', appt.id);
       const listStatus = document.getElementById('listStatus');
-      if (error) {
+      try {
+        await luxeDb.updateAppointmentNote(appt.id, combinedNotes);
+      } catch (err) {
         setStatus(listStatus, 'Could not save the note. Please try again.', 'err');
         return;
       }
       setStatus(listStatus, 'Appointment note saved.', 'ok');
-      notifyAdminDataChanged('appointments');
       await loadAppointments();
-    }
-
-    async function ensureAppointmentIncomeTransaction(appt) {
-      const amount = Number(appt.price || 0);
-      if (!amount || Number.isNaN(amount) || amount <= 0) {
-        return {
-          kind: 'err',
-          error: 'Missing appointment price. Add a price, then log the payment manually in Transactions.',
-        };
-      }
-
-      const description = buildAppointmentPaymentDescription(appt);
-      const { data: existing, error: existingError } = await findMatchingAppointmentTransaction(description, amount);
-
-      if (existingError) {
-        return { kind: 'err', error: existingError.message || 'Could not verify existing payment transaction.' };
-      }
-
-      if (hasAutoPaymentMarker(appt.notes, appt.id) && existing && existing.length > 0) {
-        return { kind: 'ok', message: 'Appointment completed. Revenue was already logged automatically.' };
-      }
-
-      if (existing && existing.length > 0) {
-        const markerError = await markAppointmentPaymentLogged(appt);
-        if (markerError) return { kind: 'err', error: markerError };
-        return { kind: 'ok', message: 'Appointment completed. Matching revenue entry already existed.' };
-      }
-
-      const { error: txError } = await sb.from('transactions').insert({
-        amount,
-        type: 'income',
-        category: SERVICE_CATEGORY,
-        description,
-        transaction_date: new Date().toISOString().slice(0, 10),
-      });
-
-      if (txError) {
-        return { kind: 'err', error: txError.message || 'Could not create automatic income transaction.' };
-      }
-
-      const markerError = await markAppointmentPaymentLogged(appt);
-      if (markerError) return { kind: 'err', error: markerError };
-
-      // Next step: read SERVICE_INVENTORY_USAGE[appt.service] here and deduct
-      // the mapped supply quantities from inventory automatically.
-      return { kind: 'ok', message: `Appointment completed. Revenue automatically logged: ${fmtMoney(amount)}. No manual transaction needed.` };
-    }
-
-    async function findMatchingAppointmentTransaction(description, amount) {
-      return sb.from('transactions')
-        .select('id')
-        .eq('type', 'income')
-        .eq('category', SERVICE_CATEGORY)
-        .eq('description', description)
-        .eq('amount', amount)
-        .limit(1);
-    }
-
-    function buildAppointmentPaymentDescription(appt) {
-      return `Appointment payment: ${appt.client?.name || 'Client'} - ${normalizeServiceName(appt.service)}`;
-    }
-
-    function hasAutoPaymentMarker(notes, appointmentId) {
-      if (!notes) return false;
-      return notes.includes(`${AUTO_PAYMENT_NOTE_PREFIX}${appointmentId}]`);
-    }
-
-    async function markAppointmentPaymentLogged(appt) {
-      const marker = `${AUTO_PAYMENT_NOTE_PREFIX}${appt.id}]`;
-      if (hasAutoPaymentMarker(appt.notes, appt.id)) return '';
-      const nextNotes = [stripAutomationMarkers(appt.notes), marker].filter(Boolean).join('\n');
-      const { error } = await sb.from('appointments')
-        .update({ notes: nextNotes })
-        .eq('id', appt.id);
-      return error ? 'Something went wrong. Try again.' : '';
     }
 
     function applySuggestedPrice(service, priceInput) {

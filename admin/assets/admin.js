@@ -26,7 +26,7 @@ window.sb = sb;
 
 // TEMPORARY: prototype-only bypass for the private admin area.
 // This must be turned OFF before any real launch.
-const DEV_BYPASS_AUTH = true;
+const DEV_BYPASS_AUTH = false;
 const DEV_BYPASS_SESSION = {
   user: { email: 'Prototype Mode' },
 };
@@ -40,7 +40,7 @@ async function requireAuth() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
     const target = encodeURIComponent(location.pathname + location.search);
-    location.replace(`/admin/login.html?next=${target}`);
+    location.replace(`login.html?next=${target}`);
     return null;
   }
   return session;
@@ -52,11 +52,12 @@ function renderSidebar(active, session) {
   if (!el) return;
   document.body.classList.add('admin-shell-ready');
   const links = [
-    ['dashboard',    'Dashboard',    '/admin/dashboard.html'],
-    ['appointments', 'Appointments', '/admin/appointments.html'],
-    ['clients',      'Clients',      '/admin/clients.html'],
-    ['inventory',    'Inventory',    '/admin/inventory.html'],
-    ['transactions', 'Transactions', '/admin/transactions.html'],
+    ['dashboard',    'Dashboard',    'dashboard.html'],
+    ['appointments', 'Appointments', 'appointments.html'],
+    ['clients',      'Clients',      'clients.html'],
+    ['leads',        'Leads',        'leads.html'],
+    ['inventory',    'Inventory',    'inventory.html'],
+    ['transactions', 'Transactions', 'transactions.html'],
   ];
   const existingChrome = document.querySelector('.mobile-admin-bar');
   if (!existingChrome) {
@@ -76,22 +77,20 @@ function renderSidebar(active, session) {
     document.body.append(backdrop);
   }
   el.innerHTML = `
-    <h1>LUXE WAX SPA<strong>Admin</strong>${DEV_BYPASS_AUTH ? '<span class="proto-badge">Prototype Mode</span>' : ''}</h1>
+    <h1>LUXE WAX SPA<strong>Admin</strong></h1>
     <nav>
       ${links.map(([k, label, href]) =>
         `<a href="${href}" class="${k === active ? 'active' : ''}">${label}</a>`
       ).join('')}
     </nav>
-    <div class="who">${DEV_BYPASS_AUTH ? 'Auth bypass enabled' : (session?.user?.email || '')}</div>
-    ${DEV_BYPASS_AUTH ? '' : '<button class="signout" id="signOutBtn">Sign out</button>'}
+    <div class="who">${session?.user?.email || ''}</div>
+    <button class="signout" id="signOutBtn">Sign out</button>
   `;
   bindMobileSidebar();
-  if (!DEV_BYPASS_AUTH) {
-    document.getElementById('signOutBtn').addEventListener('click', async () => {
-      await sb.auth.signOut();
-      location.replace('/admin/login.html');
-    });
-  }
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    location.replace('login.html');
+  });
 }
 
 function bindMobileSidebar() {
@@ -138,7 +137,7 @@ const fmtDate = (iso) => {
 const fmtMoney = (n) => (n == null ? '—' : `$${Number(n).toFixed(2)}`);
 const SERVICE_PRESETS = {
   'Brazilian Wax': {
-    defaultPrice: 65,
+    defaultPrice: 74.45,
     followUpDays: 21,
     inventoryUsage: [
       { item: 'Hard wax beads', quantity: 1, unit: 'service-use' },
@@ -147,7 +146,7 @@ const SERVICE_PRESETS = {
     ],
   },
   'Bikini Wax': {
-    defaultPrice: 45,
+    defaultPrice: 53.18,
     followUpDays: 21,
     inventoryUsage: [
       { item: 'Hard wax beads', quantity: 1, unit: 'service-use' },
@@ -155,7 +154,7 @@ const SERVICE_PRESETS = {
     ],
   },
   Brows: {
-    defaultPrice: 25,
+    defaultPrice: 31.91,
     followUpDays: 28,
     inventoryUsage: [
       { item: 'Brow wax/thread', quantity: 1, unit: 'service-use' },
@@ -163,7 +162,7 @@ const SERVICE_PRESETS = {
     ],
   },
   'Lash Lift & Tint': {
-    defaultPrice: 95,
+    defaultPrice: 175.48,
     followUpDays: 42,
     inventoryUsage: [
       { item: 'Lash lift solution', quantity: 1, unit: 'service-use' },
@@ -171,7 +170,7 @@ const SERVICE_PRESETS = {
     ],
   },
   'Body Waxing': {
-    defaultPrice: 80,
+    defaultPrice: 90.40,
     followUpDays: 28,
     inventoryUsage: [
       { item: 'Hard wax beads', quantity: 1, unit: 'service-use' },
@@ -180,13 +179,18 @@ const SERVICE_PRESETS = {
     ],
   },
   "Men's Waxing": {
-    defaultPrice: 75,
+    defaultPrice: 53.18,
     followUpDays: 28,
     inventoryUsage: [
       { item: 'Hard wax beads', quantity: 1, unit: 'service-use' },
       { item: 'Nitrile gloves', quantity: 1, unit: 'pair' },
       { item: 'Wax strips', quantity: 2, unit: 'strip' },
     ],
+  },
+  Facials: {
+    defaultPrice: 148.89,
+    followUpDays: 30,
+    inventoryUsage: [],
   },
   Other: {
     defaultPrice: null,
@@ -211,6 +215,15 @@ const normalizeTransactionCategory = (category) => {
 };
 const fmtTransactionType = (type) => TRANSACTION_TYPE_LABELS[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1) : '—');
 const normalizeAppointmentStatus = (status) => status === 'booked' ? 'scheduled' : (status || '');
+const LOCATION_LABELS = {
+  newtown: 'Newtown',
+  danbury: 'Danbury',
+  bethel: 'Bethel',
+  ridgefield: 'Ridgefield',
+  monroe: 'Monroe',
+  other: 'Other',
+};
+const normalizeLocationName = (loc) => LOCATION_LABELS[loc] || loc || '—';
 const fmtAppointmentStatus = (status) => {
   if (!status) return '—';
   return APPOINTMENT_STATUS_LABELS[status] || APPOINTMENT_STATUS_LABELS[normalizeAppointmentStatus(status)] || normalizeAppointmentStatus(status).replace(/_/g, ' ');
@@ -347,24 +360,474 @@ function setFormBusy(form, busy, buttonText) {
   }
 }
 
-function flashFormSuccess(form, label = 'Saved', duration = 900) {
-  if (!form) return;
-  const submit = form.querySelector('button[type="submit"], button:not([type]), .btn[type="submit"]');
-  if (!submit) return;
-  clearTimeout(submit._flashTimer);
-  if (!submit.dataset.defaultLabel) submit.dataset.defaultLabel = submit.textContent;
-  submit.textContent = label;
-  submit.classList.add('success-flash');
-  submit._flashTimer = setTimeout(() => {
-    submit.textContent = submit.dataset.defaultLabel;
-    submit.classList.remove('success-flash');
-  }, duration);
 }
+
+class LuxeDbError extends Error {
+  constructor(message, code, details) {
+    super(message);
+    this.name = 'LuxeDbError';
+    this.code = code;
+    this.details = details;
+  }
+}
+
+function checkError(result) {
+  if (result.error) {
+    console.error('Database query failed:', result.error);
+    throw new LuxeDbError(result.error.message || 'Database operation failed.', result.error.code, result.error.details);
+  }
+  return result;
+}
+
+// 7. Luxe Database seam (luxeDb)
+async function getClientsPage({ search = '', page = 1, limit = 50 } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('clients')
+    .select('id, name, phone, email, notes, created_at, appointments(price, status, appointment_date, service)', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  if (search.trim()) {
+    const q = search.trim();
+    query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`);
+  }
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  const clients = (result.data || []).map(c => {
+    const appts = c.appointments || [];
+    const completed = appts.filter(a => a.status === 'completed');
+    const sortedCompleted = completed
+      .filter(a => a.appointment_date)
+      .sort((a, b) => new Date(b.appointment_date) - new Date(a.appointment_date));
+
+    return {
+      id: c.id,
+      name: c.name,
+      phone: c.phone,
+      email: c.email,
+      notes: c.notes,
+      created_at: c.created_at,
+      visit_count: completed.length,
+      total_spent: completed.reduce((sum, a) => sum + (a.price || 0), 0),
+      last_visit_date: sortedCompleted[0]?.appointment_date || null,
+      last_completed_service: sortedCompleted[0]?.service || null
+    };
+  });
+
+  return { data: clients, total: result.count || 0 };
+}
+
+async function getAppointmentsPage({ status = 'all', range = 'all', search = '', page = 1, limit = 50 } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('appointments')
+    .select('id, client_id, service, appointment_date, price, status, notes, clients(name, phone)', { count: 'exact' })
+    .order('appointment_date', { ascending: range !== 'past' });
+
+  if (status !== 'all') {
+    query = query.eq('status', status);
+  }
+
+  const nowStr = new Date().toISOString();
+  if (range === 'today') {
+    const todayStart = new Date();
+    todayStart.setHours(0,0,0,0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23,59,59,999);
+    query = query.gte('appointment_date', todayStart.toISOString()).lte('appointment_date', todayEnd.toISOString());
+  } else if (range === 'upcoming') {
+    query = query.gte('appointment_date', nowStr);
+  } else if (range === 'past') {
+    query = query.lt('appointment_date', nowStr);
+  }
+
+  if (search.trim()) {
+    const q = search.trim();
+    const clientIdsResult = await sb.from('clients')
+      .select('id')
+      .or(`name.ilike.%${q}%,phone.ilike.%${q}%`);
+    
+    checkError(clientIdsResult);
+    const clientIds = (clientIdsResult.data || []).map(c => c.id);
+
+    if (clientIds.length > 0) {
+      query = query.or(`client_id.in.(${clientIds.join(',')}),notes.ilike.%${q}%,service.ilike.%${q}%`);
+    } else {
+      query = query.or(`notes.ilike.%${q}%,service.ilike.%${q}%`);
+    }
+  }
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  const appointments = (result.data || []).map(a => ({
+    id: a.id,
+    client_id: a.client_id,
+    client_name: a.clients?.name || '—',
+    client_phone: a.clients?.phone || '—',
+    service: a.service,
+    appointment_date: a.appointment_date,
+    price: a.price,
+    status: a.status,
+    notes: a.notes
+  }));
+
+  return { data: appointments, total: result.count || 0 };
+}
+
+async function getInventoryPage({ page = 1, limit = 50, alertsOnly = false } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('inventory')
+    .select('*', { count: 'exact' })
+    .order('name', { ascending: true });
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  let items = (result.data || []).map(i => {
+    const isLow = i.quantity <= i.low_stock_threshold;
+    return {
+      id: i.id,
+      name: i.name,
+      unit: i.unit,
+      quantity: i.quantity,
+      usage_per_client: i.usage_per_client,
+      low_stock_threshold: i.low_stock_threshold,
+      notes: i.notes,
+      updated_at: i.updated_at,
+      is_low_stock: isLow,
+      estimated_clients_remaining: i.usage_per_client > 0 ? Math.floor(i.quantity / i.usage_per_client) : null
+    };
+  });
+
+  if (alertsOnly) {
+    items = items.filter(i => i.is_low_stock);
+  }
+
+  return { data: items, total: alertsOnly ? items.length : (result.count || 0) };
+}
+
+async function getTransactionsPage({ type = 'all', category = '', page = 1, limit = 50 } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('transactions')
+    .select('*', { count: 'exact' })
+    .order('transaction_date', { ascending: false });
+
+  if (type !== 'all') {
+    query = query.eq('type', type);
+  }
+  if (category) {
+    query = query.eq('category', category);
+  }
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  return { data: result.data || [], total: result.count || 0 };
+}
+
+async function getLeadsPage({ search = '', page = 1, limit = 50 } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('leads')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  if (search.trim()) {
+    const q = search.trim();
+    query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%,service.ilike.%${q}%,message.ilike.%${q}%`);
+  }
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  return { data: result.data || [], total: result.count || 0 };
+}
+
+async function getReviewsPage({ resolved, rating, page = 1, limit = 50 } = {}) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+  let query = sb.from('reviews')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false });
+
+  if (resolved !== undefined) {
+    query = query.eq('resolved', resolved);
+  }
+  if (rating !== undefined) {
+    query = query.eq('rating', rating);
+  }
+
+  const result = await query.range(from, to);
+  checkError(result);
+
+  return { data: result.data || [], total: result.count || 0 };
+}
+
+async function saveClient(client) {
+  const payload = {
+    name: client.name,
+    phone: client.phone || null,
+    email: client.email || null,
+    notes: client.notes || null,
+  };
+  let result;
+  if (client.id) {
+    result = await sb.from('clients').update(payload).eq('id', client.id).select();
+  } else {
+    result = await sb.from('clients').insert(payload).select();
+  }
+  checkError(result);
+  notifyAdminDataChanged('clients');
+  return result.data[0];
+}
+
+async function deleteClient(id) {
+  const result = await sb.from('clients').delete().eq('id', id).select();
+  checkError(result);
+  if (!result.data || result.data.length === 0) {
+    throw new LuxeDbError('Delete failed. You do not have permissions or the client does not exist.', 'DELETE_FAILED');
+  }
+  notifyAdminDataChanged('clients');
+}
+
+async function deleteLead(id) {
+  const result = await sb.from('leads').delete().eq('id', id).select();
+  checkError(result);
+  if (!result.data || result.data.length === 0) {
+    throw new LuxeDbError('Delete failed. You do not have permissions or the lead does not exist.', 'DELETE_FAILED');
+  }
+  notifyAdminDataChanged('leads');
+}
+
+async function bookAppointment(appt) {
+  const payload = {
+    client_id: appt.client_id,
+    service: appt.service,
+    appointment_date: appt.appointment_date,
+    price: appt.price ?? (getServicePreset(appt.service)?.price || 0),
+    status: 'booked',
+    notes: appt.notes || null
+  };
+  const result = await sb.from('appointments').insert(payload).select();
+  checkError(result);
+  notifyAdminDataChanged('appointments');
+  return result.data[0];
+}
+
+async function cancelAppointment(id) {
+  const result = await sb.from('appointments')
+    .update({ status: 'cancelled' })
+    .eq('id', id)
+    .eq('status', 'booked')
+    .select();
+  checkError(result);
+  if (!result.data || result.data.length === 0) {
+    throw new LuxeDbError('Cancel failed. Appointment may not be in scheduled state or does not exist.', 'INVALID_STATE');
+  }
+  notifyAdminDataChanged('appointments');
+  return result.data[0];
+}
+
+async function updateAppointmentStatus(id, status) {
+  const result = await sb.from('appointments')
+    .update({ status })
+    .eq('id', id)
+    .select();
+  checkError(result);
+  notifyAdminDataChanged('appointments');
+  return result.data[0];
+}
+
+async function updateAppointmentNote(id, note) {
+  const result = await sb.from('appointments')
+    .update({ notes: note || null })
+    .eq('id', id)
+    .select();
+  checkError(result);
+  notifyAdminDataChanged('appointments');
+  return result.data[0];
+}
+
+async function deleteAppointment(id) {
+  const result = await sb.from('appointments').delete().eq('id', id).select();
+  checkError(result);
+  notifyAdminDataChanged('appointments');
+}
+
+async function completeAppointment(id) {
+  const apptResult = await sb.from('appointments').select('*').eq('id', id).single();
+  checkError(apptResult);
+  const appt = apptResult.data;
+
+  if (appt.status !== 'booked') {
+    throw new LuxeDbError(`Cannot complete appointment in '${appt.status}' state.`, 'INVALID_STATE');
+  }
+
+  const updateResult = await sb.from('appointments').update({ status: 'completed' }).eq('id', id).select();
+  checkError(updateResult);
+
+  const notes = appt.notes || '';
+  const match = notes.match(/\[auto-payment-logged:([a-zA-Z0-9-_]+)\]/);
+  let txnId = match ? match[1] : null;
+
+  if (!txnId) {
+    const clientNameResult = await sb.from('clients').select('name').eq('id', appt.client_id).single();
+    const clientName = clientNameResult.data?.name || 'Client';
+
+    const txnPayload = {
+      amount: appt.price || 0,
+      type: 'income',
+      category: 'Service',
+      description: `Payment for ${normalizeServiceName(appt.service)} - ${clientName}`,
+      transaction_date: appt.appointment_date || new Date().toISOString()
+    };
+    const txnResult = await sb.from('transactions').insert(txnPayload).select();
+    checkError(txnResult);
+    txnId = txnResult.data[0].id;
+
+    const updatedNotes = (notes ? notes + '\n' : '') + `[auto-payment-logged:${txnId}]`;
+    await sb.from('appointments').update({ notes: updatedNotes }).eq('id', id);
+  }
+
+  const recipe = SERVICE_INVENTORY_USAGE[appt.service];
+  if (recipe) {
+    for (const [itemName, qtyToDeduct] of Object.entries(recipe)) {
+      const itemResult = await sb.from('inventory').select('id, quantity').ilike('name', itemName).limit(1);
+      if (!itemResult.error && itemResult.data && itemResult.data.length > 0) {
+        const item = itemResult.data[0];
+        const newQty = Math.max(0, item.quantity - qtyToDeduct);
+        await sb.from('inventory').update({ quantity: newQty }).eq('id', item.id);
+      }
+    }
+    notifyAdminDataChanged('inventory');
+  }
+
+  notifyAdminDataChanged('appointments');
+  notifyAdminDataChanged('transactions');
+
+  return { appointment: updateResult.data[0], transactionId: txnId };
+}
+
+async function saveInventoryItem(item) {
+  const payload = {
+    name: item.name,
+    unit: item.unit,
+    quantity: item.quantity,
+    usage_per_client: item.usage_per_client,
+    low_stock_threshold: item.low_stock_threshold,
+    notes: item.notes || null
+  };
+  let result;
+  if (item.id) {
+    result = await sb.from('inventory').update(payload).eq('id', item.id).select();
+  } else {
+    result = await sb.from('inventory').insert(payload).select();
+  }
+  checkError(result);
+  notifyAdminDataChanged('inventory');
+  return result.data[0];
+}
+
+async function adjustInventoryQuantity(id, delta) {
+  const itemResult = await sb.from('inventory').select('quantity').eq('id', id).single();
+  checkError(itemResult);
+  const newQty = Math.max(0, itemResult.data.quantity + delta);
+
+  const result = await sb.from('inventory').update({ quantity: newQty }).eq('id', id).select();
+  checkError(result);
+  notifyAdminDataChanged('inventory');
+  return result.data[0];
+}
+
+async function deleteInventoryItem(id) {
+  const result = await sb.from('inventory').delete().eq('id', id).select();
+  checkError(result);
+  notifyAdminDataChanged('inventory');
+}
+
+async function logTransaction(txn) {
+  const payload = {
+    amount: txn.amount,
+    type: txn.type,
+    category: txn.category,
+    description: txn.description || null,
+    transaction_date: txn.transaction_date || new Date().toISOString()
+  };
+  const result = await sb.from('transactions').insert(payload).select();
+  checkError(result);
+  notifyAdminDataChanged('transactions');
+  return result.data[0];
+}
+
+async function deleteTransaction(id) {
+  const result = await sb.from('transactions').delete().eq('id', id).select();
+  checkError(result);
+  notifyAdminDataChanged('transactions');
+}
+
+async function resolveReview(id) {
+  const result = await sb.from('reviews').update({ resolved: true }).eq('id', id).select();
+  checkError(result);
+  notifyAdminDataChanged('reviews');
+  return result.data[0];
+}
+
+async function getDashboardStats() {
+  const kpiResult = await sb.from('dashboard_today').select('*').single();
+  checkError(kpiResult);
+  const leadsResult = await sb.from('leads').select('*', { count: 'exact', head: true });
+  checkError(leadsResult);
+
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const txResult = await sb.from('transactions').select('amount, type').eq('transaction_date', todayIso);
+  checkError(txResult);
+
+  const todayIncome = (txResult.data || [])
+    .filter(row => row.type === 'income')
+    .reduce((sum, row) => sum + Number(row.amount || 0), 0);
+
+  return {
+    kpis: kpiResult.data || {},
+    leadsCount: leadsResult.count || 0,
+    todayIncome
+  };
+}
+
+const luxeDb = {
+  getDashboardStats,
+  getClientsPage,
+  getAppointmentsPage,
+  getInventoryPage,
+  getTransactionsPage,
+  getLeadsPage,
+  getReviewsPage,
+  saveClient,
+  deleteClient,
+  bookAppointment,
+  completeAppointment,
+  cancelAppointment,
+  updateAppointmentStatus,
+  updateAppointmentNote,
+  deleteAppointment,
+  saveInventoryItem,
+  adjustInventoryQuantity,
+  deleteInventoryItem,
+  logTransaction,
+  deleteTransaction,
+  deleteLead,
+  resolveReview
+};
 
 // Expose helpers so each page script can use them.
 Object.assign(window, {
   requireAuth,
   renderSidebar,
+  luxeDb,
   fmtDateTime,
   fmtDate,
   fmtMoney,
@@ -373,6 +836,7 @@ Object.assign(window, {
   TRANSACTION_CATEGORIES,
   TRANSACTION_TYPE_LABELS,
   normalizeServiceName,
+  normalizeLocationName,
   getServicePreset,
   listServiceNames,
   normalizeTransactionCategory,

@@ -966,3 +966,47 @@ button:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important
   .card { padding: 1rem; }
   .row-actions button, .row-actions .btn, .row-actions a { flex-basis: 100%; }
 }
+
+/* Tactile Quick Actions */
+.quick-actions-panel {
+  margin-bottom: 2rem;
+}
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.action-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  text-decoration: none;
+  background: var(--panel-2);
+}
+.action-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+.action-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  color: var(--text);
+}
+.action-info p {
+  font-size: 0.76rem;
+  color: var(--dim);
+  line-height: 1.3;
+}

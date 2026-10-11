@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="config.local.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -230,7 +230,9 @@
 
     // Update once the Google Business profile URL is live.
     // Format: https://g.page/r/<PLACE_ID>/review  (or search.google.com/local/writereview?placeid=...)
-    const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=REPLACE_WITH_PLACE_ID';
+    const GOOGLE_REVIEW_URL = CFG.GOOGLE_REVIEW_URL 
+      || (CFG.GOOGLE_PLACE_ID ? `https://search.google.com/local/writereview?placeid=${CFG.GOOGLE_PLACE_ID}` : '')
+      || 'https://www.google.com/searchviewer/10?svid=CAwSHRIbCgNwdnESFENnMHZaeTh4TVhaemRtWTNOSGMzGAo';
 
     // Separate client instance — no session persistence, anon only.
     const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY, {

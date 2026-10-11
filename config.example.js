@@ -19,4 +19,6 @@
 window.LUXE_CONFIG = {
   SUPABASE_URL:      'https://YOUR-PROJECT.supabase.co',
   SUPABASE_ANON_KEY: 'YOUR-ANON-KEY',
+  GOOGLE_PLACE_ID:   'YOUR-GOOGLE-PLACE-ID', // Optional
+  GOOGLE_REVIEW_URL: 'YOUR-GOOGLE-REVIEW-URL', // Optional
 };

@@ -8,3 +8,6 @@
 
 # Local browser config (generated on Netlify, hand-written in dev)
 config.local.js
+
+# Local Netlify folder
+.netlify

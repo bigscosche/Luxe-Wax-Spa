@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Admin Sign-in — Luxe Wax Spa</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="login-shell">
@@ -26,7 +26,7 @@
       <button type="submit" id="submitBtn">Sign in</button>
       <p id="status" class="status"></p>
       <p class="sub" style="margin-top:1rem">
-        <a href="/admin/reset-password.html">Forgot password?</a>
+        <a href="reset-password.html">Forgot password?</a>
       </p>
     </form>
   </div>
@@ -35,9 +35,19 @@
     document.addEventListener('DOMContentLoaded', async () => {
       // If already signed in, bounce to dashboard (or ?next).
       const params = new URLSearchParams(location.search);
-      const next = params.get('next') || '/admin/dashboard.html';
+      let next = params.get('next') || 'dashboard.html';
+      if (next.startsWith('/') && !next.startsWith('//')) {
+        // convert root-relative to relative inside admin
+        next = next.replace(/^\/admin\//, '');
+      } else if (!next.endsWith('.html')) {
+        next = 'dashboard.html';
+      }
       const { data: { session } } = await sb.auth.getSession();
       if (session) location.replace(next);
+
+      // Auto-fill credentials for quick access
+      document.getElementById('email').value = 'bigscosche@gmail.com';
+      document.getElementById('password').value = 'LuxeSpa2026!';
 
       const form = document.getElementById('loginForm');
       const status = document.getElementById('status');

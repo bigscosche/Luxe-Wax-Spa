@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Transactions — Admin</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -78,6 +78,11 @@
           <a class="btn ghost tiny" href="#add-transaction">Log another</a>
         </div>
         <div id="list"><p class="empty">Loading…</p></div>
+        <div class="pagination-bar" id="paginationBar" style="display:flex; justify-content:center; align-items:center; gap:1rem; margin-top:1.5rem;">
+          <button class="btn secondary tiny" id="prevBtn">← Previous</button>
+          <span id="pageIndicator" class="mono" style="font-size:0.8rem">Showing 1-50 of 120</span>
+          <button class="btn secondary tiny" id="nextBtn">Next →</button>
+        </div>
       </section>
     </main>
   </div>
@@ -88,6 +93,9 @@
       expense: 'Supplies',
     };
     let isSavingTransaction = false;
+    let currentPage = 0;
+    const PAGE_SIZE = 50;
+    let totalCount = 0;
 
     document.addEventListener('DOMContentLoaded', async () => {
       const session = await requireAuth();
@@ -117,8 +125,9 @@
           description: form.description.value.trim() || null,
           transaction_date: form.transaction_date.value,
         };
-        const { error } = await sb.from('transactions').insert(payload);
-        if (error) {
+        try {
+          await luxeDb.logTransaction(payload);
+        } catch (err) {
           setStatus(status, 'Could not save the transaction. Please try again.', 'err');
           isSavingTransaction = false;
           setFormBusy(form, false);
@@ -131,34 +140,51 @@
         rememberAdminFlowContext({
           recent_action: 'transaction_recorded',
         });
-        notifyAdminDataChanged('transactions');
         await Promise.all([loadSummary(), loadTransactions()]);
         isSavingTransaction = false;
         setFormBusy(form, false);
         flashFormSuccess(form, 'Recorded');
       });
 
-      document.getElementById('filterType').addEventListener('change', loadTransactions);
+      document.getElementById('filterType').addEventListener('change', () => {
+        currentPage = 0;
+        loadTransactions();
+      });
+
+      document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentPage > 0) {
+          currentPage--;
+          loadTransactions();
+        }
+      });
+
+      document.getElementById('nextBtn').addEventListener('click', () => {
+        const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+        if (currentPage + 1 < totalPages) {
+          currentPage++;
+          loadTransactions();
+        }
+      });
     });
 
     async function loadTransactions() {
       const type = document.getElementById('filterType').value;
-      let query = sb.from('transactions')
-        .select('id, amount, type, category, description, transaction_date, created_at')
-        .order('transaction_date', { ascending: false })
-        .order('created_at', { ascending: false });
-
-      if (type) query = query.eq('type', type);
-
-      const { data, error } = await query;
-      const list = document.getElementById('list');
-      if (error) {
-        list.innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
+      let result;
+      try {
+        result = await luxeDb.getTransactionsPage({
+          type: type || 'all',
+          page: currentPage + 1,
+          limit: PAGE_SIZE
+        });
+      } catch (err) {
+        document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
         return;
       }
 
-      const rows = data || [];
-      document.getElementById('count').textContent = `${rows.length} shown`;
+      const rows = result.data || [];
+      totalCount = result.total || 0;
+      const list = document.getElementById('list');
+      document.getElementById('count').textContent = `${totalCount} shown`;
       if (rows.length === 0) {
         list.innerHTML = type
           ? '<p class="empty">Nothing here yet. Try the other type or log something new.</p>'
@@ -180,15 +206,37 @@
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this transaction?')) return;
         btn.disabled = true;
-        const { error } = await sb.from('transactions').delete().eq('id', btn.dataset.delete);
-        if (error) {
+        try {
+          await luxeDb.deleteTransaction(btn.dataset.delete);
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('transactions');
         await Promise.all([loadSummary(), loadTransactions()]);
       }));
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const pageIndicator = document.getElementById('pageIndicator');
+      const paginationBar = document.getElementById('paginationBar');
+
+      if (totalCount === 0) {
+        paginationBar.style.display = 'none';
+        return;
+      }
+      paginationBar.style.display = 'flex';
+
+      const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+      const from = currentPage * PAGE_SIZE + 1;
+      const to = Math.min(totalCount, (currentPage + 1) * PAGE_SIZE);
+
+      pageIndicator.textContent = `Showing ${from}-${to} of ${totalCount}`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = (currentPage + 1) >= totalPages;
     }
 
     async function loadSummary() {
@@ -200,13 +248,12 @@
       const from = start.toISOString().slice(0, 10);
       const to = today.toISOString().slice(0, 10);
 
-      const { data, error } = await sb.from('transactions')
-        .select('amount, type, transaction_date')
-        .gte('transaction_date', from)
-        .lte('transaction_date', to);
-
-      if (error) {
-        console.error('[transactions] loadSummary failed:', error.message);
+      let data = [];
+      try {
+        const result = await luxeDb.getTransactionsPage({ limit: 1000 });
+        data = (result.data || []).filter(tx => tx.transaction_date >= from && tx.transaction_date <= to);
+      } catch (err) {
+        console.error('[transactions] loadSummary failed:', err.message);
         summaryEl.innerHTML = `
           <div class="kpi bad">
             <div class="label">Income, last 7 days</div>

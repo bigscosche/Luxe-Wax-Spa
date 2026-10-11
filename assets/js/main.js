@@ -69,6 +69,11 @@
 
   const status = form.querySelector('.form-status');
   const button = form.querySelector('.form-submit');
+  const errorMessages = {
+    rate_limited: "Looks like this email just sent a note. Please wait an hour or book online directly.",
+    invalid_email: "That email doesn't look right — please double-check and try again.",
+    server_misconfigured: "The booking system is being updated. Please book online via Vagaro for now.",
+  };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -81,24 +86,27 @@
     button.disabled = true;
     button.textContent = 'Sending…';
     status.textContent = '';
+    status.className = 'form-status';
 
     try {
-      // TODO: replace with real endpoint once deployed.
-      // Example:
-      //   const res = await fetch('/.netlify/functions/lead', {
-      //     method: 'POST',
-      //     headers: { 'Content-Type': 'application/json' },
-      //     body: JSON.stringify(payload),
-      //   });
-      //   if (!res.ok) throw new Error('submit_failed');
-      console.info('[lead-capture] payload ready for backend:', payload);
-      await new Promise(r => setTimeout(r, 600));
+      const res = await fetch('/.netlify/functions/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok || body.ok === false) {
+        const code = body.error || 'submit_failed';
+        throw new Error(code);
+      }
 
       form.reset();
-      status.textContent = "Thanks — your note is in. You'll hear back within one business day.";
+      status.textContent = "Thanks — your note is in. Cida will reply within one business day.";
       status.className = 'form-status is-success';
     } catch (err) {
-      status.textContent = "Something went wrong. Please try again or book online directly.";
+      const msg = errorMessages[err.message]
+        || "Something went wrong. Please try again or book online directly.";
+      status.textContent = msg;
       status.className = 'form-status is-error';
     } finally {
       button.disabled = false;
@@ -106,3 +114,14 @@
     }
   });
 })();
+
+(function initMobileStickyBar() {
+  const bar = document.getElementById('mobileStickyBar');
+  if (!bar) return;
+  const onScroll = () => {
+    bar.classList.toggle('visible', window.scrollY > 200);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+

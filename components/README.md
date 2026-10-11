@@ -26,7 +26,7 @@ These are **copy-paste templates**, not a build system. The stack is pure static
 {{BUSINESS_TAGLINE}}     Premium waxing studio
 {{BUSINESS_CITY}}        Newtown
 {{BUSINESS_STATE}}       CT
-{{BUSINESS_ADDRESS}}     125b S Main St f
+{{BUSINESS_ADDRESS}}     125 S Main St, Suite Space
 {{BUSINESS_POSTAL}}      06470
 {{BUSINESS_LAT}}         41.4143
 {{BUSINESS_LNG}}         -73.2954

@@ -21,7 +21,7 @@
     "url": "https://luxewaxspa.netlify.app",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "125b S Main St f",
+      "streetAddress": "125 S Main St, Suite Space",
       "addressLocality": "Newtown",
       "addressRegion": "CT",
       "postalCode": "06470",
@@ -48,117 +48,18 @@
       "itemListElement": [
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brazilian Wax", "description": "Signature near-painless Brazilian wax with complimentary vajacial"}, "price": "74.45", "priceCurrency": "USD"},
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Eyebrow Design"}, "price": "31.91", "priceCurrency": "USD"},
-        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Eyelash Lift"}, "price": "159.53", "priceCurrency": "USD"},
-        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Eyelash Lift + Tint"}, "price": "175.48", "priceCurrency": "USD"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Eye Lash Lift"}, "price": "175.48", "priceCurrency": "USD"},
         {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Brow Lamination"}, "price": "106.35", "priceCurrency": "USD"},
-        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Full Body Waxing"}, "price": "90.40", "priceCurrency": "USD"},
-        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Men's Waxing"}, "price": "26.59", "priceCurrency": "USD"}
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Luxe Made for You Facial"}, "price": "148.89", "priceCurrency": "USD"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Luxe Renewal PCA Peel"}, "price": "186.11", "priceCurrency": "USD"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Full Legs Waxing"}, "price": "90.40", "priceCurrency": "USD"},
+        {"@type": "Offer", "itemOffered": {"@type": "Service", "name": "Men's Chest Wax"}, "price": "53.18", "priceCurrency": "USD"}
       ]
     }
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/theme.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --cream: #FFFBF0;
-      --sand: #EBE5D5;
-      --sand-dark: #D4CEBB;
-      --slate: #374558;
-      --slate-mid: #59637E;
-      --navy: #263242;
-      --brown: #5F553A;
-      --brown-light: #8A8070;
-      --white: #FFFFFF;
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Syne', sans-serif;
-      background: var(--cream);
-      color: var(--navy);
-      font-weight: 400;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── NAV ─── */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      padding: 0 5vw;
-      background: transparent;
-      transition: background .35s, border-color .35s;
-      border-bottom: 1px solid transparent;
-    }
-    .nav.scrolled {
-      background: rgba(255,251,240,.97);
-      border-bottom-color: var(--sand-dark);
-      backdrop-filter: blur(14px);
-    }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 68px; max-width: 1440px; margin: 0 auto;
-    }
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem; font-weight: 400; font-style: italic;
-      color: var(--navy); text-decoration: none; letter-spacing: .03em;
-    }
-    .nav.dark-hero .nav-logo { color: var(--white); }
-    .nav.dark-hero.scrolled .nav-logo { color: var(--navy); }
-    .nav.dark-hero .nav-links a { color: rgba(255,255,255,.68); }
-    .nav.dark-hero .nav-links a:hover { color: var(--white); }
-    .nav.dark-hero.scrolled .nav-links a { color: var(--brown-light); }
-    .nav.dark-hero.scrolled .nav-links a:hover { color: var(--navy); }
-    .nav.dark-hero .nav-links a.active { color: var(--white); border-bottom-color: rgba(255,255,255,.5); }
-    .nav.dark-hero.scrolled .nav-links a.active { color: var(--navy); border-bottom-color: var(--navy); }
-    .nav-links { display: flex; gap: 2.8rem; list-style: none; align-items: center; }
-    .nav-links a {
-      color: var(--brown-light); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
-      font-weight: 500; transition: color .2s;
-    }
-    .nav-links a:hover { color: var(--navy); }
-    .nav-links a.active { color: var(--navy); border-bottom: 1px solid var(--navy); padding-bottom: 1px; }
-    .nav-book {
-      font-family: 'Cormorant Garamond', serif !important;
-      font-style: italic !important; font-size: 1rem !important;
-      color: var(--navy) !important; text-transform: none !important;
-      letter-spacing: 0 !important; font-weight: 400 !important;
-      border-bottom: 1px solid var(--navy) !important;
-      padding-bottom: 1px !important;
-    }
-    .nav.dark-hero .nav-book { color: var(--white) !important; border-bottom-color: rgba(255,255,255,.5) !important; }
-    .nav.dark-hero.scrolled .nav-book { color: var(--navy) !important; border-bottom-color: var(--navy) !important; }
-    .nav-hamburger { display: none; cursor: pointer; background: none; border: none; padding: 8px 6px; margin-right: -6px; }
-    .nav-hamburger span { display: block; width: 22px; height: 1px; background: var(--navy); margin: 6px 0; }
-    .nav.dark-hero .nav-hamburger span { background: var(--white); }
-    .nav.dark-hero.scrolled .nav-hamburger span { background: var(--navy); }
-
-    /* Mobile menu */
-    .mobile-menu {
-      display: none; position: fixed; top: 68px; left: 0; right: 0;
-      background: rgba(255,251,240,.98); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--sand-dark);
-      padding: 1.5rem 5vw 2.5rem; z-index: 190;
-    }
-    .mobile-menu.open { display: block; }
-    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
-    .mobile-menu ul li { border-bottom: 1px solid var(--sand); }
-    .mobile-menu ul a {
-      display: block; padding: 1rem 0;
-      color: var(--brown); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
-    }
-    .mobile-book {
-      display: inline-block; margin-top: 2rem;
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.1rem;
-      color: var(--navy); text-decoration: none;
-      border-bottom: 1px solid var(--navy); padding-bottom: 2px;
-    }
-
     /* ─── PAGE HERO ─── */
     .page-hero {
       background: var(--slate);
@@ -407,48 +308,10 @@
       padding: .38rem .9rem; border: 1px solid var(--sand-dark);
       font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
       color: var(--brown-light); font-weight: 500; text-decoration: none; display: inline-block;
+      transition: border-color .2s, color .2s;
     }
     a.town-pill:hover { border-color: var(--navy); color: var(--navy); }
     .town-pill.home { background: var(--slate); color: var(--cream); border-color: var(--slate); }
-
-    /* ─── FOOTER ─── */
-    footer { background: var(--slate); }
-    .footer-inner { max-width: 1440px; margin: 0 auto; padding: 4.5rem 6vw 2rem; }
-    .footer-grid {
-      display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
-      gap: 3rem; margin-bottom: 3rem;
-      padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .footer-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.2rem; font-weight: 400;
-      color: var(--cream); margin-bottom: .9rem; display: block;
-    }
-    .footer-tagline { font-size: .73rem; color: rgba(255,255,255,.32); line-height: 1.95; }
-    .footer-tagline a { color: rgba(255,255,255,.32); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.15); }
-    .footer-tagline a:hover { color: rgba(255,255,255,.55); }
-    .footer-col-title {
-      font-size: .54rem; letter-spacing: .32em; text-transform: uppercase;
-      color: rgba(255,255,255,.28); margin-bottom: 1.3rem; font-weight: 500; display: block;
-    }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
-    .footer-links a {
-      color: rgba(255,255,255,.48); text-decoration: none; font-size: .76rem;
-      font-weight: 400; transition: color .2s;
-    }
-    .footer-links a:hover { color: var(--cream); }
-    .footer-info { font-size: .76rem; color: rgba(255,255,255,.38); line-height: 2.1; }
-    .footer-info a { color: rgba(255,255,255,.56); text-decoration: none; }
-    .footer-bottom {
-      text-align: center; padding-bottom: 2rem;
-      font-size: .54rem; color: rgba(255,255,255,.18); letter-spacing: .06em;
-    }
-    .footer-bottom a { color: rgba(255,255,255,.18); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .footer-bottom a:hover { color: rgba(255,255,255,.32); }
-
-    /* ─── REVEAL ─── */
-    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1000px) {
@@ -457,13 +320,9 @@
       .menu-section-header { grid-template-columns: 1fr; gap: 1rem; }
       .price-two-col { grid-template-columns: 1fr; }
       .policies-grid { grid-template-columns: 1fr 1fr; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
       .menu-intro-inner { flex-direction: column; align-items: flex-start; }
     }
     @media (max-width: 600px) {
-      .nav { padding: 0 1.5rem; }
-      .nav-links { display: none; }
-      .nav-hamburger { display: block; }
       .page-hero { min-height: 56vh; padding: 68px 1.5rem 0; }
       .page-hero-inner { padding-bottom: 3rem; }
       .cat-nav-inner { padding: 0 1.5rem; }
@@ -473,8 +332,6 @@
       .policies-inner { padding: 3.5rem 1.5rem; }
       .policies-grid { grid-template-columns: 1fr; }
       .locations { padding: 3.5rem 1.5rem; }
-      .footer-inner { padding: 3rem 1.5rem 1.5rem; }
-      .footer-grid { grid-template-columns: 1fr; }
       .callout { flex-direction: column; align-items: flex-start; gap: 1.2rem; }
     }
   </style>
@@ -488,6 +345,7 @@
     <ul class="nav-links">
       <li><a href="services.html" class="active">Services &amp; Pricing</a></li>
       <li><a href="about.html">About</a></li>
+      <li><a href="review.html">Reviews</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-book">Book Now ↗</a></li>
     </ul>
@@ -502,6 +360,7 @@
   <ul>
     <li><a href="services.html">Services &amp; Pricing</a></li>
     <li><a href="about.html">About</a></li>
+    <li><a href="review.html">Reviews</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
   <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book">Book Now ↗</a>
@@ -547,85 +406,184 @@
   </div>
 </div>
 
-<!-- CATEGORY NAV -->
 <nav class="cat-nav" aria-label="Service categories">
   <div class="cat-nav-inner">
+    <a href="#facials" class="cat-nav-link">Facials &amp; Skin</a>
     <a href="#brows-face" class="cat-nav-link">Brows &amp; Face</a>
     <a href="#lashes" class="cat-nav-link">Lash Enhancements</a>
     <a href="#brazilian" class="cat-nav-link">Brazilian &amp; Bikini</a>
     <a href="#body" class="cat-nav-link">Legs &amp; Body</a>
     <a href="#mens" class="cat-nav-link">Men's Services</a>
-    <a href="#packages" class="cat-nav-link">Packages</a>
   </div>
 </nav>
 
 <!-- MENU SECTIONS -->
 <main class="menu-sections">
 
-  <!-- BROWS & FACE -->
-  <section class="menu-section" id="brows-face">
+  <!-- FACIALS & SKIN CARE -->
+  <section class="menu-section" id="facials">
     <div class="menu-section-header reveal">
       <div>
-        <p class="tag">Face</p>
-        <h2 class="heading-lg">Brows &amp; Face</h2>
+        <p class="tag">Skin Care</p>
+        <h2 class="heading-lg">Facials &amp; Skin Care</h2>
       </div>
-      <p class="menu-section-desc">Expert brow shaping, lamination, tinting, and full face waxing. <strong>Precision meets artistry</strong> — Cida tailors each service to your natural bone structure and hair growth pattern for results that last.</p>
+      <p class="menu-section-desc">Customized skin treatments using professional <strong>Eminence Organic Skin Care</strong>, PCA SKIN® chemical peels, and Celluma LED therapy for radiant, healthy results.</p>
     </div>
     <div class="price-table reveal">
       <div class="price-row featured">
         <span class="price-row-num">01</span>
         <div>
+          <span class="price-row-name">Luxe Made for You — 60 Min Facial <span class="price-badge">Signature</span></span>
+          <span class="price-row-desc">Personalized Eminence organic facial with double cleansing, exfoliation, extractions, targeted masque, face &amp; neck massage, cooling globes, and SPF.</span>
+        </div>
+        <span class="price-row-price">$148.89</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">02</span>
+        <div>
+          <span class="price-row-name">Luxe Renewal — PCA Chemical Peel</span>
+          <span class="price-row-desc">Customized PCA SKIN® peel targeting acne, congestion, fine lines, and texture. Includes professional consultation &amp; mandatory post-treatment kit.</span>
+        </div>
+        <span class="price-row-price">$186.11</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">03</span>
+        <div>
+          <span class="price-row-name">Luxe Elevated — 90 Min Restorative Facial</span>
+          <span class="price-row-desc">Our most restorative facial featuring Eminence organics, Celluma LED light therapy, hydrogel mask, eye &amp; lip treatments, and extended massage.</span>
+        </div>
+        <span class="price-row-price">$207.38</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">04</span>
+        <div>
+          <span class="price-row-name">Luxe Refined — Microdermabrasion Facial (60 Min)</span>
+          <span class="price-row-desc">Controlled mechanical resurfacing to gently refine surface texture, dullness, pores, and fine lines combined with Eminence organic care.</span>
+        </div>
+        <span class="price-row-price">$170.16</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">05</span>
+        <div>
+          <span class="price-row-name">Luxe Fresh Start — Teen Facial</span>
+          <span class="price-row-desc">Introductory facial created for teen skin focusing on excess oil, congestion, gentle exfoliation, and simple home care guidance.</span>
+        </div>
+        <span class="price-row-price">$127.62</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">06</span>
+        <div>
+          <span class="price-row-name">Celluma LED Session — Acne &amp; Aging</span>
+          <span class="price-row-desc">30-minute non-invasive LED light therapy session calibrated for acne clarity or wrinkle firmness. Includes cleansing and SPF.</span>
+        </div>
+        <span class="price-row-price">$58.49</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BROWS & FACE -->
+  <section class="menu-section" id="brows-face">
+    <div class="menu-section-header reveal">
+      <div>
+        <p class="tag">Face &amp; Brows</p>
+        <h2 class="heading-lg">Brows &amp; Facial Waxing</h2>
+      </div>
+      <p class="menu-section-desc">Expert brow shaping, lamination, tinting, and full face waxing. <strong>Precision meets artistry</strong> — tailored to your natural bone structure.</p>
+    </div>
+    <div class="price-two-col price-table reveal">
+      <div class="price-row featured" style="grid-column: 1 / -1">
+        <span class="price-row-num">01</span>
+        <div>
           <span class="price-row-name">Eyebrow Design <span class="price-badge">Most Popular</span></span>
-          <span class="price-row-desc">Precision wax shaping tailored to your face shape — clean lines, defined arches.</span>
+          <span class="price-row-desc">Consultation, wax shaping, trim, gentle massage, and optional light makeup. Brow mapping upon request.</span>
         </div>
         <span class="price-row-price">$31.91</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">02</span>
         <div>
-          <span class="price-row-name">Eyebrow Design + Tint</span>
-          <span class="price-row-desc">Wax shaping plus a semi-permanent tint for fuller, more defined brows.</span>
+          <span class="price-row-name">Eyebrow Design + Tinting</span>
+          <span class="price-row-desc">Expert brow shaping paired with high-quality tint for fuller, defined brows.</span>
         </div>
         <span class="price-row-price">$55.00</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">03</span>
         <div>
-          <span class="price-row-name">Eyebrow Lamination</span>
-          <span class="price-row-desc">Restructures brow hairs for a brushed-up, fluffy look that lasts 6–8 weeks.</span>
+          <span class="price-row-name">Eyebrow Design + Lip Bundle</span>
+          <span class="price-row-desc">Meticulously shaped brows combined with upper lip wax care.</span>
         </div>
-        <span class="price-row-price">$106.35</span>
+        <span class="price-row-price">$44.67</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">04</span>
         <div>
-          <span class="price-row-name">Lip Wax</span>
-          <span class="price-row-desc">Upper lip hair removal — quick, clean, and effective.</span>
+          <span class="price-row-name">Eyebrow Lamination</span>
+          <span class="price-row-desc">Restructures brow hairs into a sleek, uniform, fuller shape lasting weeks.</span>
         </div>
-        <span class="price-row-price">$15.96</span>
+        <span class="price-row-price">$106.35</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">05</span>
-        <div><span class="price-row-name">Chin Wax</span></div>
-        <span class="price-row-price">$15.96</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">06</span>
-        <div><span class="price-row-name">Lip + Chin Wax</span></div>
+        <div>
+          <span class="price-row-name">Eyebrow Tint</span>
+          <span class="price-row-desc">Semi-permanent color tinting hairs and skin layer for a thicker appearance. Includes mapping.</span>
+        </div>
         <span class="price-row-price">$26.59</span>
       </div>
       <div class="price-row">
+        <span class="price-row-num">06</span>
+        <div>
+          <span class="price-row-name">Eyebrow Tweeze</span>
+          <span class="price-row-desc">Gentle tweezing for clients with wax contraindications or preference.</span>
+        </div>
+        <span class="price-row-price">$37.22</span>
+      </div>
+      <div class="price-row">
         <span class="price-row-num">07</span>
-        <div><span class="price-row-name">Cheeks / Sideburns</span></div>
-        <span class="price-row-price">$21.27</span>
+        <div>
+          <span class="price-row-name">Middle of the Brow</span>
+          <span class="price-row-desc">Cleans center unibrow area without a full brow wax.</span>
+        </div>
+        <span class="price-row-price">$12.76</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">08</span>
         <div>
           <span class="price-row-name">Full Face Wax</span>
-          <span class="price-row-desc">Brows, lip, chin, cheeks, and forehead — comprehensive face waxing in one visit.</span>
+          <span class="price-row-desc">Comprehensive hair removal covering sides of face, chin, lip, and forehead.</span>
         </div>
         <span class="price-row-price">$47.86</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">09</span>
+        <div><span class="price-row-name">Upper Lip Wax</span></div>
+        <span class="price-row-price">$15.95</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">10</span>
+        <div><span class="price-row-name">Chin Wax (Upper &amp; Lower)</span></div>
+        <span class="price-row-price">$17.02</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">11</span>
+        <div><span class="price-row-name">Lip &amp; Chin Wax</span></div>
+        <span class="price-row-price">$26.59</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">12</span>
+        <div><span class="price-row-name">Sides of Face (Sideburns)</span></div>
+        <span class="price-row-price">$21.27</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">13</span>
+        <div><span class="price-row-name">Forehead</span></div>
+        <span class="price-row-price">$15.95</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">14</span>
+        <div><span class="price-row-name">Nostril Waxing</span></div>
+        <span class="price-row-price">$15.95</span>
       </div>
     </div>
   </section>
@@ -637,30 +595,22 @@
         <p class="tag">Eyes</p>
         <h2 class="heading-lg">Lash Enhancements</h2>
       </div>
-      <p class="menu-section-desc">Stunning curl and rich color — low maintenance, high impact. <strong>No mascara needed.</strong> Results last 6–8 weeks and look incredible from morning to midnight.</p>
+      <p class="menu-section-desc">Stunning curl and rich color — low maintenance, high impact. <strong>No mascara needed.</strong> Results last 6–8 weeks.</p>
     </div>
     <div class="price-table reveal">
       <div class="price-row featured">
         <span class="price-row-num">01</span>
         <div>
-          <span class="price-row-name">Eyelash Lift <span class="price-badge">Client Favorite</span></span>
-          <span class="price-row-desc">Lifts and curls your natural lashes from the root for an open, awake look that lasts 6–8 weeks.</span>
-        </div>
-        <span class="price-row-price">$159.53</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">02</span>
-        <div>
-          <span class="price-row-name">Eyelash Lift + Tint</span>
-          <span class="price-row-desc">All the lift — plus a deep tint for dramatic, mascara-free color.</span>
+          <span class="price-row-name">Eye Lash Lift <span class="price-badge">Client Favorite</span></span>
+          <span class="price-row-desc">Provides a stunning, long-lasting curl that opens the eyes. Includes a complimentary lash tint.</span>
         </div>
         <span class="price-row-price">$175.48</span>
       </div>
       <div class="price-row">
-        <span class="price-row-num">03</span>
+        <span class="price-row-num">02</span>
         <div>
-          <span class="price-row-name">Eyelash Tint</span>
-          <span class="price-row-desc">Semi-permanent color for naturally dark, defined lashes without mascara.</span>
+          <span class="price-row-name">Eyelash Tint (Upper &amp; Lower)</span>
+          <span class="price-row-desc">Semi-permanent dye adding depth, darkness, and definition without mascara.</span>
         </div>
         <span class="price-row-price">$31.91</span>
       </div>
@@ -678,40 +628,72 @@
         <p class="tag">Body</p>
         <h2 class="heading-lg">Brazilian &amp; Bikini</h2>
       </div>
-      <p class="menu-section-desc">Our signature specialty. <strong>Near-painless, thorough, and discreet</strong> — every Brazilian includes a complimentary vajacial. First time? You're in the best hands.</p>
+      <p class="menu-section-desc">Our signature specialty for women. <strong>Near-painless, thorough, and discreet</strong> — every Brazilian includes a full vajacial treatment.</p>
     </div>
     <div class="price-table reveal">
       <div class="price-row featured">
         <span class="price-row-num">01</span>
         <div>
-          <span class="price-row-name">Brazilian Wax <span class="price-badge">Signature</span></span>
-          <span class="price-row-desc">Complete hair removal front to back — includes complimentary vajacial treatment.</span>
+          <span class="price-row-name">Waxing — Brazilian <span class="price-badge">Signature</span></span>
+          <span class="price-row-desc">Women only. Complete hair removal front, back, and in-between (or leave a strip). Includes full vajacial service.</span>
         </div>
         <span class="price-row-price">$74.45</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">02</span>
         <div>
-          <span class="price-row-name">Brazilian + Hydrogel Mask</span>
-          <span class="price-row-desc">Signature Brazilian plus a cooling hydrogel mask for maximum skin comfort.</span>
+          <span class="price-row-name">Brazilian Wax + Hydrogel Mask</span>
+          <span class="price-row-desc">Signature Brazilian paired with a soothing hyaluronic acid, green tea &amp; aloe hydrogel mask to calm redness.</span>
         </div>
         <span class="price-row-price">$111.67</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">03</span>
         <div>
-          <span class="price-row-name">Deep Bikini</span>
-          <span class="price-row-desc">More coverage than a standard bikini — removes hair beyond the panty line, top and sides.</span>
+          <span class="price-row-name">Waxing — Deep Bikini</span>
+          <span class="price-row-desc">Women only. Precise removal extending further than standard bikini line for long-lasting smoothness.</span>
         </div>
         <span class="price-row-price">$63.81</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">04</span>
         <div>
-          <span class="price-row-name">Bikini Wax</span>
-          <span class="price-row-desc">Cleans up the panty line — perfect for maintaining shape between Brazilians.</span>
+          <span class="price-row-name">Waxing — Bikini</span>
+          <span class="price-row-desc">Women only. Hair removal along areas visible outside standard underwear or swimsuit.</span>
         </div>
         <span class="price-row-price">$53.18</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">05</span>
+        <div>
+          <span class="price-row-name">Butt Cheeks</span>
+          <span class="price-row-desc">Smooth hair removal across the buttocks cheeks area (excludes butt strip).</span>
+        </div>
+        <span class="price-row-price">$21.27</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">06</span>
+        <div>
+          <span class="price-row-name">Butt Strip</span>
+          <span class="price-row-desc">Women only (18+). Precise hair removal between the cheeks for a clean finish.</span>
+        </div>
+        <span class="price-row-price">$21.27</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">07</span>
+        <div>
+          <span class="price-row-name">Hydrogel Vajacial Mask</span>
+          <span class="price-row-desc">Cooling oval mask infused with hyaluronic acid, green tea &amp; aloe vera to soothe post-wax skin.</span>
+        </div>
+        <span class="price-row-price">$37.22</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">08</span>
+        <div>
+          <span class="price-row-name">Hydrogel Mask Side Strips</span>
+          <span class="price-row-desc">Targeted hydrogel side strips designed for bikini line, inner thighs, or underarms relief.</span>
+        </div>
+        <span class="price-row-price">$12.00</span>
       </div>
     </div>
   </section>
@@ -723,48 +705,48 @@
         <p class="tag">Legs &amp; Arms</p>
         <h2 class="heading-lg">Full Body Waxing</h2>
       </div>
-      <p class="menu-section-desc">Legs, arms, underarms, stomach, back — smooth, lasting results from head to toe. <strong>Mix and match services</strong> in one appointment for a complete ritual.</p>
+      <p class="menu-section-desc">Legs, arms, underarms, stomach, back — smooth, lasting results from head to toe.</p>
     </div>
     <div class="price-two-col price-table reveal">
       <div class="price-row">
         <span class="price-row-num">01</span>
         <div>
           <span class="price-row-name">Full Legs</span>
-          <span class="price-row-desc">Upper and lower legs, front and back.</span>
+          <span class="price-row-desc">Thorough waxing from upper thighs down to toes.</span>
         </div>
         <span class="price-row-price">$90.40</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">02</span>
         <div>
-          <span class="price-row-name">Lower Legs</span>
-          <span class="price-row-desc">Knee to ankle.</span>
+          <span class="price-row-name">Upper Leg (Knee Included)</span>
+          <span class="price-row-desc">Hair removal from thigh to knee.</span>
         </div>
-        <span class="price-row-price">$58.49</span>
+        <span class="price-row-price">$54.00</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">03</span>
         <div>
-          <span class="price-row-name">Upper Legs</span>
-          <span class="price-row-desc">Thigh to knee.</span>
+          <span class="price-row-name">Lower Legs Wax (Knee Included)</span>
+          <span class="price-row-desc">Knee down to ankle.</span>
         </div>
-        <span class="price-row-price">$58.49</span>
+        <span class="price-row-price">$53.18</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">04</span>
         <div>
-          <span class="price-row-name">Full Arms</span>
-          <span class="price-row-desc">Shoulder to wrist.</span>
+          <span class="price-row-name">Waxing — Full Arms</span>
+          <span class="price-row-desc">Shoulder down to wrist.</span>
         </div>
         <span class="price-row-price">$58.49</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">05</span>
         <div>
-          <span class="price-row-name">Half Arms</span>
-          <span class="price-row-desc">Elbow to wrist.</span>
+          <span class="price-row-name">Waxing — Half Arms</span>
+          <span class="price-row-desc">Elbow down to wrist.</span>
         </div>
-        <span class="price-row-price">$37.22</span>
+        <span class="price-row-price">$47.86</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">06</span>
@@ -773,13 +755,38 @@
       </div>
       <div class="price-row">
         <span class="price-row-num">07</span>
-        <div><span class="price-row-name">Stomach</span></div>
+        <div><span class="price-row-name">Waxing — Stomach</span></div>
         <span class="price-row-price">$37.22</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">08</span>
-        <div><span class="price-row-name">Lower Back</span></div>
-        <span class="price-row-price">$37.22</span>
+        <div><span class="price-row-name">Belly Strip</span></div>
+        <span class="price-row-price">$21.27</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">09</span>
+        <div><span class="price-row-name">Back Thigh Wax</span></div>
+        <span class="price-row-price">$26.59</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">10</span>
+        <div><span class="price-row-name">Inner Thigh Wax</span></div>
+        <span class="price-row-price">$26.59</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">11</span>
+        <div><span class="price-row-name">Waxing Lower Back Strip</span></div>
+        <span class="price-row-price">$26.60</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">12</span>
+        <div><span class="price-row-name">Hands / Fingers</span></div>
+        <span class="price-row-price">$15.95</span>
+      </div>
+      <div class="price-row">
+        <span class="price-row-num">13</span>
+        <div><span class="price-row-name">Toes</span></div>
+        <span class="price-row-price">$15.95</span>
       </div>
     </div>
   </section>
@@ -791,7 +798,7 @@
         <p class="tag">Men's Services</p>
         <h2 class="heading-lg">For Him</h2>
       </div>
-      <p class="menu-section-desc">A clean, professional environment where everyone is welcome. <strong>No judgment, just results.</strong> Men's waxing services tailored for comfort and precision.</p>
+      <p class="menu-section-desc">A clean, professional environment where everyone is welcome. <strong>No judgment, just results.</strong></p>
     </div>
     <div class="price-table reveal">
       <div class="price-row">
@@ -804,88 +811,45 @@
       </div>
       <div class="price-row">
         <span class="price-row-num">02</span>
-        <div><span class="price-row-name">Chest Wax</span></div>
-        <span class="price-row-price">$63.81</span>
+        <div>
+          <span class="price-row-name">Waxing — Chest</span>
+          <span class="price-row-desc">Pectoral area hair removal from collarbone to nipples ($80–$120 for dense coverage).</span>
+        </div>
+        <span class="price-row-price">$53.18</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">03</span>
-        <div><span class="price-row-name">Back Wax</span></div>
-        <span class="price-row-price">$74.45</span>
+        <div>
+          <span class="price-row-name">Full Back Wax</span>
+          <span class="price-row-desc">Removes hair from upper back down to shoulders ($80–$100 range).</span>
+        </div>
+        <span class="price-row-price">From $85.08</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">04</span>
-        <div><span class="price-row-name">Back + Shoulders</span></div>
-        <span class="price-row-price">$90.40</span>
+        <div><span class="price-row-name">Butt Cheeks (Men)</span></div>
+        <span class="price-row-price">$31.91</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">05</span>
-        <div><span class="price-row-name">Chest + Stomach</span></div>
-        <span class="price-row-price">$90.40</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">06</span>
-        <div><span class="price-row-name">Underarms</span></div>
+        <div><span class="price-row-name">Neck</span></div>
         <span class="price-row-price">$26.59</span>
       </div>
       <div class="price-row">
+        <span class="price-row-num">06</span>
+        <div><span class="price-row-name">Ear Waxing</span></div>
+        <span class="price-row-price">$21.27</span>
+      </div>
+      <div class="price-row">
         <span class="price-row-num">07</span>
-        <div><span class="price-row-name">Nose</span></div>
-        <span class="price-row-price">$15.96</span>
+        <div><span class="price-row-name">Nostril Waxing</span></div>
+        <span class="price-row-price">$15.95</span>
       </div>
       <div class="price-row">
         <span class="price-row-num">08</span>
-        <div><span class="price-row-name">Ears</span></div>
-        <span class="price-row-price">$15.96</span>
+        <div><span class="price-row-name">Underarms</span></div>
+        <span class="price-row-price">$26.59</span>
       </div>
-    </div>
-  </section>
-
-  <!-- PACKAGES -->
-  <section class="menu-section" id="packages">
-    <div class="menu-section-header reveal">
-      <div>
-        <p class="tag">Save More</p>
-        <h2 class="heading-lg">Packages &amp; Combos</h2>
-      </div>
-      <p class="menu-section-desc">Combine your favorite services and <strong>save on every visit.</strong> The perfect way to maintain smooth, polished results year-round.</p>
-    </div>
-    <div class="price-table reveal">
-      <div class="price-row featured">
-        <span class="price-row-num">01</span>
-        <div>
-          <span class="price-row-name">Brazilian + Eyebrow Design <span class="price-badge">Best Value</span></span>
-          <span class="price-row-desc">Our two most-booked services together — a complete brow and Brazilian refresh.</span>
-        </div>
-        <span class="price-row-price">$100.00</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">02</span>
-        <div>
-          <span class="price-row-name">Brazilian + Hydrogel Mask</span>
-          <span class="price-row-desc">Signature Brazilian with premium post-wax hydrogel recovery treatment.</span>
-        </div>
-        <span class="price-row-price">$111.67</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">03</span>
-        <div>
-          <span class="price-row-name">Lash Lift + Eyebrow Design</span>
-          <span class="price-row-desc">Lifted lashes and defined brows — a full eye-frame transformation in one appointment.</span>
-        </div>
-        <span class="price-row-price">$185.00</span>
-      </div>
-      <div class="price-row">
-        <span class="price-row-num">04</span>
-        <div>
-          <span class="price-row-name">Full Body Experience</span>
-          <span class="price-row-desc">Brazilian, full legs, underarms, and eyebrow design — the complete head-to-toe ritual.</span>
-        </div>
-        <span class="price-row-price">From $210</span>
-      </div>
-    </div>
-    <div class="callout">
-      <p><strong>Custom packages available.</strong> Book multiple services in one appointment and Cida will create a custom plan just for you.</p>
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="callout-link">Book Now ↗</a>
     </div>
   </section>
 
@@ -928,7 +892,119 @@
       <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="space-book-link">Book on Vagaro ↗</a>
     </div>
   </div>
-</div>
+</section>
+
+<!-- FAQ ACCORDION -->
+<section class="faq">
+  <div class="faq-inner">
+    <div class="faq-header reveal">
+      <span class="tag">FAQ</span>
+      <h2 class="heading-lg">Common<br><em>Questions</em></h2>
+      <p class="body-text">Everything you need to know before your visit. Don't see your question? Reach out on Instagram.</p>
+    </div>
+    <div class="faq-list reveal">
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          How do I book an appointment?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            All appointments are booked online through Vagaro — available 24 hours a day, 7 days a week. No phone calls, no waiting on hold. Simply visit <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener">vagaro.com/luxewaxspa</a>, choose your service, pick a date and time that works for you, and you're confirmed. It takes less than a minute.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          How long should my hair be before waxing?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Hair should be at least ¼ inch long — roughly 10 to 14 days of growth after shaving. If the hair is too short, the wax won't grip it properly and results won't be as clean. Exfoliate gently 24 hours before your appointment and arrive with clean, dry skin for the best results.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Is parking available?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Free street parking is available along South Main Street directly in front of the building. Additional parking can be found in the municipal lot nearby. If you have any trouble finding us, send a quick message on Instagram at <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a> and Cida will help you out.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Do you offer men's waxing services?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Yes! Men's services are absolutely welcome at Luxe Wax Spa. Cida offers waxing for the chest, back, shoulders, underarms, ears, nose, and eyebrow shaping for men. The suite is private, judgment-free, and designed to make everyone feel comfortable. View the full men's menu at <a href="#mens">Services &amp; Pricing</a>.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          What is your cancellation policy?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Please provide at least 24 hours' notice if you need to cancel or reschedule. Late cancellations and no-shows affect the ability to offer that time to other clients. Consistent no-shows may require a deposit for future bookings. You can manage your appointment at any time through Vagaro.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          I'm nervous about my first Brazilian. What should I know?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Completely normal — and you are far from alone. Cida has guided hundreds of first-timers through their first Brazilian, and the most common thing people say afterward is: "That was so much better than I expected." She uses a low-temperature hard wax technique that grips hair, not skin, and takes extra time to explain each step. Come with clean, dry skin and at least ¼ inch of hair growth. The rest is taken care of.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question" aria-expanded="false">
+          Can I combine multiple services in one appointment?
+          <span class="faq-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </button>
+        <div class="faq-answer" role="region">
+          <div class="faq-answer-inner">
+            Absolutely. Many clients book a Brazilian alongside eyebrow design, or a lash lift with brow shaping, making the most of a single visit. Browse the services above, or simply book each service on Vagaro and they'll be combined into one appointment.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 <!-- LOCATIONS -->
 <section class="locations">
@@ -978,7 +1054,7 @@
       <div>
         <span class="footer-col-title">Visit</span>
         <p class="footer-info">
-          125b S Main St f<br>Newtown, CT 06470<br><br>
+          125 S Main St, Suite Space<br>Newtown, CT 06470<br><br>
           <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a><br>
           <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener">Book via Vagaro ↗</a>
         </p>
@@ -986,7 +1062,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
+    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125 S Main St, Suite Space, Newtown CT 06470 &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Service</a> &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
   </div>
 </footer>
 
@@ -1029,6 +1105,42 @@
     });
   }, { rootMargin: '-30% 0px -60% 0px' });
   sections.forEach(s => catObserver.observe(s));
+
+  // ─── FAQ Accordion Toggle ───
+  document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      document.querySelectorAll('.faq-question').forEach(b => {
+        b.setAttribute('aria-expanded', 'false');
+        b.nextElementSibling.classList.remove('open');
+      });
+      if (!expanded) {
+        btn.setAttribute('aria-expanded', 'true');
+        btn.nextElementSibling.classList.add('open');
+      }
+    });
+  });
+
+  // ─── Mobile Sticky Booking Bar ───
+  (function initMobileStickyBar() {
+    const bar = document.getElementById('mobileStickyBar');
+    if (!bar) return;
+    const onScroll = () => {
+      bar.classList.toggle('visible', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
 </script>
+
+<!-- MOBILE STICKY BOOKING BAR -->
+<div class="mobile-sticky-bar" id="mobileStickyBar">
+  <a href="review.html" class="sticky-bar-rating">
+    <span class="rating-stars">★★★★★</span>
+    <span class="rating-text">5.0 (50+ Reviews)</span>
+  </a>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="sticky-bar-btn">Book Now ↗</a>
+</div>
+
 </body>
 </html>

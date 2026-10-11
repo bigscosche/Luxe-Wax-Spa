@@ -22,10 +22,10 @@ create table if not exists public.leads (
 create index if not exists leads_created_at_desc on public.leads (created_at desc);
 create index if not exists leads_email_created   on public.leads (email, created_at desc);
 
--- Row Level Security: deny all client access. Only the service-role key
--- (used by the Netlify Function server-side) can read or write.
+-- Row Level Security: deny public client access.
+-- Only the service-role key and authenticated admin users can read or write.
 alter table public.leads enable row level security;
 
--- Intentionally NO policies → anon/authenticated clients cannot select/insert.
--- If you later want authenticated admins to read:
---   create policy "admins read" on public.leads for select using (auth.role() = 'authenticated');
+create policy "admins read leads" on public.leads for select to authenticated using (true);
+create policy "admins delete leads" on public.leads for delete to authenticated using (true);
+

@@ -3,6 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function handleSupabaseRecovery() {
+      const hash = window.location.hash || '';
+      if (hash.includes('access_token=') && (hash.includes('type=recovery') || hash.includes('type=signup'))) {
+        window.location.replace('admin/reset-password.html' + hash);
+      }
+    })();
+  </script>
   <title>Luxe Wax Spa | Waxing & Esthetics in Newtown, CT</title>
   <meta name="description" content="Book online at Luxe Wax Spa — near-painless Brazilian wax, brow design & lash lift in a private suite in Newtown, CT. Licensed esthetician Cida. Serving Danbury, Bethel, Ridgefield & Monroe CT." />
   <meta name="keywords" content="waxing Newtown CT, Brazilian wax Newtown CT, eyebrow waxing Danbury CT, lash lift Connecticut, wax spa Bethel CT, esthetician Ridgefield CT, waxing Monroe CT, bikini wax near me, waxing salon Newtown, body waxing Fairfield County CT" />
@@ -21,7 +29,7 @@
     "url": "https://luxewaxspa.netlify.app",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "125b S Main St f",
+      "streetAddress": "125 S Main St, Suite Space",
       "addressLocality": "Newtown",
       "addressRegion": "CT",
       "postalCode": "06470",
@@ -57,100 +65,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/theme.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --cream: #FFFBF0;
-      --sand: #EBE5D5;
-      --sand-dark: #D4CEBB;
-      --slate: #374558;
-      --slate-mid: #59637E;
-      --slate-light: #7C859E;
-      --navy: #263242;
-      --brown: #5F553A;
-      --brown-light: #8A8070;
-      --white: #FFFFFF;
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Syne', sans-serif;
-      background: var(--cream);
-      color: var(--navy);
-      font-weight: 400;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── NAV ─── */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      padding: 0 5vw;
-      background: transparent;
-      transition: background .35s, border-color .35s;
-      border-bottom: 1px solid transparent;
-    }
-    .nav.scrolled {
-      background: rgba(255,251,240,.97);
-      border-bottom-color: var(--sand-dark);
-      backdrop-filter: blur(14px);
-    }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 68px; max-width: 1440px; margin: 0 auto;
-    }
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem; font-weight: 400; font-style: italic;
-      color: var(--navy); text-decoration: none;
-      letter-spacing: .03em;
-    }
-    .nav-links { display: flex; gap: 2.8rem; list-style: none; align-items: center; }
-    .nav-links a {
-      color: var(--brown-light); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
-      font-weight: 500; transition: color .2s;
-    }
-    .nav-links a:hover { color: var(--navy); }
-    .nav-book {
-      font-family: 'Cormorant Garamond', serif !important;
-      font-style: italic !important; font-size: 1rem !important;
-      color: var(--navy) !important; text-transform: none !important;
-      letter-spacing: 0 !important; font-weight: 400 !important;
-      border-bottom: 1px solid var(--navy);
-      padding-bottom: 1px !important;
-    }
-    .nav-hamburger {
-      display: none; cursor: pointer; background: none; border: none;
-      padding: 8px 6px; margin-right: -6px;
-    }
-    .nav-hamburger span {
-      display: block; width: 22px; height: 1px;
-      background: var(--navy); margin: 6px 0;
-    }
-
-    /* Mobile menu */
-    .mobile-menu {
-      display: none; position: fixed; top: 68px; left: 0; right: 0;
-      background: rgba(255,251,240,.98); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--sand-dark);
-      padding: 1.5rem 5vw 2.5rem; z-index: 190;
-    }
-    .mobile-menu.open { display: block; }
-    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
-    .mobile-menu ul li { border-bottom: 1px solid var(--sand); }
-    .mobile-menu ul a {
-      display: block; padding: 1rem 0;
-      color: var(--brown); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
-    }
-    .mobile-book-btn {
-      display: inline-block; margin-top: 2rem;
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.1rem;
-      color: var(--navy); text-decoration: none;
-      border-bottom: 1px solid var(--navy); padding-bottom: 2px;
-    }
-
     /* ─── OPENING / INTRO ─── */
     .intro {
       padding-top: 68px;
@@ -425,44 +341,7 @@
       border-color: var(--slate);
     }
 
-    /* ─── FOOTER ─── */
-    footer { background: var(--slate); }
-    .footer-inner { max-width: 1440px; margin: 0 auto; padding: 4.5rem 6vw 2rem; }
-    .footer-grid {
-      display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
-      gap: 3rem; margin-bottom: 3rem;
-      padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .footer-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.2rem; font-weight: 400;
-      color: var(--cream); margin-bottom: 1rem; display: block;
-    }
-    .footer-tagline { font-size: .73rem; color: rgba(255,255,255,.32); line-height: 1.95; }
-    .footer-tagline a { color: rgba(255,255,255,.32); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.15); }
-    .footer-tagline a:hover { color: rgba(255,255,255,.55); }
-    .footer-col-title {
-      font-size: .54rem; letter-spacing: .32em; text-transform: uppercase;
-      color: rgba(255,255,255,.28); margin-bottom: 1.3rem; font-weight: 500; display: block;
-    }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
-    .footer-links a {
-      color: rgba(255,255,255,.48); text-decoration: none; font-size: .76rem;
-      font-weight: 400; transition: color .2s;
-    }
-    .footer-links a:hover { color: var(--cream); }
-    .footer-info { font-size: .76rem; color: rgba(255,255,255,.38); line-height: 2.1; }
-    .footer-info a { color: rgba(255,255,255,.56); text-decoration: none; }
-    .footer-bottom {
-      text-align: center; padding-bottom: 2rem;
-      font-size: .54rem; color: rgba(255,255,255,.18); letter-spacing: .06em;
-    }
-    .footer-bottom a { color: rgba(255,255,255,.18); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .footer-bottom a:hover { color: rgba(255,255,255,.32); }
 
-    /* ─── REVEAL ─── */
-    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1100px) {
@@ -483,12 +362,8 @@
       .review-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,.08); }
       .review-card:last-child { border-bottom: none; }
       .cta-inner { grid-template-columns: 1fr; gap: 4rem; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 600px) {
-      .nav { padding: 0 1.5rem; }
-      .nav-links { display: none; }
-      .nav-hamburger { display: block; }
       .intro-left { padding: 7rem 1.5rem 3.5rem; }
       .intro-right { padding: 3rem 1.5rem; }
       .svc-col { padding: 3.5rem 1.5rem; }
@@ -496,8 +371,6 @@
       .reviews-inner { padding: 5rem 1.5rem; }
       .review-card { padding: 2rem 1.5rem; }
       .cta-inner { padding: 5rem 1.5rem; }
-      .footer-inner { padding: 3.5rem 1.5rem 1.5rem; }
-      .footer-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -510,6 +383,7 @@
     <ul class="nav-links">
       <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html">About</a></li>
+      <li><a href="review.html">Reviews</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-book">Book Now ↗</a></li>
     </ul>
@@ -524,6 +398,7 @@
   <ul>
     <li><a href="services.html">Services &amp; Pricing</a></li>
     <li><a href="about.html">About</a></li>
+    <li><a href="review.html">Reviews</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
   <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book-btn">Book Now ↗</a>
@@ -549,80 +424,36 @@
 </section>
 
 <!-- ── SECTION 2: BODY WAXING ── -->
-<section class="service-section s-light">
+<!-- ── SECTION 2: SERVICES MENU ── -->
+<!-- ── SECTION 2: SERVICES MENU ── -->
+<section class="service-menu-section" id="services">
   <div class="svc-inner reveal">
 
     <div class="svc-col">
-      <span class="svc-num">01</span>
-      <span class="svc-cat">Body<br>Waxing</span>
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
-      <p class="svc-desc">Cida's signature hard wax technique — low-temperature, skin-safe, near-painless. Brazilian, bikini, and full body waxing in a completely private suite. Serving Newtown, Danbury, Bethel, and Ridgefield.</p>
-    </div>
-
-    <div class="svc-col">
-      <div class="num-list">
-        <div class="num-row">
-          <span class="row-n">01</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Brazilian Wax</span>
-            <span class="row-sub">Signature · includes vajacial</span>
-          </div>
-          <span class="row-price">$74</span>
-        </div>
-        <div class="num-row">
-          <span class="row-n">02</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Bikini Wax</span>
-            <span class="row-sub">Classic or extended</span>
-          </div>
-          <span class="row-price">$40</span>
-        </div>
-        <div class="num-row">
-          <span class="row-n">03</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Leg Waxing</span>
-            <span class="row-sub">Full leg · half leg</span>
-          </div>
-          <span class="row-price">$60</span>
-        </div>
-        <div class="num-row">
-          <span class="row-n">04</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Underarm &amp; Arms</span>
-            <span class="row-sub">Quick and precise</span>
-          </div>
-          <span class="row-price">$22</span>
-        </div>
+      <span class="svc-num" id="tabNum">01</span>
+      <h2 class="svc-cat" id="tabTitle" style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:clamp(2rem, 3vw, 2.8rem); font-weight:300; color:var(--navy); line-height:1.05; margin-bottom:2.5rem; display:block;">Brows<br>&amp; Face</h2>
+      
+      <!-- Interactive Tab controls -->
+      <div class="menu-tabs">
+        <button class="menu-tab active" data-category="brows">Brows &amp; Face</button>
+        <button class="menu-tab" data-category="waxing">Body Waxing</button>
+        <button class="menu-tab" data-category="lashes">Lashes &amp; Men</button>
       </div>
-    </div>
 
-    <div class="svc-oval-col">
-      <img class="svc-oval" src="images/suite-interior-wide.jpg" alt="Private treatment suite at Luxe Wax Spa, Newtown CT" loading="lazy" />
-    </div>
-
-  </div>
-</section>
-
-<!-- ── SECTION 3: BROWS & FACE ── -->
-<section class="service-section s-dark">
-  <div class="svc-inner reveal">
-
-    <div class="svc-col">
-      <span class="svc-num">02</span>
-      <span class="svc-cat">Brows<br>&amp; Face</span>
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
-      <p class="svc-desc">Precision eyebrow design tailored to your face. From classic wax shaping to lamination and tinting — each treatment is sculpted to flatter your natural features.</p>
+      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link" style="display:inline-block; margin-top:2rem;">Book Now ↗</a>
+      <p class="svc-desc" id="tabDesc">Precision eyebrow design tailored to your face. From classic wax shaping to lamination and tinting — each treatment is sculpted to flatter your natural features.</p>
     </div>
 
     <div class="svc-col">
-      <div class="num-list">
+      <!-- Category 1: Brows & Face -->
+      <div class="num-list tab-content active" id="cat-brows">
         <div class="num-row">
           <span class="row-n">01</span>
           <div class="row-svc-wrap">
             <span class="row-svc">Eyebrow Design</span>
             <span class="row-sub">Shaped, cleaned, defined</span>
           </div>
-          <span class="row-price">$32</span>
+          <span class="row-price">$31.91</span>
         </div>
         <div class="num-row">
           <span class="row-n">02</span>
@@ -630,7 +461,7 @@
             <span class="row-svc">Brow Lamination</span>
             <span class="row-sub">Restructure &amp; set</span>
           </div>
-          <span class="row-price">$85</span>
+          <span class="row-price">$106.35</span>
         </div>
         <div class="num-row">
           <span class="row-n">03</span>
@@ -638,7 +469,7 @@
             <span class="row-svc">Brow Tint</span>
             <span class="row-sub">Deepens and defines</span>
           </div>
-          <span class="row-price">$22</span>
+          <span class="row-price">$26.59</span>
         </div>
         <div class="num-row">
           <span class="row-n">04</span>
@@ -646,70 +477,127 @@
             <span class="row-svc">Full Face Wax</span>
             <span class="row-sub">Brows, lip, chin, sides</span>
           </div>
-          <span class="row-price">$55</span>
+          <span class="row-price">$47.86</span>
+        </div>
+      </div>
+
+      <!-- Category 2: Body Waxing -->
+      <div class="num-list tab-content" id="cat-waxing" style="display:none">
+        <div class="num-row">
+          <span class="row-n">01</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Brazilian Wax</span>
+            <span class="row-sub">Signature · includes vajacial</span>
+          </div>
+          <span class="row-price">$74.45</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">02</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Bikini Wax</span>
+            <span class="row-sub">Classic or extended</span>
+          </div>
+          <span class="row-price">$53.18</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">03</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Full Legs</span>
+            <span class="row-sub">Full leg · upper &amp; lower</span>
+          </div>
+          <span class="row-price">$90.40</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">04</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Underarms</span>
+            <span class="row-sub">Quick and precise</span>
+          </div>
+          <span class="row-price">$26.59</span>
+        </div>
+      </div>
+
+      <!-- Category 3: Lashes & Men's -->
+      <div class="num-list tab-content" id="cat-lashes" style="display:none">
+        <div class="num-row">
+          <span class="row-n">01</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Eye Lash Lift</span>
+            <span class="row-sub">Curl + complimentary tint</span>
+          </div>
+          <span class="row-price">$175.48</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">02</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Eyelash Tint</span>
+            <span class="row-sub">Upper &amp; lower tinting</span>
+          </div>
+          <span class="row-price">$31.91</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">03</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Men's Chest Wax</span>
+            <span class="row-sub">Pectoral &amp; collarbone</span>
+          </div>
+          <span class="row-price">$53.18</span>
+        </div>
+        <div class="num-row">
+          <span class="row-n">04</span>
+          <div class="row-svc-wrap">
+            <span class="row-svc">Men's Eyebrow Design</span>
+            <span class="row-sub">Shaped and groomed</span>
+          </div>
+          <span class="row-price">$31.91</span>
         </div>
       </div>
     </div>
 
     <div class="svc-oval-col">
-      <img class="svc-oval" src="images/cida-brow-treatment.jpg" alt="Cida shaping a client's eyebrow at Luxe Wax Spa, Newtown CT" loading="lazy" />
+      <img class="svc-oval" id="tabImg" src="images/cida-brow-treatment.jpg" alt="Cida shaping a client's eyebrow at Luxe Wax Spa, Newtown CT" loading="lazy" />
     </div>
 
   </div>
 </section>
 
-<!-- ── SECTION 4: LASH LIFT & MEN'S ── -->
-<section class="service-section s-light">
-  <div class="svc-inner reveal">
-
-    <div class="svc-col">
-      <span class="svc-num">03</span>
-      <span class="svc-cat">Lash Lift<br>&amp; Tint</span>
-      <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="svc-book-link">Book Now ↗</a>
-      <p class="svc-desc">A lifted curl that lasts 6–8 weeks, with optional tinting for definition. No extensions, no daily curler — just beautiful natural lashes from the first appointment.</p>
+<!-- ── SECTION 4.5: STUDIO GALLERY ── -->
+<section class="studio-gallery-section">
+  <div class="gallery-inner reveal">
+    <div class="gallery-header">
+      <span class="tag">The Studio</span>
+      <h2 class="heading-lg">A Private, Clean<br><em>&amp; Peaceful Space</em></h2>
+      <p class="body-text">Every appointment is completely private. Enjoy the cozy atmosphere of a modern, clinical suite designed around your comfort.</p>
     </div>
-
-    <div class="svc-col">
-      <div class="num-list">
-        <div class="num-row">
-          <span class="row-n">01</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Lash Lift &amp; Tint</span>
-            <span class="row-sub">Curl + color · lasts 6–8 weeks</span>
-          </div>
-          <span class="row-price">$160</span>
+    <div class="gallery-carousel-wrapper">
+      <div class="gallery-carousel" id="studioCarousel">
+        <div class="gallery-slide active">
+          <img src="images/suite-interior-wide.jpg" alt="Cozy treatment table and aesthetic neon sign inside the private suite at Luxe Wax Spa" />
+          <span class="slide-caption">Private Treatment Suite</span>
         </div>
-        <div class="num-row">
-          <span class="row-n">02</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Lash Lift Only</span>
-            <span class="row-sub">Lifted &amp; set</span>
-          </div>
-          <span class="row-price">$120</span>
+        <div class="gallery-slide">
+          <img src="images/suite-brand-detail.jpg" alt="Esthetician details, styling materials, and neon sign at Luxe Wax Spa" />
+          <span class="slide-caption">Aesthetic Details & Comforts</span>
         </div>
-        <div class="num-row">
-          <span class="row-n">03</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Men's Back &amp; Chest</span>
-            <span class="row-sub">Clean results, no judgment</span>
-          </div>
-          <span class="row-price">$65</span>
+        <div class="gallery-slide">
+          <img src="images/grand-opening-storefront.jpg" alt="Luxe Wax Spa storefront entrance, Newtown CT" />
+          <span class="slide-caption">Storefront Entrance</span>
         </div>
-        <div class="num-row">
-          <span class="row-n">04</span>
-          <div class="row-svc-wrap">
-            <span class="row-svc">Men's Brows &amp; Face</span>
-            <span class="row-sub">Shaped and groomed</span>
-          </div>
-          <span class="row-price">$26</span>
+        <div class="gallery-slide">
+          <img src="images/grand-opening-ribbon.jpg" alt="Grand opening ribbon cutting ceremony of Luxe Wax Spa" />
+          <span class="slide-caption">Grand Opening Ribbon Cutting</span>
         </div>
       </div>
+      <div class="gallery-controls">
+        <button class="gallery-btn prev-btn" id="prevBtn" aria-label="Previous image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="gallery-btn next-btn" id="nextBtn" aria-label="Next image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="gallery-dots" id="carouselDots"></div>
     </div>
-
-    <div class="svc-oval-col">
-      <img class="svc-oval" src="images/suite-brand-detail.jpg" alt="Treatment table and Luxe Wax Spa neon sign in the private suite" loading="lazy" />
-    </div>
-
   </div>
 </section>
 
@@ -724,7 +612,7 @@
     <div class="reveal">
       <span class="founder-label">Meet the Esthetician</span>
       <h2 class="founder-heading">Meet Cida,<br>Founder</h2>
-      <p class="founder-body">Cida is a Connecticut-licensed esthetician with over 8 years of waxing expertise. What began with a passion for making clients feel genuinely cared for has grown into Luxe Wax Spa — a private, peaceful studio at 125b S Main St in Newtown.</p>
+      <p class="founder-body">Cida is a Connecticut-licensed esthetician with over 8 years of waxing expertise. What began with a passion for making clients feel genuinely cared for has grown into Luxe Wax Spa — a private, peaceful studio at 125 S Main St, Suite Space in Newtown.</p>
       <p class="founder-body">Every treatment is done by Cida personally. One client at a time, no front desk, no waiting. Clients travel from Danbury, Bethel, Ridgefield, and Monroe for results that keep them coming back.</p>
       <a href="about.html" class="founder-link">Read Cida's Story ↗</a>
     </div>
@@ -774,7 +662,7 @@
     <div class="cta-right reveal">
       <span class="cta-addr-label">Visit</span>
       <p class="cta-addr">
-        125b S Main St f, Newtown, CT 06470<br>
+        125 S Main St, Suite Space, Newtown, CT 06470<br>
         Tuesday–Saturday · By appointment<br>
         <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a>
       </p>
@@ -824,7 +712,7 @@
       <div>
         <span class="footer-col-title">Visit</span>
         <p class="footer-info">
-          125b S Main St f<br>Newtown, CT 06470<br><br>
+          125 S Main St, Suite Space<br>Newtown, CT 06470<br><br>
           <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a><br>
           <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener">Book via Vagaro ↗</a>
         </p>
@@ -832,7 +720,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
+    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125 S Main St, Suite Space, Newtown CT 06470 &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Service</a> &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
   </div>
 </footer>
 
@@ -862,6 +750,127 @@
     });
   }, { threshold: 0.07 });
   reveals.forEach(el => observer.observe(el));
+
+  // ─── Studio Gallery Carousel ───
+  (function initStudioGallery() {
+    const carousel = document.getElementById('studioCarousel');
+    const slides = carousel ? carousel.querySelectorAll('.gallery-slide') : [];
+    const dotsContainer = document.getElementById('carouselDots');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    if (!slides.length) return;
+
+    let currentIndex = 0;
+
+    // Create dots
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.className = `gallery-dot${i === 0 ? ' active' : ''}`;
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => showSlide(i));
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = dotsContainer.querySelectorAll('.gallery-dot');
+
+    function showSlide(index) {
+      slides[currentIndex].classList.remove('active');
+      dots[currentIndex].classList.remove('active');
+      currentIndex = (index + slides.length) % slides.length;
+      slides[currentIndex].classList.add('active');
+      dots[currentIndex].classList.add('active');
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', () => showSlide(currentIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => showSlide(currentIndex + 1));
+
+    // Auto rotate every 6s
+    let timer = setInterval(() => showSlide(currentIndex + 1), 6000);
+    const resetTimer = () => { clearInterval(timer); timer = setInterval(() => showSlide(currentIndex + 1), 6000); };
+    if (prevBtn) prevBtn.addEventListener('click', resetTimer);
+    if (nextBtn) nextBtn.addEventListener('click', resetTimer);
+    dots.forEach(d => d.addEventListener('click', resetTimer));
+  })();
+
+  // ─── Mobile Sticky Booking Bar ───
+  (function initMobileStickyBar() {
+    const bar = document.getElementById('mobileStickyBar');
+    if (!bar) return;
+    const onScroll = () => {
+      bar.classList.toggle('visible', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ─── Interactive Service Tabs ───
+  (function initServiceTabs() {
+    const tabs = document.querySelectorAll('.menu-tab');
+    const contents = document.querySelectorAll('.tab-content');
+    const tabNum = document.getElementById('tabNum');
+    const tabTitle = document.getElementById('tabTitle');
+    const tabDesc = document.getElementById('tabDesc');
+    const tabImg = document.getElementById('tabImg');
+
+    const data = {
+      brows: {
+        num: '01',
+        title: 'Brows<br>&amp; Face',
+        desc: 'Precision eyebrow design tailored to your face. From classic wax shaping to lamination and tinting — each treatment is sculpted to flatter your natural features.',
+        img: 'images/cida-brow-treatment.jpg',
+        alt: 'Cida shaping a client\'s eyebrow at Luxe Wax Spa, Newtown CT'
+      },
+      waxing: {
+        num: '02',
+        title: 'Body<br>Waxing',
+        desc: 'Cida\'s signature hard wax technique — low-temperature, skin-safe, near-painless. Brazilian, bikini, and full body waxing in a completely private suite. Serving Newtown, Danbury, Bethel, and Ridgefield.',
+        img: 'images/suite-interior-wide.jpg',
+        alt: 'Private treatment suite at Luxe Wax Spa, Newtown CT'
+      },
+      lashes: {
+        num: '03',
+        title: 'Lash Lift<br>&amp; Tint',
+        desc: 'A lifted curl that lasts 6–8 weeks, with optional tinting for definition. No extensions, no daily curler — just beautiful natural lashes from the first appointment.',
+        img: 'images/suite-brand-detail.jpg',
+        alt: 'Treatment table and Luxe Wax Spa neon sign in the private suite'
+      }
+    };
+
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cat = btn.dataset.category;
+        
+        // Update active tab button
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Toggle list visibility
+        contents.forEach(c => {
+          c.style.display = c.id === `cat-${cat}` ? 'block' : 'none';
+        });
+
+        // Update descriptions
+        const item = data[cat];
+        if (item) {
+          tabNum.textContent = item.num;
+          tabTitle.innerHTML = item.title;
+          tabDesc.textContent = item.desc;
+          tabImg.src = item.img;
+          tabImg.alt = item.alt;
+        }
+      });
+    });
+  })();
 </script>
+
+<!-- MOBILE STICKY BOOKING BAR -->
+<div class="mobile-sticky-bar" id="mobileStickyBar">
+  <a href="review.html" class="sticky-bar-rating">
+    <span class="rating-stars">★★★★★</span>
+    <span class="rating-text">5.0 (50+ Reviews)</span>
+  </a>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="sticky-bar-btn">Book Now ↗</a>
+</div>
+
 </body>
 </html>

@@ -172,6 +172,30 @@ create policy "anon insert reviews" on public.reviews for insert to anon with ch
   rating between 1 and 5
   and (comment is null or char_length(comment) <= 2000)
 );
+-- ─── AUTOMATIC TIMESTAMPS ───────────────────────────────────
+drop trigger if exists set_clients_updated_at on public.clients;
+drop trigger if exists set_inventory_updated_at on public.inventory;
+
+create or replace function public.set_updated_at()
+returns trigger
+security definer
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+create trigger set_clients_updated_at
+  before update on public.clients
+  for each row
+  execute function public.set_updated_at();
+
+create trigger set_inventory_updated_at
+  before update on public.inventory
+  for each row
+  execute function public.set_updated_at();
 
 -- =============================================================
 -- One-time setup after running this:

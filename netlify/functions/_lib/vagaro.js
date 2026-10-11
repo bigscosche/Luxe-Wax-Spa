@@ -92,7 +92,7 @@ function mapVagaroTransactionToTransaction(payload = {}) {
     provider_customer_id: payload.customer_id || payload.client_id || null,
     provider_appointment_id: payload.appointment_id || payload.booking_id || null,
     amount: payload.amount ?? payload.total ?? null,
-    type: payload.type || inferTransactionType(payload),
+    type: inferTransactionType(payload),
     category: payload.category || payload.sale_type || 'Service',
     description: payload.description || payload.memo || 'Vagaro transaction',
     transaction_date: payload.transaction_date || payload.created_at || null,

@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Inventory — Admin</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -82,8 +82,9 @@
           usage_per_client: Number(f.usage_per_client.value || 0),
           low_stock_threshold: Number(f.low_stock_threshold.value),
         };
-        const { error } = await sb.from('inventory').insert(payload);
-        if (error) {
+        try {
+          await luxeDb.saveInventoryItem(payload);
+        } catch (err) {
           setStatus(status, 'Something went wrong. Try again.', 'err');
           isSavingInventory = false;
           setFormBusy(f, false);
@@ -91,7 +92,6 @@
         }
         setStatus(status, 'Item added.', 'ok');
         f.reset();
-        notifyAdminDataChanged('inventory');
         await loadInventory();
         isSavingInventory = false;
         setFormBusy(f, false);
@@ -100,13 +100,15 @@
     });
 
     async function loadInventory() {
-      const { data, error } = await sb.from('inventory').select('*').order('name');
-      if (error) {
+      let result;
+      try {
+        result = await luxeDb.getInventoryPage({ limit: 1000 });
+      } catch (err) {
         document.getElementById('count').textContent = '';
         document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
         return;
       }
-      const rows = data || [];
+      const rows = result.data || [];
       document.getElementById('count').textContent = `${rows.length} items`;
       const el = document.getElementById('list');
       if (rows.length === 0) {
@@ -116,15 +118,13 @@
       el.innerHTML = `<div class="table-wrap"><table><thead><tr>
         <th>Item</th><th>Qty</th><th>Use / client</th><th>Threshold</th><th>Est. clients left</th><th>Status</th><th></th>
       </tr></thead><tbody>${rows.map(i => {
-        const left = i.usage_per_client > 0 ? Math.floor(i.quantity / i.usage_per_client) : null;
-        const low  = Number(i.quantity) <= Number(i.low_stock_threshold);
         return `<tr>
           <td>${escapeHtml(i.name)}<div class="mono">${escapeHtml(i.unit || '')}</div></td>
           <td>${i.quantity}</td>
           <td>${i.usage_per_client || '—'}</td>
           <td>${i.low_stock_threshold}</td>
-          <td>${left ?? '—'}</td>
-          <td>${low ? '<span class="badge low">Low</span>' : '<span class="badge completed">OK</span>'}</td>
+          <td>${i.estimated_clients_remaining ?? '—'}</td>
+          <td>${i.is_low_stock ? '<span class="badge low">Low</span>' : '<span class="badge completed">OK</span>'}</td>
           <td><div class="row-actions">
             <button class="ghost tiny" data-adjust="${i.id}" data-delta="-1">−1</button>
             <button class="ghost tiny" data-adjust="${i.id}" data-delta="1">+1</button>
@@ -138,16 +138,14 @@
       document.querySelectorAll('[data-adjust]').forEach(btn => btn.addEventListener('click', async () => {
         const id = btn.dataset.adjust;
         const delta = Number(btn.dataset.delta);
-        const row = rows.find(r => r.id === id);
-        const next = Math.max(0, Number(row.quantity) + delta);
         btn.disabled = true;
-        const { error } = await sb.from('inventory').update({ quantity: next, updated_at: new Date().toISOString() }).eq('id', id);
-        if (error) {
+        try {
+          await luxeDb.adjustInventoryQuantity(id, delta);
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-set-qty]').forEach(btn => btn.addEventListener('click', async () => {
@@ -156,13 +154,20 @@
         const next = prompt(`New quantity for "${row.name}":`, row.quantity);
         if (next == null || next === '') return;
         btn.disabled = true;
-        const { error } = await sb.from('inventory').update({ quantity: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
-        if (error) {
+        try {
+          await luxeDb.saveInventoryItem({
+            id,
+            name: row.name,
+            unit: row.unit,
+            quantity: Number(next),
+            usage_per_client: row.usage_per_client,
+            low_stock_threshold: row.low_stock_threshold
+          });
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-set-thr]').forEach(btn => btn.addEventListener('click', async () => {
@@ -171,25 +176,32 @@
         const next = prompt(`Low-stock threshold for "${row.name}":`, row.low_stock_threshold);
         if (next == null || next === '') return;
         btn.disabled = true;
-        const { error } = await sb.from('inventory').update({ low_stock_threshold: Number(next), updated_at: new Date().toISOString() }).eq('id', id);
-        if (error) {
+        try {
+          await luxeDb.saveInventoryItem({
+            id,
+            name: row.name,
+            unit: row.unit,
+            quantity: row.quantity,
+            usage_per_client: row.usage_per_client,
+            low_stock_threshold: Number(next)
+          });
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
       document.querySelectorAll('[data-delete]').forEach(btn => btn.addEventListener('click', async () => {
         if (!confirm('Delete this item?')) return;
         btn.disabled = true;
-        const { error } = await sb.from('inventory').delete().eq('id', btn.dataset.delete);
-        if (error) {
+        try {
+          await luxeDb.deleteInventoryItem(btn.dataset.delete);
+        } catch (err) {
           setStatus(document.getElementById('addStatus'), 'Something went wrong. Try again.', 'err');
           btn.disabled = false;
           return;
         }
-        notifyAdminDataChanged('inventory');
         await loadInventory();
       }));
     }

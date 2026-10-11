@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Leads — Admin</title>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <div class="eyebrow">Pipeline</div>
+          <h2>Leads</h2>
+          <p>Inbound inquiries submitted from the public contact forms.</p>
+        </div>
+        <span class="meta" id="count"></span>
+      </div>
+
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h3>Inbound Inquiries</h3>
+            <p>Convert leads into active clients or manage submissions.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <input id="search" placeholder="Search leads…" style="max-width:340px" />
+        </div>
+        <div id="list"><p class="empty">Loading…</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let allLeads = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const session = await requireAuth();
+      if (!session) return;
+      renderSidebar('leads', session);
+      await loadLeads();
+
+      document.getElementById('search').addEventListener('input', renderList);
+    });
+
+    async function loadLeads() {
+      let result;
+      try {
+        result = await luxeDb.getLeadsPage({ limit: 1000 });
+      } catch (err) {
+        allLeads = [];
+        document.getElementById('count').textContent = '';
+        document.getElementById('list').innerHTML = '<p class="empty">Something went wrong. Try again.</p>';
+        return;
+      }
+      allLeads = result.data || [];
+      document.getElementById('count').textContent = `${allLeads.length} total`;
+      renderList();
+    }
+
+    function renderList() {
+      const q = document.getElementById('search').value.toLowerCase().trim();
+      const rows = allLeads.filter(l =>
+        !q ||
+        (l.name || '').toLowerCase().includes(q) ||
+        (l.email || '').toLowerCase().includes(q) ||
+        (l.phone || '').toLowerCase().includes(q) ||
+        (l.service || '').toLowerCase().includes(q) ||
+        (l.message || '').toLowerCase().includes(q)
+      );
+      const el = document.getElementById('list');
+      if (rows.length === 0) {
+        el.innerHTML = q
+          ? '<p class="empty">No match. Try a different name, phone, email, or service.</p>'
+          : `<p class="empty">No inbound leads. The pipeline is currently clear.</p>`;
+        return;
+      }
+      el.innerHTML = `<div class="table-wrap"><table><thead><tr>
+        <th>Date</th><th>Client Name</th><th>Phone</th><th>Email</th><th>Requested Service</th><th>Location</th><th>Message</th><th>Referral Source</th><th></th>
+      </tr></thead><tbody>${rows.map(l => `<tr>
+        <td>${fmtDate(l.created_at)}</td>
+        <td><strong>${escapeHtml(l.name)}</strong></td>
+        <td>${escapeHtml(l.phone || '—')}</td>
+        <td>${escapeHtml(l.email || '—')}</td>
+        <td><span class="badge ${l.service === 'brazilian-wax' ? 'completed' : 'booked'}">${escapeHtml(normalizeServiceName(l.service))}</span></td>
+        <td>${escapeHtml(normalizeLocationName(l.location))}</td>
+        <td style="max-width:240px; font-size:0.75rem; white-space:normal; line-height:1.4">${escapeHtml(l.message || '—')}</td>
+        <td class="mono" style="font-size:0.65rem">${escapeHtml(l.source || '—')}</td>
+        <td><div class="row-actions">
+          <button class="btn tiny" data-add-client="${l.id}">Add to Clients</button>
+          <button class="ghost tiny" data-delete-lead="${l.id}">Delete</button>
+        </div></td>
+      </tr>`).join('')}</tbody></table></div>`;
+
+      // Add to clients action
+      document.querySelectorAll('[data-add-client]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.addClient;
+        const lead = allLeads.find(l => l.id === id);
+        if (!lead) return;
+
+        btn.disabled = true; btn.textContent = 'Saving…';
+        
+        // 1. Insert into clients
+        const clientPayload = {
+          name: lead.name,
+          phone: lead.phone || null,
+          email: lead.email || null,
+          notes: lead.message ? `Contact Form Inquiry: ${lead.message}` : 'Created from inbound contact lead form.',
+        };
+        try {
+          await luxeDb.saveClient(clientPayload);
+        } catch (err) {
+          alert('Could not convert lead to client. Please try again.');
+          btn.disabled = false; btn.textContent = 'Add to Clients';
+          return;
+        }
+
+        // 2. Delete the lead since it is processed
+        try {
+          await luxeDb.deleteLead(id);
+        } catch (err) {
+          console.warn('client created but lead delete failed', err);
+          alert('Client was added, but the lead could not be deleted from the database. Please verify your Supabase delete policies are active.');
+        }
+
+        await loadLeads();
+      }));
+
+      // Delete action
+      document.querySelectorAll('[data-delete-lead]').forEach(btn => btn.addEventListener('click', async () => {
+        const id = btn.dataset.deleteLead;
+        if (!confirm('Are you sure you want to delete this lead inquiry permanently?')) return;
+        btn.disabled = true;
+        try {
+          await luxeDb.deleteLead(id);
+        } catch (err) {
+          alert(err.message || 'Could not delete lead. Please try again.');
+          btn.disabled = false;
+          return;
+        }
+        await loadLeads();
+      }));
+    }
+  </script>
+</body>
+</html>

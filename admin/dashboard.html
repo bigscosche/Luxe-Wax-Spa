@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Dashboard — Admin</title>
-  <link rel="stylesheet" href="/admin/assets/admin.css" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/config.local.js"></script>
-  <script src="/admin/assets/admin.js" defer></script>
+  <link rel="stylesheet" href="assets/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.1/dist/umd/supabase.min.js"></script>
+  <script src="../config.local.js"></script>
+  <script src="assets/admin.js" defer></script>
 </head>
 <body>
   <div class="shell">
@@ -22,20 +22,84 @@
             <div class="workspace-headline" id="workspaceHeadline">Luxe Wax Spa</div>
             <div class="workspace-date" id="todayLabel"></div>
           </div>
-          <div class="slim-notice">Prototype mode — auth bypassed</div>
         </div>
         <div id="todayFocus" class="workspace-focus">
           <div class="focus-row"><span class="focus-dot muted"></span><span class="dimmed">Loading today&apos;s summary…</span></div>
         </div>
-        <div class="workspace-actions">
-          <a class="workspace-action" href="/admin/appointments.html#add-appointment">Book appointment</a>
-          <a class="workspace-action" href="/admin/clients.html#add-client">Add client</a>
-          <a class="workspace-action" href="/admin/transactions.html#add-transaction">Log expense</a>
+        <div class="workspace-actions" style="display:none;">
+          <a class="workspace-action" href="appointments.html#add-appointment">Book appointment</a>
+          <a class="workspace-action" href="clients.html#add-client">Add client</a>
+          <a class="workspace-action" href="transactions.html#add-transaction">Log expense</a>
+        </div>
+      </section>
+
+      <!-- Unread Alerts Bar -->
+      <div id="unreadAlertsBar" style="display:none; align-items:center; gap:0.75rem; padding:1rem 1.25rem; background:#fff2e6; border:1px solid #ffd8b3; border-radius:8px; margin-bottom:1.5rem; color:#b35c00;">
+        <span style="font-size:1.3rem; flex-shrink:0;">📩</span>
+        <div style="flex-grow:1; font-size:0.86rem; font-weight:500;">
+          You have <strong id="unreadLeadsCount">0</strong> new lead inquiries from the website.
+        </div>
+        <a class="btn primary tiny" href="leads.html" style="background:#cc6600; border-color:#cc6600; color:#fff; font-size:0.78rem; text-decoration:none; padding:0.35rem 0.75rem; border-radius:4px;">View Leads</a>
+      </div>
+
+      <!-- Low Stock Alerts Bar -->
+      <div id="lowStockAlertsBar" style="display:none; align-items:center; gap:0.75rem; padding:1rem 1.25rem; background:#fff2e6; border:1px solid #ffd8b3; border-radius:8px; margin-bottom:1.5rem; color:#b35c00;">
+        <span style="font-size:1.3rem; flex-shrink:0;">⚠️</span>
+        <div style="flex-grow:1; font-size:0.86rem; font-weight:500;">
+          You have <strong id="lowStockItemsCount">0</strong> supply items running low on stock.
+        </div>
+        <a class="btn primary tiny" href="inventory.html" style="background:#cc6600; border-color:#cc6600; color:#fff; font-size:0.78rem; text-decoration:none; padding:0.35rem 0.75rem; border-radius:4px;">View Inventory</a>
+      </div>
+
+      <!-- Tactile Quick Actions Panel -->
+      <section class="quick-actions-panel">
+        <div class="quick-actions-grid">
+          <a class="action-card" href="appointments.html#add-appointment">
+            <span class="action-icon">📅</span>
+            <div class="action-info">
+              <h4>Book Appointment</h4>
+              <p>Schedule a new visit for a client</p>
+            </div>
+          </a>
+          <a class="action-card" href="clients.html#add-client">
+            <span class="action-icon">👤</span>
+            <div class="action-info">
+              <h4>Add Client</h4>
+              <p>Save contact info for a new customer</p>
+            </div>
+          </a>
+          <a class="action-card" href="transactions.html#add-transaction">
+            <span class="action-icon">💵</span>
+            <div class="action-info">
+              <h4>Log Transaction</h4>
+              <p>Record a payment or supply purchase</p>
+            </div>
+          </a>
+          <a class="action-card" href="leads.html">
+            <span class="action-icon">📩</span>
+            <div class="action-info">
+              <h4>View Web Leads</h4>
+              <p>Check new online inquiries</p>
+            </div>
+          </a>
         </div>
       </section>
 
       <!-- KPI strip: business pulse at a glance -->
       <section class="kpis" id="kpis"></section>
+
+      <!-- Quick Guide for Cida -->
+      <section class="card" style="background:#fcfbf7; border: 1px dashed var(--line); margin-bottom: 2rem; padding: 1.5rem; border-radius: 8px;">
+        <h4 style="font-family:'Cormorant Garamond', serif; font-size: 1.25rem; font-style: italic; font-weight: 500; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text);">
+          <span>💡</span> Quick Guide: How to manage your day
+        </h4>
+        <ul style="font-size: 0.8rem; line-height: 1.6; color: var(--dim); padding-left: 1.25rem; display: grid; gap: 0.5rem; list-style-type: disc;">
+          <li>📅 <strong>Check Today&apos;s Schedule</strong>: Look at the list below to see who is coming in today.</li>
+          <li>✅ <strong>Click &quot;Complete&quot;</strong>: When a client is done, click the green <strong>Complete</strong> button. This automatically logs the money you earned and deducts the wax they used from your stock!</li>
+          <li>👤 <strong>Client Notes</strong>: Keep phone numbers, emails, and notes updated in the <strong>Clients</strong> tab.</li>
+          <li>💵 <strong>Log Expenses</strong>: Spent money on wax, supplies, or rent? Click <strong>Log Transaction</strong> above and select &quot;Expense&quot; to keep your logs clean.</li>
+        </ul>
+      </section>
 
       <!-- Primary: the dominant work surface for today -->
       <div class="section-label">Today&apos;s schedule</div>
@@ -46,7 +110,7 @@
             <p>Mark each visit complete when it&apos;s done — revenue logs itself.</p>
           </div>
           <div class="page-actions">
-            <a class="btn" href="/admin/appointments.html#add-appointment">Book appointment</a>
+            <a class="btn" href="appointments.html#add-appointment">Book appointment</a>
           </div>
         </div>
         <div id="todayList"><p class="empty">Loading…</p></div>
@@ -72,7 +136,7 @@
               <p>Your next few scheduled visits.</p>
             </div>
             <div class="page-actions">
-              <a class="btn secondary" href="/admin/appointments.html">Full calendar</a>
+              <a class="btn secondary" href="appointments.html">Full calendar</a>
             </div>
           </div>
           <div id="upcomingList"><p class="empty">Loading…</p></div>
@@ -89,7 +153,7 @@
               <p>Auto-logged payments and manual entries.</p>
             </div>
             <div class="page-actions">
-              <a class="btn secondary" href="/admin/transactions.html#add-transaction">Log transaction</a>
+              <a class="btn secondary" href="transactions.html#add-transaction">Log transaction</a>
             </div>
           </div>
           <div id="recentTransactions"><p class="empty">Loading…</p></div>
@@ -102,7 +166,7 @@
               <p>Reorder before your next shift.</p>
             </div>
             <div class="page-actions">
-              <a class="btn ghost" href="/admin/inventory.html">Manage inventory</a>
+              <a class="btn ghost" href="inventory.html">Manage inventory</a>
             </div>
           </div>
           <div id="lowStockList"><p class="empty">Loading…</p></div>
@@ -144,17 +208,17 @@
       const loadToken = ++dashboardLoadToken;
 
       // KPIs
-      const { data: kpiRow } = await sb.from('dashboard_today').select('*').single();
+      let stats;
+      try {
+        stats = await luxeDb.getDashboardStats();
+      } catch (err) {
+        console.error('Failed loading stats:', err);
+        return;
+      }
       if (loadToken !== dashboardLoadToken) return;
-      const k = kpiRow || {};
-      const todayIso = new Date().toISOString().slice(0, 10);
-      const { data: todaysTransactions } = await sb.from('transactions')
-        .select('amount, type')
-        .eq('transaction_date', todayIso);
-      if (loadToken !== dashboardLoadToken) return;
-      const todayIncome = (todaysTransactions || [])
-        .filter(row => row.type === 'income')
-        .reduce((sum, row) => sum + Number(row.amount || 0), 0);
+      const k = stats.kpis;
+      const leadsCount = stats.leadsCount;
+      const todayIncome = stats.todayIncome;
       const apptToday = k.appointments_today ?? 0;
       const completedToday = k.completed_today ?? 0;
       const remainingToday = Math.max(0, apptToday - completedToday);
@@ -162,9 +226,11 @@
         <div class="kpi"><div class="label">Today</div><div class="value">${apptToday}</div><div class="subvalue">${apptToday === 1 ? 'appointment' : 'appointments'}</div></div>
         <div class="kpi good"><div class="label">Completed</div><div class="value">${completedToday}</div><div class="subvalue">marked done</div></div>
         <div class="kpi good"><div class="label">Earned today</div><div class="value">${fmtMoney(todayIncome)}</div><div class="subvalue">logged today</div></div>
+        <div class="kpi ${leadsCount > 0 ? 'good' : ''}"><div class="label">Leads</div><div class="value">${leadsCount ?? 0}</div><div class="subvalue">${leadsCount > 0 ? 'need follow-up' : 'pipeline clear'}</div></div>
         <div class="kpi ${k.low_stock_count > 0 ? 'bad' : ''}"><div class="label">Low stock</div><div class="value">${k.low_stock_count ?? 0}</div><div class="subvalue">${k.low_stock_count > 0 ? 'needs reorder' : 'all stocked'}</div></div>
         <div class="kpi ${k.open_feedback_count > 0 ? 'warn' : ''}"><div class="label">Feedback</div><div class="value">${k.open_feedback_count ?? 0}</div><div class="subvalue">${k.open_feedback_count > 0 ? 'needs reply' : 'all clear'}</div></div>
       `;
+
 
       // Update workspace headline with live business state
       const headlineEl = document.getElementById('workspaceHeadline');
@@ -181,13 +247,13 @@
       }
 
       // Today's appointments
-      const start = new Date(); start.setHours(0,0,0,0);
-      const end   = new Date(); end.setHours(23,59,59,999);
-      const { data: appts } = await sb.from('appointments')
-        .select('id, service, appointment_date, price, status, client:clients(name, phone)')
-        .gte('appointment_date', start.toISOString())
-        .lte('appointment_date', end.toISOString())
-        .order('appointment_date');
+      let appts = [];
+      try {
+        const result = await luxeDb.getAppointmentsPage({ range: 'today', limit: 100 });
+        appts = result.data;
+      } catch (err) {
+        console.error('Failed loading today\'s appointments:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const todayEl = document.getElementById('todayList');
       if (!appts || appts.length === 0) {
@@ -195,7 +261,7 @@
           <div class="empty">
             Calendar is clear today.
             <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-              <a class="btn" href="/admin/appointments.html#add-appointment">Book an appointment</a>
+              <a class="btn" href="appointments.html#add-appointment">Book an appointment</a>
             </div>
           </div>`;
       } else {
@@ -203,7 +269,7 @@
           <th>Time</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th>
         </tr></thead><tbody>${appts.map(a => `<tr>
           <td>${new Date(a.appointment_date).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' })}</td>
-          <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+          <td>${escapeHtml(a.client_name || '—')}<div class="mono">${escapeHtml(a.client_phone || '')}</div></td>
           <td>${escapeHtml(normalizeServiceName(a.service))}</td>
           <td>${fmtMoney(a.price)}</td>
           <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
@@ -211,7 +277,13 @@
       }
 
       // Low stock
-      const { data: low } = await sb.from('inventory_alerts').select('*').order('quantity');
+      let low = [];
+      try {
+        const result = await luxeDb.getInventoryPage({ alertsOnly: true, limit: 100 });
+        low = result.data;
+      } catch (err) {
+        console.error('Failed loading low stock alerts:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const lowEl = document.getElementById('lowStockList');
       if (!low || low.length === 0) {
@@ -228,10 +300,13 @@
       }
 
       // Open feedback
-      const { data: fb } = await sb.from('reviews')
-        .select('id, rating, comment, client_name, created_at')
-        .lt('rating', 5).eq('resolved', false)
-        .order('created_at', { ascending: false }).limit(10);
+      let fb = [];
+      try {
+        const result = await luxeDb.getReviewsPage({ resolved: false, limit: 100 });
+        fb = (result.data || []).filter(r => r.rating < 5).slice(0, 10);
+      } catch (err) {
+        console.error('Failed loading reviews:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const fbEl = document.getElementById('feedbackList');
       if (!fb || fb.length === 0) {
@@ -249,22 +324,23 @@
         document.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', async () => {
           const id = btn.dataset.resolve;
           btn.disabled = true;
-          const { error } = await sb.from('reviews').update({ resolved: true }).eq('id', id);
-          if (error) {
+          try {
+            await luxeDb.resolveReview(id);
+          } catch (error) {
             btn.disabled = false;
             return;
           }
-          notifyAdminDataChanged('reviews');
           await loadDashboard();
         }));
       }
 
-      const { data: upcoming } = await sb.from('appointments')
-        .select('id, service, appointment_date, price, status, client:clients(name, phone)')
-        .eq('status', 'booked')
-        .gte('appointment_date', new Date().toISOString())
-        .order('appointment_date')
-        .limit(5);
+      let upcoming = [];
+      try {
+        const result = await luxeDb.getAppointmentsPage({ status: 'booked', range: 'upcoming', limit: 5 });
+        upcoming = result.data;
+      } catch (err) {
+        console.error('Failed loading upcoming schedule:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const upcomingEl = document.getElementById('upcomingList');
       if (!upcoming || upcoming.length === 0) {
@@ -272,7 +348,7 @@
           <div class="empty">
             Nothing on the books yet.
             <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-              <a class="btn" href="/admin/appointments.html#add-appointment">Book an appointment</a>
+              <a class="btn" href="appointments.html#add-appointment">Book an appointment</a>
             </div>
           </div>`;
       } else {
@@ -280,25 +356,32 @@
           <th>When</th><th>Client</th><th>Service</th><th>Price</th><th>Status</th>
         </tr></thead><tbody>${upcoming.map(a => `<tr>
           <td>${fmtDateTime(a.appointment_date)}</td>
-          <td>${escapeHtml(a.client?.name || '—')}<div class="mono">${escapeHtml(a.client?.phone || '')}</div></td>
+          <td>${escapeHtml(a.client_name || '—')}<div class="mono">${escapeHtml(a.client_phone || '')}</div></td>
           <td>${escapeHtml(normalizeServiceName(a.service))}</td>
           <td>${fmtMoney(a.price)}</td>
           <td><span class="badge ${appointmentStatusBadgeClass(a.status)}">${escapeHtml(fmtAppointmentStatus(a.status))}</span></td>
         </tr>`).join('')}</tbody></table></div>`;
       }
 
-      const { data: followUpClients } = await sb.from('clients')
-        .select('id, name, phone, email, notes, appointments(status, appointment_date, service)')
-        .order('name');
+      let followUpClients = [];
+      try {
+        const result = await luxeDb.getClientsPage({ page: 1, limit: 1000 });
+        followUpClients = result.data;
+      } catch (err) {
+        console.error('Failed loading follow up clients:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const followUpEl = document.getElementById('followUpList');
       const dueClients = (followUpClients || [])
+        .filter(client => client.last_visit_date && client.last_completed_service)
         .map(client => ({
           ...client,
-          lastAppointment: getLastCompletedAppointment(client.appointments || []),
+          lastAppointment: {
+            appointment_date: client.last_visit_date,
+            service: client.last_completed_service
+          },
           followUpMeta: parseClientFollowUpMeta(client.notes),
         }))
-        .filter(client => client.lastAppointment?.appointment_date)
         .map(client => ({
           ...client,
           nextFollowUpDate: addDays(client.lastAppointment.appointment_date, getServicePreset(client.lastAppointment.service)?.followUpDays || 21),
@@ -338,13 +421,15 @@
       }
 
       // Today focus strip — rendered after all data is ready
-      renderTodayFocus(k, dueClients);
+      renderTodayFocus(k, dueClients, leadsCount);
 
-      const { data: recentTransactions } = await sb.from('transactions')
-        .select('id, amount, type, category, description, transaction_date, created_at')
-        .order('transaction_date', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(5);
+      let recentTransactions = [];
+      try {
+        const result = await luxeDb.getTransactionsPage({ page: 1, limit: 5 });
+        recentTransactions = result.data;
+      } catch (err) {
+        console.error('Failed loading recent transactions:', err);
+      }
       if (loadToken !== dashboardLoadToken) return;
       const txEl = document.getElementById('recentTransactions');
       if (!recentTransactions || recentTransactions.length === 0) {
@@ -352,7 +437,7 @@
           <div class="empty">
             No transactions yet.
             <div class="page-actions" style="justify-content:center; margin-top:0.9rem">
-              <a class="btn" href="/admin/transactions.html#add-transaction">Log a transaction</a>
+              <a class="btn" href="transactions.html#add-transaction">Log a transaction</a>
             </div>
           </div>`;
       } else {
@@ -384,7 +469,7 @@
       }, 80);
     }
 
-    function renderTodayFocus(k, dueClients) {
+    function renderTodayFocus(k, dueClients, leadsCount) {
       const el = document.getElementById('todayFocus');
       if (!el) return;
 
@@ -393,7 +478,31 @@
       const remaining = Math.max(0, totalToday - completedToday);
       const followUpCount = dueClients.length;
       const lowStockCount = k.low_stock_count ?? 0;
-      const allClear = remaining === 0 && followUpCount === 0 && lowStockCount === 0;
+      const unreadLeadsCount = leadsCount ?? 0;
+      const allClear = remaining === 0 && followUpCount === 0 && lowStockCount === 0 && unreadLeadsCount === 0;
+
+      // Toggle warning banners for easy visibility
+      const leadsAlertEl = document.getElementById('unreadAlertsBar');
+      const leadsCountEl = document.getElementById('unreadLeadsCount');
+      if (leadsAlertEl && leadsCountEl) {
+        if (unreadLeadsCount > 0) {
+          leadsCountEl.textContent = unreadLeadsCount;
+          leadsAlertEl.style.display = 'flex';
+        } else {
+          leadsAlertEl.style.display = 'none';
+        }
+      }
+
+      const stockAlertEl = document.getElementById('lowStockAlertsBar');
+      const stockCountEl = document.getElementById('lowStockItemsCount');
+      if (stockAlertEl && stockCountEl) {
+        if (lowStockCount > 0) {
+          stockCountEl.textContent = lowStockCount;
+          stockAlertEl.style.display = 'flex';
+        } else {
+          stockAlertEl.style.display = 'none';
+        }
+      }
 
       const rows = [];
 
@@ -402,6 +511,12 @@
       } else if (allClear) {
         rows.push({ dot: 'good', text: `All clear — visits done, clients taken care of.` });
       } else {
+        // Leads - show if new leads require follow-up
+        if (unreadLeadsCount > 0) {
+          const s = unreadLeadsCount === 1 ? 'inbound lead is' : 'inbound leads are';
+          rows.push({ dot: 'good', text: `${unreadLeadsCount} new ${s} waiting in pipeline.`, link: '/admin/leads.html', linkText: 'Check leads' });
+        }
+
         // Appointments — only show if there's something to act on
         if (totalToday > 0 && remaining > 0) {
           const s = remaining === 1 ? 'visit' : 'visits';
@@ -493,17 +608,20 @@
         last_contact_note: (note || '').trim() || null,
       };
 
-      const { error } = await sb.from('clients')
-        .update({ notes: buildClientNotesWithFollowUpMeta(client.lastVisibleNote, nextMeta) })
-        .eq('id', client.id);
-
-      if (error) {
-        console.error('[dashboard] markClientContacted failed:', error.message);
+      try {
+        await luxeDb.saveClient({
+          id: client.id,
+          name: client.name,
+          phone: client.phone,
+          email: client.email,
+          notes: buildClientNotesWithFollowUpMeta(client.lastVisibleNote, nextMeta)
+        });
+      } catch (err) {
+        console.error('[dashboard] markClientContacted failed:', err.message);
         if (trigger) trigger.disabled = false;
         return;
       }
 
-      notifyAdminDataChanged('clients');
       await loadDashboard();
     }
   </script>

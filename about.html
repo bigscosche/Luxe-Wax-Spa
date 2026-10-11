@@ -25,8 +25,8 @@
       "name": "Luxe Wax Spa",
       "url": "https://luxewaxspa.netlify.app",
       "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "125b S Main St f",
+      "@type": "PostalAddress",
+      "streetAddress": "125 S Main St, Suite Space",
         "addressLocality": "Newtown",
         "addressRegion": "CT",
         "postalCode": "06470",
@@ -35,108 +35,8 @@
     }
   }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Syne:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/theme.css" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --cream: #FFFBF0;
-      --sand: #EBE5D5;
-      --sand-dark: #D4CEBB;
-      --slate: #374558;
-      --slate-mid: #59637E;
-      --navy: #263242;
-      --brown: #5F553A;
-      --brown-light: #8A8070;
-      --white: #FFFFFF;
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Syne', sans-serif;
-      background: var(--cream);
-      color: var(--navy);
-      font-weight: 400;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── NAV ─── */
-    .nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      padding: 0 5vw;
-      background: transparent;
-      transition: background .35s, border-color .35s;
-      border-bottom: 1px solid transparent;
-    }
-    .nav.scrolled {
-      background: rgba(255,251,240,.97);
-      border-bottom-color: var(--sand-dark);
-      backdrop-filter: blur(14px);
-    }
-    .nav-inner {
-      display: flex; align-items: center; justify-content: space-between;
-      height: 68px; max-width: 1440px; margin: 0 auto;
-    }
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.1rem; font-weight: 400; font-style: italic;
-      color: var(--navy); text-decoration: none; letter-spacing: .03em;
-    }
-    .nav.dark-hero .nav-logo { color: var(--white); }
-    .nav.dark-hero.scrolled .nav-logo { color: var(--navy); }
-    .nav.dark-hero .nav-links a { color: rgba(255,255,255,.68); }
-    .nav.dark-hero .nav-links a:hover { color: var(--white); }
-    .nav.dark-hero.scrolled .nav-links a { color: var(--brown-light); }
-    .nav.dark-hero.scrolled .nav-links a:hover { color: var(--navy); }
-    .nav.dark-hero .nav-links a.active { color: var(--white); border-bottom-color: rgba(255,255,255,.5); }
-    .nav.dark-hero.scrolled .nav-links a.active { color: var(--navy); border-bottom-color: var(--navy); }
-    .nav-links { display: flex; gap: 2.8rem; list-style: none; align-items: center; }
-    .nav-links a {
-      color: var(--brown-light); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase;
-      font-weight: 500; transition: color .2s;
-    }
-    .nav-links a:hover { color: var(--navy); }
-    .nav-links a.active { color: var(--navy); border-bottom: 1px solid var(--navy); padding-bottom: 1px; }
-    .nav-book {
-      font-family: 'Cormorant Garamond', serif !important;
-      font-style: italic !important; font-size: 1rem !important;
-      color: var(--navy) !important; text-transform: none !important;
-      letter-spacing: 0 !important; font-weight: 400 !important;
-      border-bottom: 1px solid var(--navy) !important;
-      padding-bottom: 1px !important;
-    }
-    .nav.dark-hero .nav-book { color: var(--white) !important; border-bottom-color: rgba(255,255,255,.5) !important; }
-    .nav.dark-hero.scrolled .nav-book { color: var(--navy) !important; border-bottom-color: var(--navy) !important; }
-    .nav-hamburger { display: none; cursor: pointer; background: none; border: none; padding: 8px 6px; margin-right: -6px; }
-    .nav-hamburger span { display: block; width: 22px; height: 1px; background: var(--navy); margin: 6px 0; }
-    .nav.dark-hero .nav-hamburger span { background: var(--white); }
-    .nav.dark-hero.scrolled .nav-hamburger span { background: var(--navy); }
-
-    /* Mobile menu */
-    .mobile-menu {
-      display: none; position: fixed; top: 68px; left: 0; right: 0;
-      background: rgba(255,251,240,.98); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--sand-dark);
-      padding: 1.5rem 5vw 2.5rem; z-index: 190;
-    }
-    .mobile-menu.open { display: block; }
-    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; }
-    .mobile-menu ul li { border-bottom: 1px solid var(--sand); }
-    .mobile-menu ul a {
-      display: block; padding: 1rem 0;
-      color: var(--brown); text-decoration: none;
-      font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
-    }
-    .mobile-book {
-      display: inline-block; margin-top: 2rem;
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.1rem;
-      color: var(--navy); text-decoration: none;
-      border-bottom: 1px solid var(--navy); padding-bottom: 2px;
-    }
-
     /* ─── PAGE HERO ─── */
     .page-hero {
       background: var(--slate);
@@ -406,48 +306,10 @@
       padding: .38rem .9rem; border: 1px solid var(--sand-dark);
       font-size: .56rem; letter-spacing: .18em; text-transform: uppercase;
       color: var(--brown-light); font-weight: 500; text-decoration: none; display: inline-block;
+      transition: border-color .2s, color .2s;
     }
     a.town-pill:hover { border-color: var(--navy); color: var(--navy); }
     .town-pill.home { background: var(--slate); color: var(--cream); border-color: var(--slate); }
-
-    /* ─── FOOTER ─── */
-    footer { background: var(--slate); }
-    .footer-inner { max-width: 1440px; margin: 0 auto; padding: 4.5rem 6vw 2rem; }
-    .footer-grid {
-      display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
-      gap: 3rem; margin-bottom: 3rem;
-      padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .footer-brand {
-      font-family: 'Cormorant Garamond', serif;
-      font-style: italic; font-size: 1.2rem; font-weight: 400;
-      color: var(--cream); margin-bottom: .9rem; display: block;
-    }
-    .footer-tagline { font-size: .73rem; color: rgba(255,255,255,.32); line-height: 1.95; }
-    .footer-tagline a { color: rgba(255,255,255,.32); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.15); }
-    .footer-tagline a:hover { color: rgba(255,255,255,.55); }
-    .footer-col-title {
-      font-size: .54rem; letter-spacing: .32em; text-transform: uppercase;
-      color: rgba(255,255,255,.28); margin-bottom: 1.3rem; font-weight: 500; display: block;
-    }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: .7rem; }
-    .footer-links a {
-      color: rgba(255,255,255,.48); text-decoration: none; font-size: .76rem;
-      font-weight: 400; transition: color .2s;
-    }
-    .footer-links a:hover { color: var(--cream); }
-    .footer-info { font-size: .76rem; color: rgba(255,255,255,.38); line-height: 2.1; }
-    .footer-info a { color: rgba(255,255,255,.56); text-decoration: none; }
-    .footer-bottom {
-      text-align: center; padding-bottom: 2rem;
-      font-size: .54rem; color: rgba(255,255,255,.18); letter-spacing: .06em;
-    }
-    .footer-bottom a { color: rgba(255,255,255,.18); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.1); }
-    .footer-bottom a:hover { color: rgba(255,255,255,.32); }
-
-    /* ─── REVEAL ─── */
-    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 1000px) {
@@ -460,12 +322,8 @@
       .cta-inner { grid-template-columns: 1fr; gap: 3rem; }
       .first-visit-inner { grid-template-columns: 1fr; gap: 3rem; }
       .first-visit-header p { max-width: 100%; }
-      .footer-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 600px) {
-      .nav { padding: 0 1.5rem; }
-      .nav-links { display: none; }
-      .nav-hamburger { display: block; }
       .page-hero { min-height: 60vh; padding: 68px 1.5rem 0; }
       .page-hero-inner { padding-bottom: 3.5rem; }
       .pull-quote-inner { padding: 4rem 1.5rem; }
@@ -479,8 +337,6 @@
       .cta-inner { padding: 4rem 1.5rem; }
       .first-visit-inner { padding: 4rem 1.5rem; }
       .locations { padding: 3.5rem 1.5rem; }
-      .footer-inner { padding: 3rem 1.5rem 1.5rem; }
-      .footer-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -493,6 +349,7 @@
     <ul class="nav-links">
       <li><a href="services.html">Services &amp; Pricing</a></li>
       <li><a href="about.html" class="active">About</a></li>
+      <li><a href="review.html">Reviews</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="nav-book">Book Now ↗</a></li>
     </ul>
@@ -507,6 +364,7 @@
   <ul>
     <li><a href="services.html">Services &amp; Pricing</a></li>
     <li><a href="about.html">About</a></li>
+    <li><a href="review.html">Reviews</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
   <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="mobile-book">Book Now ↗</a>
@@ -552,7 +410,7 @@
         <div class="story-detail-item">8+ years specializing in waxing &amp; esthetics</div>
         <div class="story-detail-item">Born in Brazil · Living in the US for 26 years</div>
         <div class="story-detail-item">Mom of 3, grandma of 1</div>
-        <div class="story-detail-item">Private suite at 125b S Main St f, Newtown CT</div>
+        <div class="story-detail-item">Private suite at 125 S Main St, Suite Space, Newtown CT</div>
       </div>
       <div class="story-cta">
         <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="story-link">Book with Cida ↗</a>
@@ -695,7 +553,7 @@
         <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="cta-book-link">Book Now ↗</a>
         <a href="services.html" class="cta-services-link">View Full Menu &amp; Pricing →</a>
         <div class="cta-address">
-          125b S Main St f, Newtown, CT 06470<br>
+          125 S Main St, Suite Space, Newtown, CT 06470<br>
           <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a> &nbsp;·&nbsp;
           <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener">vagaro.com/luxewaxspa</a>
         </div>
@@ -756,7 +614,7 @@
       <div>
         <span class="footer-col-title">Visit</span>
         <p class="footer-info">
-          125b S Main St f<br>Newtown, CT 06470<br><br>
+          125 S Main St, Suite Space<br>Newtown, CT 06470<br><br>
           <a href="https://www.instagram.com/luxewaxspact" target="_blank" rel="noopener">@luxewaxspact</a><br>
           <a href="https://www.vagaro.com/luxewaxspa" target="_blank" rel="noopener">Book via Vagaro ↗</a>
         </p>
@@ -764,7 +622,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125b S Main St, Newtown CT 06470 &nbsp;·&nbsp; Waxing · Brows · Lashes · Esthetics &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
+    © 2026 Luxe Wax Spa LLC &nbsp;·&nbsp; 125 S Main St, Suite Space, Newtown CT 06470 &nbsp;·&nbsp; <a href="privacy.html">Privacy Policy</a> &nbsp;·&nbsp; <a href="terms.html">Terms of Service</a> &nbsp;·&nbsp; Serving <a href="service-areas/waxing-danbury-ct.html">Danbury</a>, <a href="service-areas/waxing-bethel-ct.html">Bethel</a>, <a href="service-areas/waxing-ridgefield-ct.html">Ridgefield</a> &amp; <a href="service-areas/waxing-monroe-ct.html">Monroe</a> CT &nbsp;·&nbsp; <a href="/owner/">Owner Login</a>
   </div>
 </footer>
 
@@ -794,6 +652,27 @@
     });
   }, { threshold: 0.1 });
   reveals.forEach(el => observer.observe(el));
+
+  // ─── Mobile Sticky Booking Bar ───
+  (function initMobileStickyBar() {
+    const bar = document.getElementById('mobileStickyBar');
+    if (!bar) return;
+    const onScroll = () => {
+      bar.classList.toggle('visible', window.scrollY > 200);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
 </script>
+
+<!-- MOBILE STICKY BOOKING BAR -->
+<div class="mobile-sticky-bar" id="mobileStickyBar">
+  <a href="review.html" class="sticky-bar-rating">
+    <span class="rating-stars">★★★★★</span>
+    <span class="rating-text">5.0 (50+ Reviews)</span>
+  </a>
+  <a href="https://www.vagaro.com/luxewaxspa/services" target="_blank" rel="noopener" class="sticky-bar-btn">Book Now ↗</a>
+</div>
+
 </body>
 </html>
